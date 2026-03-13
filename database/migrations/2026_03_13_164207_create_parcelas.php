@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('numero_parcela');
             $table->decimal('valor', 10, 2);
             $table->date('data_vencimento');
-            $table->enum('status', ['aberto', 'pago', 'atrasado', 'parcia'])->default('aberto');
+            $table->enum('status', ['aberto', 'pago', 'atrasado', 'parcial'])->default('aberto');
             $table->foreign('titulo_financeiro_id')->references('id')->on('titulo_financeiro')->onDelete('cascade');
             $table->timestamps();
         });
