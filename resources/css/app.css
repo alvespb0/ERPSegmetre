@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --erp-background: #fafafa;
+        --erp-foreground: #1a1a1a;
+        --erp-card: #ffffff;
+        --erp-card-border: rgba(0, 0, 0, 0.06);
+    }
+
+    body {
+        background-color: var(--erp-background);
+        color: var(--erp-foreground);
+    }
+}
