@@ -5,12 +5,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'ERP Clinic') }}</title>
+        <title>{{ config('app.name', 'MediGest') }}</title>
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:300,400,500,600&display=swap" rel="stylesheet" />
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @livewireStyles
     </head>
     <body class="font-sans antialiased bg-gray-50 text-gray-800">
         <div class="min-h-screen bg-[var(--erp-background)]">
@@ -25,8 +26,8 @@
                             <span class="text-xs font-bold tracking-wider text-white/90">ERP</span>
                         </div>
                         <div class="leading-none">
-                            <h1 class="text-sm font-semibold tracking-tight text-white/90">{{ config('app.name', 'OccHealth') }}</h1>
-                            <p class="text-[10px] text-white/50 mt-1 uppercase tracking-wide">Clinic</p>
+                            <h1 class="text-sm font-semibold tracking-tight text-white/90">{{ config('app.name', 'MediGest') }}</h1>
+                            <p class="text-[10px] text-white/50 mt-1 uppercase tracking-wide">MediGest</p>
                         </div>
                     </div>
                     <button
@@ -371,8 +372,87 @@
 
                 <main class="flex-1 px-4 pb-8 pt-6 sm:px-6 lg:px-8">
                     {{ $slot }}
+
+                    {{-- Toast container --}}
+                    <div
+                        x-data="{
+                            toasts: [],
+                            add(type, message) {
+                                if (!message) return;
+                                this.toasts.push({ id: Date.now() + Math.random(), type, message });
+                            }
+                        }"
+                        x-init="
+                            @if(session('toast-message'))
+                                add('message', '{{ addslashes(session('toast-message')) }}');
+                            @endif
+                            @if(session('toast-error'))
+                                add('error', '{{ addslashes(session('toast-error')) }}');
+                            @endif
+
+                            window.addEventListener('toast-message', e => {
+                                const detail = e.detail;
+                                const msg = typeof detail === 'string'
+                                    ? detail
+                                    : (detail?.message ?? (Array.isArray(detail) ? detail[0] : ''));
+                                add('message', msg);
+                            });
+
+                            window.addEventListener('toast-error', e => {
+                                const detail = e.detail;
+                                const msg = typeof detail === 'string'
+                                    ? detail
+                                    : (detail?.message ?? (Array.isArray(detail) ? detail[0] : ''));
+                                add('error', msg);
+                            });
+                        "
+                        class="pointer-events-none fixed inset-0 z-50 flex items-start justify-end px-4 py-6 sm:p-6"
+                    >
+                        <div class="flex w-full flex-col items-end space-y-3">
+                            <template x-for="toast in toasts" :key="toast.id">
+                                <div
+                                    x-data="{ open: true }"
+                                    x-show="open"
+                                    x-transition.opacity.duration.150ms
+                                    x-transition.scale.duration.150ms
+                                    x-init="setTimeout(() => open = false, 4000)"
+                                    class="pointer-events-auto w-full max-w-sm rounded-xl shadow-lg border px-4 py-3 flex items-start gap-3 text-sm"
+                                    :class="toast.type === 'error'
+                                        ? 'bg-red-50 border-red-200 text-red-800'
+                                        : 'bg-emerald-50 border-emerald-200 text-emerald-800'"
+                                >
+                                    <div class="mt-0.5">
+                                        <span
+                                            class="inline-flex h-6 w-6 items-center justify-center rounded-full"
+                                            :class="toast.type === 'error'
+                                                ? 'bg-red-100 text-red-700'
+                                                : 'bg-emerald-100 text-emerald-700'"
+                                        >
+                                            <template x-if="toast.type === 'error'">
+                                                <span>!</span>
+                                            </template>
+                                            <template x-if="toast.type !== 'error'">
+                                                <span>✓</span>
+                                            </template>
+                                        </span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="font-medium" x-text="toast.message"></p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        class="ml-2 text-xs text-gray-400 hover:text-gray-600"
+                                        @click="open = false"
+                                    >
+                                        fechar
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
                 </main>
             </div>
         </div>
+        @livewireScripts
     </body>
 </html>
