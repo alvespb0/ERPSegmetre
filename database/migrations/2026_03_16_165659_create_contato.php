@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('entidade', function (Blueprint $table) {
+        Schema::create('contato', function (Blueprint $table) {
             $table->id();
-            $table->string('razao_social');
-            $table->string('nome_fantasia')->nullable();
-            $table->string('cpf_cnpj')->unique();
-            $table->enum('tipo', ['pf', 'pj']);
-            $table->softDeletes();
+            $table->unsignedBigInteger('entidade_id');
+            $table->string('email')->nullable();
+            $table->string('telefone')->nullable();
+            $table->foreign('entidade_id')->references('id')->on('entidade')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('entidade');
+        Schema::dropIfExists('contato');
     }
 };
