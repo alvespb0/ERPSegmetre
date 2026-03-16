@@ -11,9 +11,8 @@ class EntidadeService
             'razao_social' => $dados['razao_social'],
             'nome_fantasia' => $dados['nome_fantasia'] ?? null,
             'cpf_cnpj' => $dados['cpf_cnpj'],
-            'email' => $dados['email'] ?? null,
-            'telefone' => $dados['telefone'] ?? null,
-            'tipo' => $dados['tipo']
+            'tipo' => $dados['tipo'],
+            'classficacao' => $dados['classificacao']
         ]);
     }
 
@@ -24,9 +23,8 @@ class EntidadeService
             'razao_social' => $dados['razao_social'],
             'nome_fantasia' => $dados['nome_fantasia'] ?? null,
             'cpf_cnpj' => $dados['cpf_cnpj'],
-            'email' => $dados['email'] ?? null,
-            'telefone' => $dados['telefone'] ?? null,
-            'tipo' => $dados['tipo']
+            'tipo' => $dados['tipo'],
+            'classficacao' => $dados['classificacao']
         ]);
     }
 
