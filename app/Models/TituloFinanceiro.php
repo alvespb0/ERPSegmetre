@@ -40,4 +40,8 @@ class TituloFinanceiro extends Model
     public function entidade(){
         return $this->belongsTo(Entidade::class, 'entidade_id');
     }
+    
+    public function parcelas(){
+        return $this->hasMany(Parcela::class);
+    }
 }

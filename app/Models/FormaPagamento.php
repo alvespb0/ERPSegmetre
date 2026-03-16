@@ -14,4 +14,8 @@ class FormaPagamento extends Model
     protected $fillable = [
         'nome' # unique
     ];
+
+    public function movimentacoes(){
+        return $this->hasMany(Movimentacao::class);
+    }
 }

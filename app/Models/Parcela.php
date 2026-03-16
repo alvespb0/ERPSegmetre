@@ -22,4 +22,8 @@ class Parcela extends Model
     public function titulo(){
         return $this->belongsTo(TituloFinanceiro::class, 'titulo_financeiro_id');
     }
+
+    public function movimentacoes(){
+        return $this->hasMany(Movimentacao::class);
+    }
 }

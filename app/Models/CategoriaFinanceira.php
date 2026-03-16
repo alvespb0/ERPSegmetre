@@ -16,4 +16,8 @@ class CategoriaFinanceira extends Model
         'descricao', # nullable
         'tipo', # enum [receita, despesa]
     ];
+
+    public function titulos(){
+        return $this->hasMany(TituloFinanceiro::class);
+    }
 }

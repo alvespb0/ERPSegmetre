@@ -15,4 +15,9 @@ class CentroCusto extends Model
         'nome', # unique
         'descricao', # nullable
     ];
+
+    public function titulos(){
+        return $this->hasMany(TituloFinanceiro::class);
+    }
+
 }

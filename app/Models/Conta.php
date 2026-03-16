@@ -27,4 +27,9 @@ class Conta extends Model
     public function tipoConta(){
         return $this->belongsTo(TipoConta::class, 'tipo_conta_id');
     }
+
+    public function titulos(){
+        return $this->hasMany(TituloFinanceiro::class);
+    }
+
 }

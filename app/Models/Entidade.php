@@ -19,4 +19,8 @@ class Entidade extends Model
         'telefone', # nullable
         'tipo', # enum [pf, pj]
     ];
+
+    public function titulos(){
+        return $this->hasMany(TituloFinanceiro::class);
+    }
 }

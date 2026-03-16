@@ -15,4 +15,8 @@ class Banco extends Model
         'nome',
         'cnpj', # unique
     ];
+
+    public function contas(){
+        return $this->hasMany(Conta::class);
+    }
 }
