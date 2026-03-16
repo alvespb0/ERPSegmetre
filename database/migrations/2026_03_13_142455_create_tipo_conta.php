@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tipo_conta', function (Blueprint $table) {
             $table->id();
             $table->string('descricao'); # crédito, corrente, poupanca, aplicacao, etc.
+            $table->softDeletes();
             $table->timestamps();
         });
     }

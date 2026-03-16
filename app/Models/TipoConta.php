@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Model;
+
+class TipoConta extends Model
+{
+    protected $table = 'tipo_conta';
+
+    use SoftDeletes;
+
+    protected $fillable = [
+        'descricao'
+    ];
+}
