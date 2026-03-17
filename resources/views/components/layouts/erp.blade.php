@@ -56,9 +56,9 @@
                             </a>
                         </li>
 
-                        <li class="pt-4 pb-1" x-data="{ openCat: {{ request()->routeIs('erp.entidades.*') ? 'true' : 'false' }} }">
+                        <li class="pt-4 pb-1" x-data="{ openCat: {{ request()->routeIs('erp.entidades.*') || request()->routeIs('erp.centro-custo.*') || request()->routeIs('erp.categoria-financeira.*') || request()->routeIs('erp.forma-pagamento.*') || request()->routeIs('erp.banco.*') || request()->routeIs('erp.tipo-conta.*') || request()->routeIs('erp.conta.*') || request()->routeIs('erp.usuarios.*') ? 'true' : 'false' }} }">
                             <div class="px-3 mb-2">
-                                <span class="text-[10px] font-semibold tracking-widest text-white/40 uppercase">Clientes / Fornecedores</span>
+                                <span class="text-[10px] font-semibold tracking-widest text-white/40 uppercase">Cadastros</span>
                             </div>
                             
                             <ul class="mt-1 space-y-1">
@@ -81,15 +81,7 @@
                                         </li>
                                     </ul>
                                 </li>
-                            </ul>
-                        </li>
 
-                        <li class="pt-4 pb-1" x-data="{ openCat: {{ request()->routeIs('erp.financeiro.*') ? 'true' : 'false' }} }">
-                            <div class="px-3 mb-2">
-                                <span class="text-[10px] font-semibold tracking-widest text-white/40 uppercase">Financeiro</span>
-                            </div>
-                            
-                            <ul class="mt-1 space-y-1">
                                 <li x-data="{ openSub: {{ request()->routeIs('erp.centro-custo.*') ? 'true' : 'false' }} }">
                                     <button @click="openSub = !openSub" class="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 text-white/60 hover:bg-white/5 hover:text-white">
                                         <div class="flex items-center gap-3">
@@ -128,31 +120,6 @@
                                             <a href="#" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.categoria-financeira.index') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Listar Categorias</a>
                                         </li>
                                     </ul>
-                                </li>
-
-                                <li>
-                                    <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.contas-receber.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
-                                        <span class="inline-flex h-5 w-5 items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 19h16M7 11l4 4 6-8" /></svg>
-                                        </span>
-                                        <span>Contas a Receber</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.contas-pagar.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
-                                        <span class="inline-flex h-5 w-5 items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5h16M7 13l4-4 6 8" /></svg>
-                                        </span>
-                                        <span>Contas a Pagar</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.titulos.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
-                                        <span class="inline-flex h-5 w-5 items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
-                                        </span>
-                                        <span>Lançamento de Títulos</span>
-                                    </a>
                                 </li>
 
                                 <li x-data="{ openSub: {{ request()->routeIs('erp.forma-pagamento.*') ? 'true' : 'false' }} }">
@@ -234,15 +201,7 @@
                                         </li>
                                     </ul>
                                 </li>
-                            </ul>
-                        </li>
 
-                        <li class="pt-4 pb-1" x-data="{ openCat: {{ request()->routeIs('erp.administracao.*') ? 'true' : 'false' }} }">
-                            <div class="px-3 mb-2">
-                                <span class="text-[10px] font-semibold tracking-widest text-white/40 uppercase">Administração</span>
-                            </div>
-                            
-                            <ul class="mt-1 space-y-1">
                                 <li x-data="{ openSub: {{ request()->routeIs('erp.usuarios.*') ? 'true' : 'false' }} }">
                                     <button @click="openSub = !openSub" class="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 text-white/60 hover:bg-white/5 hover:text-white">
                                         <div class="flex items-center gap-3">
@@ -262,6 +221,48 @@
                                         </li>
                                     </ul>
                                 </li>
+                            </ul>
+                        </li>
+
+                        <li class="pt-4 pb-1" x-data="{ openCat: {{ request()->routeIs('erp.financeiro.*') ? 'true' : 'false' }} }">
+                            <div class="px-3 mb-2">
+                                <span class="text-[10px] font-semibold tracking-widest text-white/40 uppercase">Financeiro</span>
+                            </div>
+                            
+                            <ul class="mt-1 space-y-1">
+                                <li>
+                                    <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.contas-receber.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
+                                        <span class="inline-flex h-5 w-5 items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 19h16M7 11l4 4 6-8" /></svg>
+                                        </span>
+                                        <span>Contas a Receber</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.contas-pagar.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
+                                        <span class="inline-flex h-5 w-5 items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5h16M7 13l4-4 6 8" /></svg>
+                                        </span>
+                                        <span>Contas a Pagar</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.titulos.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
+                                        <span class="inline-flex h-5 w-5 items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
+                                        </span>
+                                        <span>Lançamento de Títulos</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="pt-4 pb-1" x-data="{ openCat: {{ request()->routeIs('erp.administracao.*') ? 'true' : 'false' }} }">
+                            <div class="px-3 mb-2">
+                                <span class="text-[10px] font-semibold tracking-widest text-white/40 uppercase">Administração</span>
+                            </div>
+                            
+                            <ul class="mt-1 space-y-1">
 
                                 <li>
                                     <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.relatorios.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">

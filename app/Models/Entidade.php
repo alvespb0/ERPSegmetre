@@ -26,4 +26,8 @@ class Entidade extends Model
     public function contatos(){
         return $this->hasMany(Contato::class);
     }
+
+    public function enderecos(){
+        return $this->hasMany(EnderecoEntidade::class);
+    }
 }
