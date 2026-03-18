@@ -12,7 +12,7 @@ class EntidadeService
             'nome_fantasia' => $dados['nome_fantasia'] ?? null,
             'cpf_cnpj' => $dados['cpf_cnpj'],
             'tipo' => $dados['tipo'],
-            'classficacao' => $dados['classificacao']
+            'classificacao' => $dados['classificacao']
         ]);
     }
 

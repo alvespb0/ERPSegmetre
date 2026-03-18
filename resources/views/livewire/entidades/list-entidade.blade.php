@@ -66,10 +66,11 @@
                 <select
                     name="tipo"
                     class="flex-1 md:flex-none text-sm bg-transparent border-transparent focus:border-transparent focus:ring-0 outline-none text-gray-600 cursor-pointer py-2 px-30 rounded-lg hover:bg-gray-50 transition-colors"
+                    wire:model.live="tipo"
                 >
                     <option value="todos">Todos os tipos</option>
-                    <option value="Cliente">Clientes</option>
-                    <option value="Fornecedor">Fornecedores</option>
+                    <option value="cliente">Clientes</option>
+                    <option value="fornecedor">Fornecedores</option>
                 </select>
 
                 <div class="w-px h-4 bg-gray-200 mx-1"></div>
@@ -77,10 +78,11 @@
                 <select
                     name="status"
                     class="flex-1 md:flex-none text-sm bg-transparent border-transparent focus:border-transparent focus:ring-0 outline-none text-gray-600 cursor-pointer py-2 px-30 rounded-lg hover:bg-gray-50 transition-colors"
+                    wire:model.live="status"
                 >
                     <option value="todos">Todos os status</option>
-                    <option value="Ativo">Ativos</option>
-                    <option value="Inativo">Inativos</option>
+                    <option value="ativo">Ativos</option>
+                    <option value="inativo">Inativos</option>
                 </select>
             </div>
         </div>
@@ -143,7 +145,7 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] border">
-                                        Status
+                                        {{$entidade->deleted_at != null ? 'inativo' : 'ativo'}}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-right relative overflow-visible" x-data="{ open: false }">
