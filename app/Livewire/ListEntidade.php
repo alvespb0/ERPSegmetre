@@ -4,11 +4,13 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Entidade;
+use App\Services\EntidadeService;
 use Livewire\WithPagination;
+use Livewire\WithoutUrlPagination;
 
 class ListEntidade extends Component
 {
-    use WithPagination;
+    use WithPagination, WithoutUrlPagination;
 
     public $search = '';
     public $tipo = 'todos';
@@ -20,7 +22,19 @@ class ListEntidade extends Component
     }
 
     public function inativarEntidade($id){
-        
+        $service = new EntidadeService();
+
+        $service->destroy($id);
+
+        $this->dispatch('toast-message', 'Entidade inativada com sucesso!');
+    }
+
+    public function ativarEntidade($id){
+        $service = new EntidadeService();
+
+        $service->restore($id);
+
+        $this->dispatch('toast-message', 'Entidade reativada com sucesso!');
     }
 
     public function render(){
@@ -36,15 +50,17 @@ class ListEntidade extends Component
             $query->where('classificacao', $this->tipo);
         }
         
-        if($this->status != 'todos'){
-            $query->when($this->status == 'inativo', function($q){
-                $q->whereNotNull('deleted_at');
-            });
+        $query->when($this->status == 'inativo', function($q){
+            $q->onlyTrashed('deleted_at');
+        });
 
-            $query->when($this->status == 'ativo', function($q){
-                $q->whereNull('deleted_at');
-            });
-        }
+        $query->when($this->status == 'ativo', function($q){
+            $q->whereNull('deleted_at');
+        });
+        
+        $query->when($this->status == 'todos', function($q){
+            $q->withTrashed();
+        });
 
         $entidades = $query->orderBy('razao_social', 'asc')->paginate(10);
         

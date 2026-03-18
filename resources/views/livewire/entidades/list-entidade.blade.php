@@ -205,12 +205,21 @@
                                         </button>
 
                                         <div class="h-px bg-gray-100 my-1"></div>
-
-                                        <button
-                                            class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                                        >
-                                            Inativar
-                                        </button>
+                                        @if($entidade->deleted_at != null)
+                                            <button
+                                                class="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50"
+                                                wire:click.="ativarEntidade({{$entidade->id}})"
+                                            >
+                                                Ativar
+                                            </button>
+                                        @else
+                                            <button
+                                                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                                wire:click.="inativarEntidade({{$entidade->id}})"
+                                            >
+                                                Inativar
+                                            </button>
+                                        @endif
                                         </div>
                                     </div>
                                 </td>
@@ -219,16 +228,24 @@
                     </tbody>
                 </table>
             </div>
-
-            <div class="border-t border-gray-100 px-6 py-4 flex items-center justify-between text-xs text-gray-500">
+            <div class="border-t border-gray-100 px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
                 <p>
-                    COUNT DE PAGINATE
+                    Mostrando <span class="font-medium text-gray-900">{{ $entidades->firstItem() ?? 0 }}</span> 
+                    a <span class="font-medium text-gray-900">{{ $entidades->lastItem() ?? 0 }}</span> 
+                    de <span class="font-medium text-gray-900">{{ $entidades->total() }}</span> resultados
                 </p>
                 <div class="flex gap-2">
-                    <button class="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500 bg-gray-50" disabled>
+                    <button 
+                        @if($entidades->onFirstPage()) disabled @else wire:click="previousPage" @endif
+                        class="px-3 py-1.5 rounded-lg border border-gray-200 transition-colors {{ $entidades->onFirstPage() ? 'text-gray-400 bg-gray-50 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50' }}"
+                    >
                         Anterior
                     </button>
-                    <button class="px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 hover:bg-gray-50">
+
+                    <button 
+                        @if(!$entidades->hasMorePages()) disabled @else wire:click="nextPage" @endif
+                        class="px-3 py-1.5 rounded-lg border border-gray-200 transition-colors {{ !$entidades->hasMorePages() ? 'text-gray-400 bg-gray-50 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50' }}"
+                    >
                         Próximo
                     </button>
                 </div>

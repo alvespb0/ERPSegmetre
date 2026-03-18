@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\EntidadeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,13 +22,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('erp')->name('erp.')->group(function () {
         Route::view('accounts-receivable', 'erp.accounts-receivable')->name('accounts-receivable');
         Route::view('accounts-payable', 'erp.accounts-payable')->name('accounts-payable');
-
-        // Entidades (somente views / mock)
-        Route::view('entidades', 'erp.entidades.index')->name('entidades.index');
-        Route::view('entidades/nova', 'erp.entidades.create')->name('entidades.create');
     });
 
     Route::view('profile', 'profile')->name('profile');
+});
+
+Route::middleware(['auth', 'verified'])->controller(EntidadeController::class)->group(function(){
+    Route::get('erp/entidades/nova', 'showCreateView')->name('erp.entidades.create');
+    Route::get('erp/entidades', 'showListView')->name('erp.entidades.index');
 });
 
 Route::post('logout', function (Request $request) {
