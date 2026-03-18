@@ -20,18 +20,18 @@ class EnderecoEntidadeService
     }
 
     public function update(array $dados, $id){
-        $endereco = EnderecoEntidade::findOrFail($id);
-
-        return $endereco->update([
-            'entidade_id' => $dados['entidade_id'],
-            'rua' => $dados['rua'],
-            'bairro' => $dados['bairro'],
-            'numero' => $dados['numero'],
-            'cep' => $dados['cep'],
-            'cidade' => $dados['cidade'],
-            'uf' => $dados['uf'],
-            'complemento' => $dados['complemento'] ?? null
-        ]);
+        return EnderecoEntidade::updateOrCreate(
+            ['id' => $id],
+            [
+                'rua' => $dados['rua'],
+                'bairro' => $dados['bairro'],
+                'numero' => $dados['numero'],
+                'cep' => $dados['cep'],
+                'cidade' => $dados['cidade'],
+                'uf' => $dados['uf'],
+                'complemento' => $dados['complemento'] ?? null
+            ]
+        );
     }
 
     public function show(){

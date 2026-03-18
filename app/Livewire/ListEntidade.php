@@ -7,6 +7,7 @@ use App\Models\Entidade;
 use App\Services\EntidadeService;
 use Livewire\WithPagination;
 use Livewire\WithoutUrlPagination;
+use Illuminate\Support\Facades\Crypt;
 
 class ListEntidade extends Component
 {
@@ -35,6 +36,12 @@ class ListEntidade extends Component
         $service->restore($id);
 
         $this->dispatch('toast-message', 'Entidade reativada com sucesso!');
+    }
+
+    public function editarEntidade($id){
+        $idEnc = Crypt::encrypt($id);
+
+        redirect()->route('erp.entidades.update', $idEnc);
     }
 
     public function render(){

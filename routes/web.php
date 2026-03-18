@@ -30,6 +30,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified'])->controller(EntidadeController::class)->group(function(){
     Route::get('erp/entidades/nova', 'showCreateView')->name('erp.entidades.create');
     Route::get('erp/entidades', 'showListView')->name('erp.entidades.index');
+    Route::get('erp/entidades/editar/{idEnc}', 'showEditView')->name('erp.entidades.update');
 });
 
 Route::post('logout', function (Request $request) {

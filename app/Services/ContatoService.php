@@ -14,14 +14,14 @@ class ContatoService
         ]);
     }
 
-    public function update(array $dados, $id){
-        $contato = Contato::findOrFail($id);
-
-        return $contato->update([
-            'entidade_id' => $dados['entidade_id'],
-            'telefone' => $dados['telefone'],
-            'email' => $dados['email'],
-        ]);
+    public function updateOrCreate(array $dados, $id){
+        return Contato::updateOrCreate(
+            ['id' => $id],
+            [
+                'telefone' => $dados['telefone'],
+                'email' => $dados['email'],
+            ]
+        );
     }
 
     public function show(){

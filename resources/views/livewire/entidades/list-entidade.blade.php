@@ -194,6 +194,7 @@
                                         <div class="py-1">
                                         <button
                                             class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                            wire:click="editarEntidade({{$entidade->id}})"
                                         >
                                             Editar
                                         </button>
