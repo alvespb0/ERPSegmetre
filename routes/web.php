@@ -36,6 +36,7 @@ Route::middleware(['auth', 'verified'])->controller(EntidadeController::class)->
 
 Route::middleware(['auth', 'verified'])->controller(CentroCustoController::class)->group(function(){
     Route::get('erp/centro-custo/nova', 'showCreateView')->name('erp.centro-custo.create');
+    Route::get('erp/centro-custo', 'showListView')->name('erp.centro-custo.index');
 });
 
 Route::post('logout', function (Request $request) {
