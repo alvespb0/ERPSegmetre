@@ -1,4 +1,3 @@
 <x-layouts.erp>
-    <livewire:ListEntidade>
+    <livewire:Entidade.ListEntidade>
 </x-layouts.erp>
-

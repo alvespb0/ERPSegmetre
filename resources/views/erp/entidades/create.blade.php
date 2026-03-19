@@ -1,4 +1,4 @@
 <x-layouts.erp>
-    <livewire:CreateEntidade>
+    <livewire:Entidade.CreateEntidade>
 </x-layouts.erp>
 

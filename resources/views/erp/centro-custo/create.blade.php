@@ -1,3 +1,3 @@
 <x-layouts.erp>
-    <livewire:CreateCentroCusto>
+    <livewire:CentroCusto.CreateCentroCusto>
 </x-layouts.erp>

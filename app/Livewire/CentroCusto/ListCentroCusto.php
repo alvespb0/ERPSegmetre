@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\CentroCusto;
 
 use Livewire\Component;
 use App\Models\CentroCusto;
 use App\Services\CentroCustoService;
 use Livewire\WithPagination;
 use Livewire\WithoutUrlPagination;
+use Illuminate\Support\Facades\Crypt;
 
 class ListCentroCusto extends Component
 {
@@ -18,7 +19,7 @@ class ListCentroCusto extends Component
     public function updatingSearch(){
         $this->resetPage();
     }
-    
+
     public function inativarCentro($id){
         $service = new CentroCustoService();
 

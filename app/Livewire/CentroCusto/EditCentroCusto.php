@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\CentroCusto;
 
 use Livewire\Component;
 
