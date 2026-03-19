@@ -11,7 +11,7 @@ class CreateCentroCusto extends Component
 
     public function rules(){
         return [
-            'nome' => 'required|string|min:3|max:255',
+            'nome' => 'required|string|min:3|max:255|unique:centro_custo,nome',
             'descricao' => 'nullable|string|min:3|max:255'
         ];
     }
@@ -19,13 +19,14 @@ class CreateCentroCusto extends Component
     public function messages(){
         return [
             'nome.required' => 'O campo nome é obrigatório.',
-            'nome.string'   => 'O campo nome deve ser um texto.',
-            'nome.min'      => 'O nome deve ter no mínimo :min caracteres.',
-            'nome.max'      => 'O nome deve ter no máximo :max caracteres.',
+            'nome.string' => 'O campo nome deve ser um texto.',
+            'nome.unique' => 'Já existe um centro de custo cadastrado com esse nome',
+            'nome.min' => 'O nome deve ter no mínimo :min caracteres.',
+            'nome.max' => 'O nome deve ter no máximo :max caracteres.',
 
             'descricao.string' => 'A descrição deve ser um texto.',
-            'descricao.min'    => 'A descrição deve ter no mínimo :min caracteres.',
-            'descricao.max'    => 'A descrição deve ter no máximo :max caracteres.',
+            'descricao.min' => 'A descrição deve ter no mínimo :min caracteres.',
+            'descricao.max' => 'A descrição deve ter no máximo :max caracteres.',
         ];
     }
 

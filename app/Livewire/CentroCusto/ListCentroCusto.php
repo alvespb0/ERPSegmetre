@@ -36,6 +36,19 @@ class ListCentroCusto extends Component
         $this->dispatch('toast-message', 'Centro de Custo reativado com sucesso!');
     }
 
+    /**
+     * Criptografa o ID da centro custo selecionada e redireciona o usuário para a rota de edição.
+     *
+     * @param int|string $id ID do centro custo a ser editada.
+     * @return \Illuminate\Http\RedirectResponse Redirecionamento para a view de atualização.
+     */
+    public function editarCentro($id){
+        $idEnc = Crypt::encrypt($id);
+
+        redirect()->route('erp.centro-custo.update', $idEnc);
+    }
+    
+
     public function render(){
         $query = CentroCusto::query();
         

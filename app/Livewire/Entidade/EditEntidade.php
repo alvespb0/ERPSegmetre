@@ -35,7 +35,7 @@ class EditEntidade extends Component
      */
     public function mount($id){
         $this->id = $id;
-        $this->entidade = Entidade::findOrFail($id);
+        $this->entidade = Entidade::withTrashed()->findOrFail($id);
 
         $this->razaoSocial = $this->entidade->razao_social;
         $this->nomeFantasia = $this->entidade->nome_fantasia;
