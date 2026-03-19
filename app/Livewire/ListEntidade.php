@@ -9,6 +9,12 @@ use Livewire\WithPagination;
 use Livewire\WithoutUrlPagination;
 use Illuminate\Support\Facades\Crypt;
 
+/**
+ * Componente Livewire responsável pela listagem e gerenciamento de Entidades.
+ * * Este componente inclui funcionalidades de paginação (sem refletir na URL),
+ * filtros de busca por texto (Razão Social, Nome Fantasia ou CNPJ/CPF),
+ * filtro por tipo (classificação) e status (ativos, inativos ou todos usando Soft Deletes).
+ */
 class ListEntidade extends Component
 {
     use WithPagination, WithoutUrlPagination;
@@ -22,6 +28,13 @@ class ListEntidade extends Component
         $this->resetPage();
     }
 
+    /**
+     * Inativa uma entidade específica (Soft Delete) utilizando o serviço correspondente.
+     * Dispara um evento de toast ao concluir.
+     *
+     * @param int|string $id ID da entidade a ser inativada.
+     * @return void
+     */
     public function inativarEntidade($id){
         $service = new EntidadeService();
 
@@ -30,6 +43,13 @@ class ListEntidade extends Component
         $this->dispatch('toast-message', 'Entidade inativada com sucesso!');
     }
 
+    /**
+     * Reativa uma entidade que estava inativada utilizando o serviço correspondente.
+     * Dispara um evento de toast ao concluir.
+     *
+     * @param int|string $id ID da entidade a ser reativada.
+     * @return void
+     */
     public function ativarEntidade($id){
         $service = new EntidadeService();
 
@@ -38,12 +58,24 @@ class ListEntidade extends Component
         $this->dispatch('toast-message', 'Entidade reativada com sucesso!');
     }
 
+    /**
+     * Criptografa o ID da entidade selecionada e redireciona o usuário para a rota de edição.
+     *
+     * @param int|string $id ID da entidade a ser editada.
+     * @return \Illuminate\Http\RedirectResponse Redirecionamento para a view de atualização.
+     */
     public function editarEntidade($id){
         $idEnc = Crypt::encrypt($id);
 
         redirect()->route('erp.entidades.update', $idEnc);
     }
-
+    
+    /**
+     * Constrói a query de listagem aplicando os filtros de busca, tipo e status.
+     * Retorna a coleção paginada para a view.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render(){
         $query = Entidade::query();
         

@@ -8,6 +8,13 @@ use App\Services\EntidadeService;
 use App\Services\ContatoService;
 use App\Services\EnderecoEntidadeService;
 
+/**
+ * Componente Livewire responsável pela criação de uma nova Entidade.
+ * * Este componente gerencia o formulário de cadastro, incluindo validação,
+ * inserção dos dados principais (PF/PJ) e criação opcional de contatos 
+ * e endereços vinculados. Também possui integração com API externa para 
+ * preenchimento automático via CNPJ.
+ */
 class CreateEntidade extends Component
 {
     public $razaoSocial, $nomeFantasia, $tipo, $classificacao, $cnpjcpf;
@@ -17,6 +24,11 @@ class CreateEntidade extends Component
     public $showContato = false;
     public $showEndereco = false;
 
+    /**
+     * Retorna as mensagens de erro personalizadas para a validação.
+     *
+     * @return array<string, string>
+     */
     public function messages(){
         return [
             // Razão Social
@@ -53,6 +65,11 @@ class CreateEntidade extends Component
         ];
     }
 
+    /**
+     * Define as regras de validação aplicadas no momento da submissão.
+     *
+     * @return array<string, string>
+     */
     public function rules(){
         return [
             'razaoSocial' => 'required|string|max:255',
@@ -74,6 +91,14 @@ class CreateEntidade extends Component
         ];
     }
 
+    /**
+     * Processa a submissão do formulário.
+     * * Valida os dados e cria uma nova entidade utilizando o EntidadeService.
+     * Caso as opções de contato e/ou endereço estejam ativas, realiza
+     * a criação dos respectivos relacionamentos. Dispara um evento de toast ao concluir.
+     *
+     * @return void
+     */
     public function submit(){
         $data = $this->validate();
 
@@ -115,12 +140,20 @@ class CreateEntidade extends Component
                 'complemento' => $data['complemento']
             ];
 
-            $contato = $enderecoService->store($enderecoData);
+            $endereco = $enderecoService->store($enderecoData);
         }
         
         $this->dispatch('toast-message', 'Entidade salva com sucesso!');
     }
 
+    /**
+     * Realiza a consulta do CNPJ informado em uma API pública externa (OpenCNPJ).
+     * * Caso a requisição seja bem-sucedida, preenche automaticamente as 
+     * propriedades do componente com os dados retornados e dispara um 
+     * alerta de sucesso.
+     *
+     * @return void
+     */
     public function consultaCnpj(){
         if($this->cnpjcpf != null && strlen($this->cnpjcpf) == 18){
             $response = http::get('https://api.opencnpj.org/'.$this->cnpjcpf);
@@ -130,7 +163,7 @@ class CreateEntidade extends Component
                 $this->razaoSocial = $data['razao_social'] ?? '';
                 $this->nomeFantasia = $data['nome_fantasia'] ?? '';
                 $this->email = $data['email'] ?? '';
-                $this->telefone = '('. $data['telefones'][0]['ddd'] . ') ' . $data['telefones'][0]['numero'] ?? '';
+                $this->telefone = isset($data['telefones'][0]) ? '('. $data['telefones'][0]['ddd'] . ') ' . $data['telefones'][0]['numero'] : ''; 
                 $this->rua = $data['logradouro'] ?? '';
                 $this->numero = $data['numero'] ?? 'n/a';
                 $this->complemento = $data['complemento'] ?? 'n/a';
@@ -146,6 +179,11 @@ class CreateEntidade extends Component
         }
     }
 
+    /**
+     * Renderiza a view do componente Livewire.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         return view('livewire.entidades.create-entidade');

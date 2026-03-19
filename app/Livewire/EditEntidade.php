@@ -4,11 +4,18 @@ namespace App\Livewire;
 
 use Livewire\Component;
 use App\Models\Entidade;
+use Illuminate\Support\Facades\Http;
 use App\Services\EntidadeService;
 use App\Services\ContatoService;
 use App\Services\EnderecoEntidadeService;
 use Illuminate\Validation\Rule; 
 
+/**
+ * Componente Livewire responsável pela edição dos dados de uma Entidade.
+ * * Este componente gerencia a atualização de informações básicas (PF/PJ), 
+ * bem como a criação, atualização ou exclusão de contatos e endereços vinculados.
+ * Também possui integração com API externa para preenchimento automático via CNPJ.
+ */
 class EditEntidade extends Component
 {
     public $id;
@@ -19,6 +26,13 @@ class EditEntidade extends Component
     public $showContato;
     public $showEndereco;
 
+    /**
+     * Inicializa o componente carregando os dados da entidade existente.
+     *
+     * @param int|string $id O ID da entidade a ser editada.
+     * @return void
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException Se a entidade não for encontrada.
+     */
     public function mount($id){
         $this->id = $id;
         $this->entidade = Entidade::findOrFail($id);
@@ -46,32 +60,29 @@ class EditEntidade extends Component
         $this->showEndereco = $this->entidade->enderecos->first() ? true : false;
     }
 
+    /**
+     * Retorna as mensagens de erro personalizadas para a validação.
+     *
+     * @return array<string, string>
+     */
     public function messages(){
         return [
             // Razão Social
             'razaoSocial.required' => 'O campo Razão Social / Nome Completo é obrigatório.',
             'razaoSocial.max' => 'A Razão Social não pode ter mais que 255 caracteres.',
-
-            // Nome Fantasia
             'nomeFantasia.max' => 'O Nome Fantasia não pode ter mais que 255 caracteres.',
-
-            // CNPJ/CPF
             'cnpjcpf.required' => 'O campo CNPJ / CPF é obrigatório.',
             'cnpjcpf.max' => 'O CNPJ / CPF não pode ter mais que 18 caracteres.',
             'cnpjcpf.unique' => 'Este CNPJ ou CPF já está cadastrado no sistema.',
-
-            // Tipo e Classificação
             'tipo.required' => 'Por favor, selecione o Tipo (Pessoa Física ou Jurídica).',
             'tipo.in' => 'O Tipo selecionado é inválido.',
             'classificacao.required' => 'Por favor, selecione a Classificação (Cliente ou Fornecedor).',
             'classificacao.in' => 'A Classificação selecionada é inválida.',
 
-            // Contato
             'email.email' => 'Informe um endereço de e-mail válido.',
             'email.max' => 'O e-mail não pode ter mais que 255 caracteres.',
             'telefone.max' => 'O telefone não pode ter mais que 20 caracteres.',
 
-            // Endereço
             'rua.max' => 'O campo Rua não pode ter mais que 255 caracteres.',
             'numero.max' => 'O campo Número não pode ter mais que 20 caracteres.',
             'complemento.max' => 'O Complemento não pode ter mais que 255 caracteres.',
@@ -82,6 +93,11 @@ class EditEntidade extends Component
         ];
     }
 
+    /**
+     * Define as regras de validação aplicadas no momento da submissão.
+     *
+     * @return array<string, mixed>
+     */
     public function rules(){
         return [
             'razaoSocial' => 'required|string|max:255',
@@ -108,6 +124,15 @@ class EditEntidade extends Component
         ];
     }
 
+    /**
+     * Processa a submissão do formulário.
+     * * Valida os dados, atualiza a entidade principal e gerencia a criação,
+     * atualização ou deleção dos relacionamentos (contatos e endereços) 
+     * com base no estado das variáveis $showContato e $showEndereco.
+     * Dispara um evento de toast ao concluir.
+     *
+     * @return void
+     */
     public function submit(){
         $data = $this->validate();
 
@@ -121,17 +146,18 @@ class EditEntidade extends Component
 
         $entidadeService = new EntidadeService();
 
-        $entidade = $entidadeService->update($entidadeData, $this->entidade->id);
+        $entidadeModel = $entidadeService->update($entidadeData, $this->entidade->id);
 
         if($this->showContato === true){
             $contatoService = new ContatoService();
 
             $contatoData = [
+                'entidade_id' => $this->entidade->id,
                 'telefone' => $data['telefone'],
                 'email' => $data['email']
             ];
 
-            $contato = $contatoService->updateOrCreate($contatoData, $this->entidade->contatos->first()->id);
+            $contato = $contatoService->updateOrCreate($contatoData, $this->entidade->contatos->first()->id ?? null);
         }else{
             $this->entidade->contatos()->delete();
         }
@@ -140,6 +166,7 @@ class EditEntidade extends Component
             $enderecoService = new EnderecoEntidadeService();
 
             $enderecoData = [
+                'entidade_id' => $this->entidade->id,
                 'rua' => $data['rua'],
                 'bairro' => $data['bairro'],
                 'numero' => $data['numero'],
@@ -149,7 +176,7 @@ class EditEntidade extends Component
                 'complemento' => $data['complemento']
             ];
 
-            $contato = $enderecoService->updateOrCreate($enderecoData, $this->entidade->enderecos->first()->id);
+            $endereco = $enderecoService->updateOrCreate($enderecoData, $this->entidade->enderecos->first()->id ?? null);
         }else{
             $this->entidade->enderecos()->delete();
         }
@@ -157,6 +184,44 @@ class EditEntidade extends Component
         $this->dispatch('toast-message', 'Entidade atualizada com sucesso!');
     }
 
+    /**
+     * Realiza a consulta do CNPJ informado em uma API pública externa (OpenCNPJ).
+     * * Caso a requisição seja bem-sucedida, preenche automaticamente as 
+     * propriedades do componente com os dados retornados pela API e 
+     * dispara um alerta de sucesso.
+     *
+     * @return void
+     */
+    public function consultaCnpj(){
+        if($this->cnpjcpf != null && strlen($this->cnpjcpf) == 18){
+            $response = http::get('https://api.opencnpj.org/'.$this->cnpjcpf);
+            
+            if($response->ok()){
+                $data = $response->json();
+                $this->razaoSocial = $data['razao_social'] ?? '';
+                $this->nomeFantasia = $data['nome_fantasia'] ?? '';
+                $this->email = $data['email'] ?? '';
+                $this->telefone = isset($data['telefones'][0]) ? '('. $data['telefones'][0]['ddd'] . ') ' . $data['telefones'][0]['numero'] : '';
+                $this->rua = $data['logradouro'] ?? '';
+                $this->numero = $data['numero'] ?? 'n/a';
+                $this->complemento = $data['complemento'] ?? 'n/a';
+                $this->bairro = $data['bairro'] ?? '';
+                $this->cep = $data['cep'] ?? '';
+                $this->cidade = $data['municipio'] ?? '';
+                $this->uf = $data['uf'] ?? '';
+
+                $this->dispatch('toast-message', 'CNPJ resgatado com sucesso');
+            }else{
+                $this->dispatch('toast-error', 'Erro ao resgatar CNPJ');
+            }
+        }
+    }
+
+    /**
+     * Renderiza a view do componente Livewire.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render()
     {
         return view('livewire.entidades.edit-entidade');

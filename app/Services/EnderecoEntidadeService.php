@@ -19,10 +19,11 @@ class EnderecoEntidadeService
         ]);
     }
 
-    public function update(array $dados, $id){
+    public function updateOrCreate(array $dados, $id = null){
         return EnderecoEntidade::updateOrCreate(
             ['id' => $id],
             [
+                'entidade_id' => $dados['entidade_id'],
                 'rua' => $dados['rua'],
                 'bairro' => $dados['bairro'],
                 'numero' => $dados['numero'],

@@ -14,10 +14,11 @@ class ContatoService
         ]);
     }
 
-    public function updateOrCreate(array $dados, $id){
+    public function updateOrCreate(array $dados, $id = null){
         return Contato::updateOrCreate(
             ['id' => $id],
             [
+                'entidade_id' => $dados['entidade_id'],
                 'telefone' => $dados['telefone'],
                 'email' => $dados['email'],
             ]
