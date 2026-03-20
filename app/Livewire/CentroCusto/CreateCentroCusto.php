@@ -42,7 +42,7 @@ class CreateCentroCusto extends Component
 
         $service->store($cenCustoData);
     
-        $this->dispatch('toast-message', 'Entidade salva com sucesso!');
+        $this->dispatch('toast-message', 'Centro de Custo salva com sucesso!');
     }
     
     public function render(){

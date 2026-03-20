@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\EntidadeController;
 use App\Http\Controllers\CentroCustoController;
+use App\Http\Controllers\CategoriaFinanceiraController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,11 @@ Route::middleware(['auth', 'verified'])->controller(CentroCustoController::class
     Route::get('erp/centro-custo/nova', 'showCreateView')->name('erp.centro-custo.create');
     Route::get('erp/centro-custo', 'showListView')->name('erp.centro-custo.index');
     Route::get('erp/centro-custo/editar/{idEnc}', 'showEditView')->name('erp.centro-custo.update');
+});
+
+Route::middleware(['auth', 'verified'])->controller(CategoriaFinanceiraController::class)->group(function(){
+    Route::get('erp/categoria-financeira/nova', 'showCreateView')->name('erp.categoria-financeira.create');
+    Route::get('erp/categoria-financeira', )->name('erp.categoria-financeira.index');
 
 });
 
