@@ -11,7 +11,7 @@
                 </p>
             </div>
             <a
-                href=""
+                href="{{route('erp.forma-pagamento.index')}}"
                 class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
                 Listar Formas de Pagamento

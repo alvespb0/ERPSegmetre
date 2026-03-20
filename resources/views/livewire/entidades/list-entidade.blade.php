@@ -104,7 +104,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        @foreach($entidades as $entidade)
+                        @forelse($entidades as $entidade)
                             <tr class="hover:bg-gray-50">
                                 <td class="px-4 py-3 font-medium text-gray-900">
                                     {{$entidade->id}}
@@ -225,7 +225,13 @@
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="9" class="px-4 py-8 text-center text-sm text-gray-500">
+                                    Nenhuma forma de pagamento encontrada.
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

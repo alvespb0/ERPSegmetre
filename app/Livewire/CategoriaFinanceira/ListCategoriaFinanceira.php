@@ -34,6 +34,10 @@ class ListCategoriaFinanceira extends Component
 
     }
 
+    public function updatingSearch(){
+        $this->resetPage();
+    }
+
     public function editarCategoria($id){
         $idEnc = Crypt::encrypt($id);
 
