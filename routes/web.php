@@ -43,8 +43,8 @@ Route::middleware(['auth', 'verified'])->controller(CentroCustoController::class
 
 Route::middleware(['auth', 'verified'])->controller(CategoriaFinanceiraController::class)->group(function(){
     Route::get('erp/categoria-financeira/nova', 'showCreateView')->name('erp.categoria-financeira.create');
-    Route::get('erp/categoria-financeira', )->name('erp.categoria-financeira.index');
-
+    Route::get('erp/categoria-financeira', 'showListView')->name('erp.categoria-financeira.index');
+    Route::get('erp/categoria-financeira/editar/{idEnc}', 'showEditView')->name('erp.categoria-financeira.update');
 });
 
 Route::post('logout', function (Request $request) {
