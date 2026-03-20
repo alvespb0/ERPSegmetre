@@ -134,7 +134,7 @@
                                     </button>
                                     <ul x-show="openSub" x-collapse class="mt-1 space-y-1 pl-11">
                                         <li>
-                                            <a href="#" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.forma-pagamento.create') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Nova Forma de Pag.</a>
+                                            <a href="{{route('erp.forma-pagamento.create')}}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.forma-pagamento.create') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Nova Forma de Pag.</a>
                                         </li>
                                         <li>
                                             <a href="#" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.forma-pagamento.index') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Listar Formas de Pag.</a>
