@@ -5,9 +5,9 @@
                 <p class="text-xs font-semibold tracking-wide text-gray-400 uppercase mb-1">
                     Cadastros &middot; Formas de Pagamento
                 </p>
-                <h1 class="text-2xl font-semibold text-gray-900">Nova Forma de Pagamento</h1>
+                <h1 class="text-2xl font-semibold text-gray-900">Editar Forma de Pagamento</h1>
                 <p class="text-sm text-gray-500 mt-1">
-                    Registre as formas de pagamento para melhor organização e categorização financeira da clínica.
+                    Edite a forma de pagamento
                 </p>
             </div>
             <a

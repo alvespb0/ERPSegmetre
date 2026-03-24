@@ -36,6 +36,13 @@ class ListFormaPagamento extends Component
         $this->dispatch('toast-message', 'Forma de pagamento reativada com sucesso');
     }
 
+    public function editarFormaPagamento($id){
+        $idEnc = Crypt::encrypt($id);
+
+        redirect()->route('erp.forma-pagamento.update', $idEnc);
+    }
+
+
     public function render()
     {
         $query = FormaPagamento::query();
