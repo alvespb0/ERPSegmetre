@@ -3,19 +3,19 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <p class="text-xs font-semibold tracking-wide text-gray-400 uppercase mb-1">
-                    CADASTROS &middot; CATEGORIAS FINANCEIRAS
+                    CADASTROS &middot; BANCO
                 </p>
-                <h1 class="text-2xl font-semibold text-gray-900">Categorias Financeiras</h1>
+                <h1 class="text-2xl font-semibold text-gray-900">Bancos</h1>
                 <p class="text-sm text-gray-500 mt-1">
-                    Visualize e gerencie as categorias de receitas e despesas.
+                    Visualize e gerencie as instituições financeiras cadastradas.
                 </p>
             </div>
             <div class="flex flex-wrap gap-2">
                 <a
-                    href="{{ route('erp.categoria-financeira.create') }}"
+                    href="{{ route('erp.banco.create') }}"
                     class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90"
                 >
-                    Nova Categoria
+                    Novo Banco
                 </a>
                 <button
                     type="button"
@@ -28,25 +28,25 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <p class="text-sm text-gray-600 mb-2">Ativas</p>
+                <p class="text-sm text-gray-600 mb-2">Ativos</p>
                 <p class="text-3xl font-semibold text-gray-900">
-                    {{ $categorias->whereNull('deleted_at')->count() }}
+                    {{ $bancos->whereNull('deleted_at')->count() }}
                 </p>
-                <p class="text-xs text-gray-500 mt-2">Categorias em uso atualmente.</p>
+                <p class="text-xs text-gray-500 mt-2">Bancos em uso atualmente.</p>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <p class="text-sm text-gray-600 mb-2">Inativas</p>
+                <p class="text-sm text-gray-600 mb-2">Inativos</p>
                 <p class="text-3xl font-semibold text-gray-900">
-                    {{ $categorias->whereNotNull('deleted_at')->count() }}
+                    {{ $bancos->whereNotNull('deleted_at')->count() }}
                 </p>
-                <p class="text-xs text-gray-500 mt-2">Categorias desativadas.</p>
+                <p class="text-xs text-gray-500 mt-2">Bancos desativados.</p>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <p class="text-sm text-gray-600 mb-2">Total de Registros</p>
                 <p class="text-3xl font-semibold text-emerald-600">
-                    {{ $categorias->count() }}
+                    {{ $bancos->count() }}
                 </p>
-                <p class="text-xs text-gray-500 mt-2">Soma de todas as categorias cadastradas.</p>
+                <p class="text-xs text-gray-500 mt-2">Soma de todos cadastrados.</p>
             </div>
         </div>
 
@@ -55,34 +55,22 @@
                 <input
                     type="text"
                     wire:model.live.debounce.500ms="search"
-                    placeholder="Buscar por nome ou código..."
+                    placeholder="Buscar por nome, código ou documento..."
                     class="w-full pl-10 pr-4 py-2 text-sm bg-transparent border-transparent focus:border-transparent focus:ring-0 outline-none text-gray-700 placeholder-gray-400"
                 >
             </div>
 
             <div class="hidden md:block w-px h-6 bg-gray-200 mx-2"></div>
 
-            <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-2 border-t md:border-t-0 border-gray-100 pt-2 md:pt-0 mt-2 md:mt-0">
-                <select
-                    name="tipo"
-                    class="flex-1 md:flex-none text-sm bg-transparent border-transparent focus:border-transparent focus:ring-0 outline-none text-gray-600 cursor-pointer py-2 px-30 rounded-lg hover:bg-gray-50 transition-colors"
-                    wire:model.live="tipo"
-                >
-                    <option value="todos">Todos os tipos</option>
-                    <option value="receita">Receitas</option>
-                    <option value="despesa">Despesas</option>
-                </select>
-
-                <div class="hidden md:block w-px h-4 bg-gray-200 mx-1"></div>
-
+            <div class="flex flex-row items-center w-full md:w-auto gap-1 border-t md:border-t-0 border-gray-100 pt-2 md:pt-0 mt-2 md:mt-0">
                 <select
                     name="status"
                     class="flex-1 md:flex-none text-sm bg-transparent border-transparent focus:border-transparent focus:ring-0 outline-none text-gray-600 cursor-pointer py-2 px-30 rounded-lg hover:bg-gray-50 transition-colors"
                     wire:model.live="status"
                 >
                     <option value="todos">Todos os status</option>
-                    <option value="ativo">Ativas</option>
-                    <option value="inativo">Inativas</option>
+                    <option value="ativo">Ativos</option>
+                    <option value="inativo">Inativos</option>
                 </select>
             </div>
         </div>
@@ -92,36 +80,30 @@
                 <table class="min-w-full text-sm">
                     <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
                         <tr>
-                            <th class="px-4 py-3 text-left">Código</th>
-                            <th class="px-4 py-3 text-left">Nome</th>
-                            <th class="px-4 py-3 text-left">Tipo</th>
-                            <th class="px-4 py-3 text-left">Descrição</th>
-                            <th class="px-4 py-3 text-left">Status</th>
-                            <th class="px-4 py-3 text-right">Ações</th>
+                            <th class="px-4 py-3 text-left w-24">Código</th>
+                            <th class="px-4 py-3 text-left w-full">Nome do Banco</th>
+                            <th class="px-4 py-3 text-left w-48">CNPJ / CPF</th>
+                            <th class="px-4 py-3 text-left w-32">Status</th>
+                            <th class="px-4 py-3 text-right w-28">Ações</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
-                        @forelse($categorias as $categoria)
-                            <tr class="hover:bg-gray-50">
+                        @forelse($bancos as $banco)
+                            <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-4 py-3 font-medium text-gray-900">
-                                    {{ $categoria->id }}
+                                    {{ $banco->id }}
                                 </td>
                                 <td class="px-4 py-3">
                                     <span class="text-gray-900 font-medium">
-                                        {{ $categoria->nome }}
+                                        {{ $banco->nome }}
                                     </span>
+                                </td>
+                                <td class="px-4 py-3 text-gray-600 whitespace-nowrap font-mono text-xs">
+                                    {{ $banco->cnpj ?: '--' }}
                                 </td>
                                 <td class="px-4 py-3">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] border">
-                                        {{ $categoria->tipo }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 text-gray-500 truncate max-w-[200px]" title="{{ $categoria->descricao }}">
-                                    {{ $categoria->descricao ?? '--' }}
-                                </td>
-                                <td class="px-4 py-3">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] border">
-                                        {{ $categoria->deleted_at != null ? 'Inativa' : 'Ativa' }}
+                                        {{ $banco->deleted_at != null ? 'Inativo' : 'Ativo' }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-right relative overflow-visible" x-data="{ open: false }">
@@ -156,31 +138,24 @@
                                         <div class="py-1">
                                             <button
                                                 class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
-                                                wire:click="editarCategoria({{ $categoria->id }})"
+                                                wire:click="editarBanco({{ $banco->id }})"
                                             >
                                                 Editar
-                                            </button>
-
-                                            <button
-                                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
-                                                wire:click="verLancamentos({{ $categoria->id }})"
-                                            >
-                                                Ver Lançamentos
                                             </button>
                                             
                                             <div class="h-px bg-gray-100 my-1"></div>
                                             
-                                            @if($categoria->deleted_at != null)
+                                            @if($banco->deleted_at != null)
                                                 <button
                                                     class="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50"
-                                                    wire:click="ativarCategoria({{ $categoria->id }})"
+                                                    wire:click="ativarBanco({{ $banco->id }})"
                                                 >
                                                     Ativar
                                                 </button>
                                             @else
                                                 <button
                                                     class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                                                    wire:click="inativarCategoria({{ $categoria->id }})"
+                                                    wire:click="inativarBanco({{ $banco->id }})"
                                                 >
                                                     Inativar
                                                 </button>
@@ -191,8 +166,8 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500">
-                                    Nenhuma categoria financeira encontrada.
+                                <td colspan="5" class="px-4 py-8 text-center text-sm text-gray-500">
+                                    Nenhum banco encontrado.
                                 </td>
                             </tr>
                         @endforelse
@@ -202,21 +177,21 @@
 
             <div class="border-t border-gray-100 px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
                 <p>
-                    Mostrando <span class="font-medium text-gray-900">{{ $categorias->firstItem() ?? 0 }}</span> 
-                    a <span class="font-medium text-gray-900">{{ $categorias->lastItem() ?? 0 }}</span> 
-                    de <span class="font-medium text-gray-900">{{ $categorias->total() }}</span> resultados
+                    Mostrando <span class="font-medium text-gray-900">{{ $bancos->firstItem() ?? 0 }}</span> 
+                    a <span class="font-medium text-gray-900">{{ $bancos->lastItem() ?? 0 }}</span> 
+                    de <span class="font-medium text-gray-900">{{ $bancos->total() }}</span> resultados
                 </p>
                 <div class="flex gap-2">
                     <button 
-                        @if($categorias->onFirstPage()) disabled @else wire:click="previousPage" @endif
-                        class="px-3 py-1.5 rounded-lg border border-gray-200 transition-colors {{ $categorias->onFirstPage() ? 'text-gray-400 bg-gray-50 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50' }}"
+                        @if($bancos->onFirstPage()) disabled @else wire:click="previousPage" @endif
+                        class="px-3 py-1.5 rounded-lg border border-gray-200 transition-colors {{ $bancos->onFirstPage() ? 'text-gray-400 bg-gray-50 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50' }}"
                     >
                         Anterior
                     </button>
 
                     <button 
-                        @if(!$categorias->hasMorePages()) disabled @else wire:click="nextPage" @endif
-                        class="px-3 py-1.5 rounded-lg border border-gray-200 transition-colors {{ !$categorias->hasMorePages() ? 'text-gray-400 bg-gray-50 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50' }}"
+                        @if(!$bancos->hasMorePages()) disabled @else wire:click="nextPage" @endif
+                        class="px-3 py-1.5 rounded-lg border border-gray-200 transition-colors {{ !$bancos->hasMorePages() ? 'text-gray-400 bg-gray-50 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50' }}"
                     >
                         Próximo
                     </button>

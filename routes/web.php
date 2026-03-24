@@ -7,6 +7,7 @@ use App\Http\Controllers\EntidadeController;
 use App\Http\Controllers\CentroCustoController;
 use App\Http\Controllers\CategoriaFinanceiraController;
 use App\Http\Controllers\FormaPagamentoController;
+use App\Http\Controllers\BancoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,6 +47,12 @@ Route::middleware(['auth', 'verified'])->controller(CategoriaFinanceiraControlle
     Route::get('erp/categoria-financeira/nova', 'showCreateView')->name('erp.categoria-financeira.create');
     Route::get('erp/categoria-financeira', 'showListView')->name('erp.categoria-financeira.index');
     Route::get('erp/categoria-financeira/editar/{idEnc}', 'showEditView')->name('erp.categoria-financeira.update');
+});
+
+Route::middleware(['auth', 'verified'])->controller(BancoController::class)->group(function(){
+    Route::get('erp/banco/nova', 'showCreateView')->name('erp.banco.create');
+    Route::get('erp/banco', 'showListView')->name('erp.banco.index');
+    Route::get('erp/banco/editar/{idEnc}', 'showEditView')->name('erp.banco.update');
 });
 
 Route::middleware(['auth', 'verified'])->controller(FormaPagamentoController::class)->group(function(){

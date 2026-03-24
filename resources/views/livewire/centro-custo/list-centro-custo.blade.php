@@ -3,7 +3,7 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <p class="text-xs font-semibold tracking-wide text-gray-400 uppercase mb-1">
-                    Cadastros &middot; Centros de Custo
+                    Cadastros &middot; CENTROS DE CUSTO
                 </p>
                 <h1 class="text-2xl font-semibold text-gray-900">Centros de Custo</h1>
                 <p class="text-sm text-gray-500 mt-1">
