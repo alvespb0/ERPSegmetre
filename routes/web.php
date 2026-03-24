@@ -9,6 +9,8 @@ use App\Http\Controllers\CategoriaFinanceiraController;
 use App\Http\Controllers\FormaPagamentoController;
 use App\Http\Controllers\BancoController;
 use App\Http\Controllers\TipoContaController;
+use App\Http\Controllers\ContaController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -65,6 +67,12 @@ Route::middleware(['auth', 'verified'])->controller(TipoContaController::class)-
     Route::get('erp/tipo-conta/nova', 'showCreateView')->name('erp.tipo-conta.create');
     Route::get('erp/tipo-conta', 'showListView')->name('erp.tipo-conta.index');
     Route::get('erp/tipo-conta/editar/{idEnc}', 'showEditView')->name('erp.tipo-conta.update');
+});
+
+Route::middleware(['auth', 'verified'])->controller(ContaController::class)->group(function(){
+    Route::get('erp/conta/nova', 'showCreateView')->name('erp.conta.create');
+    Route::get('erp/conta', 'showListView')->name('erp.conta.index');
+    Route::get('erp/conta/editar/{idEnc}', 'showEditView')->name('erp.conta.update');
 });
 
 Route::post('logout', function (Request $request) {
