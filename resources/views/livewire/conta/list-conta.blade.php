@@ -65,10 +65,10 @@
             <div class="flex flex-col md:flex-row items-center w-full md:w-auto gap-2 border-t md:border-t-0 border-gray-100 pt-2 md:pt-0 mt-2 md:mt-0">
                 <select
                     name="modalidade"
-                    class="flex-1 md:flex-none text-sm bg-transparent border-transparent focus:border-transparent focus:ring-0 outline-none text-gray-600 cursor-pointer py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors"
-                    wire:model.live="modalidadeFiltro"
+                    class="flex-1 md:flex-none text-sm bg-transparent border-transparent focus:border-transparent focus:ring-0 outline-none text-gray-600 cursor-pointer py-2 px-30 rounded-lg hover:bg-gray-50 transition-colors"
+                    wire:model.live="modalidade"
                 >
-                    <option value="todos">Todas modalidades</option>
+                    <option value="todas">Todas as modalidades</option>
                     <option value="pj">Pessoa Jurídica (PJ)</option>
                     <option value="pf">Pessoa Física (PF)</option>
                 </select>
@@ -77,7 +77,7 @@
 
                 <select
                     name="status"
-                    class="flex-1 md:flex-none text-sm bg-transparent border-transparent focus:border-transparent focus:ring-0 outline-none text-gray-600 cursor-pointer py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors"
+                    class="flex-1 md:flex-none text-sm bg-transparent border-transparent focus:border-transparent focus:ring-0 outline-none text-gray-600 cursor-pointer py-2 px-30 rounded-lg hover:bg-gray-50 transition-colors"
                     wire:model.live="status"
                 >
                     <option value="todos">Todos os status</option>

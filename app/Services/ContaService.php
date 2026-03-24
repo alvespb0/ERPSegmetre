@@ -21,7 +21,7 @@ class ContaService
         $conta = Conta::findOrFail($id);
 
         return $conta->update([
-            'banco_id' => $dado['banco_id'],
+            'banco_id' => $dados['banco_id'],
             'tipo_conta_id' => $dados['tipo_conta_id'],
             'nome' => $dados['nome'],
             'modalidade' => $dados['modalidade'],
