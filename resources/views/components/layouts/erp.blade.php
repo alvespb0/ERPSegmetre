@@ -224,26 +224,66 @@
                             </ul>
                         </li>
 
-                        <li class="pt-4 pb-1" x-data="{ openCat: {{ request()->routeIs('erp.financeiro.*') ? 'true' : 'false' }} }">
+                        <li class="pt-4 pb-1" x-data="{ openCat: {{ request()->routeIs('erp.financeiro.*') || request()->routeIs('erp.contas-receber.*') || request()->routeIs('erp.contas-pagar.*') || request()->routeIs('erp.titulos.*') ? 'true' : 'false' }} }">
                             <div class="px-3 mb-2">
                                 <span class="text-[10px] font-semibold tracking-widest text-white/40 uppercase">Financeiro</span>
                             </div>
                             
                             <ul class="mt-1 space-y-1">
+                                <li x-data="{ openSub: {{ request()->routeIs('erp.receitas.*') || request()->routeIs('erp.contas-receber.*') ? 'true' : 'false' }} }">
+                                    <button type="button" @click="openSub = !openSub" class="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 text-white/60 hover:bg-white/5 hover:text-white">
+                                        <div class="flex items-center gap-3">
+                                            <span class="inline-flex h-5 w-5 items-center justify-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 19h16M7 11l4 4 6-8" /></svg>
+                                            </span>
+                                            <span>Receitas</span>
+                                        </div>
+                                        <svg :class="openSub ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-3 w-3 opacity-50 transition-transform duration-200"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                    </button>
+                                    <ul x-show="openSub" x-collapse class="mt-1 space-y-1 pl-11">
+                                        <li>
+                                            <a href="#" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.receitas.create') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Nova Receita</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.contas-receber.*') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Contas a Receber</a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <li x-data="{ openSub: {{ request()->routeIs('erp.despesas.*') || request()->routeIs('erp.contas-pagar.*') ? 'true' : 'false' }} }">
+                                    <button type="button" @click="openSub = !openSub" class="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 text-white/60 hover:bg-white/5 hover:text-white">
+                                        <div class="flex items-center gap-3">
+                                            <span class="inline-flex h-5 w-5 items-center justify-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5h16M7 13l4-4 6 8" /></svg>
+                                            </span>
+                                            <span>Despesas</span>
+                                        </div>
+                                        <svg :class="openSub ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-3 w-3 opacity-50 transition-transform duration-200"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                    </button>
+                                    <ul x-show="openSub" x-collapse class="mt-1 space-y-1 pl-11">
+                                        <li>
+                                            <a href="#" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.despesas.create') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Nova Despesa</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.contas-pagar.*') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Contas a Pagar</a>
+                                        </li>
+                                    </ul>
+                                </li>
+
                                 <li>
-                                    <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.contas-receber.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
+                                    <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.fluxo-caixa.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
                                         <span class="inline-flex h-5 w-5 items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 19h16M7 11l4 4 6-8" /></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>
                                         </span>
-                                        <span>Contas a Receber</span>
+                                        <span>Fluxo de caixa</span>
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.contas-pagar.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
+                                    <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.movimentacoes.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
                                         <span class="inline-flex h-5 w-5 items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 5h16M7 13l4-4 6 8" /></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
                                         </span>
-                                        <span>Contas a Pagar</span>
+                                        <span>Movimentações</span>
                                     </a>
                                 </li>
                                 <li>

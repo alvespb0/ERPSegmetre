@@ -10,6 +10,7 @@ use App\Http\Controllers\FormaPagamentoController;
 use App\Http\Controllers\BancoController;
 use App\Http\Controllers\TipoContaController;
 use App\Http\Controllers\ContaController;
+use App\Http\Controllers\TituloController;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,6 +74,10 @@ Route::middleware(['auth', 'verified'])->controller(ContaController::class)->gro
     Route::get('erp/conta/nova', 'showCreateView')->name('erp.conta.create');
     Route::get('erp/conta', 'showListView')->name('erp.conta.index');
     Route::get('erp/conta/editar/{idEnc}', 'showEditView')->name('erp.conta.update');
+});
+
+Route::middleware(['auth', 'verified'])->controller(TituloController::class)->group(function(){
+    Route::get('erp/titulo/receita/nova', 'showCreateViewReceita')->name('erp.titulo.create');
 });
 
 Route::post('logout', function (Request $request) {
