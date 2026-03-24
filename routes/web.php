@@ -8,7 +8,7 @@ use App\Http\Controllers\CentroCustoController;
 use App\Http\Controllers\CategoriaFinanceiraController;
 use App\Http\Controllers\FormaPagamentoController;
 use App\Http\Controllers\BancoController;
-
+use App\Http\Controllers\TipoContaController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -59,6 +59,12 @@ Route::middleware(['auth', 'verified'])->controller(FormaPagamentoController::cl
     Route::get('erp/forma-pagamento/nova', 'showCreateView')->name('erp.forma-pagamento.create');
     Route::get('erp/forma-pagamento', 'showListView')->name('erp.forma-pagamento.index');
     Route::get('erp/forma-pagamento/editar/{idEnc}', 'showEditView')->name('erp.forma-pagamento.update');
+});
+
+Route::middleware(['auth', 'verified'])->controller(TipoContaController::class)->group(function(){
+    Route::get('erp/tipo-conta/nova', 'showCreateView')->name('erp.tipo-conta.create');
+    Route::get('erp/tipo-conta', 'showListView')->name('erp.tipo-conta.index');
+    Route::get('erp/tipo-conta/editar/{idEnc}', 'showEditView')->name('erp.tipo-conta.update');
 });
 
 Route::post('logout', function (Request $request) {

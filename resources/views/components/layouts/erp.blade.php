@@ -174,10 +174,10 @@
                                     </button>
                                     <ul x-show="openSub" x-collapse class="mt-1 space-y-1 pl-11">
                                         <li>
-                                            <a href="#" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.tipo-conta.create') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Novo Tipo de Conta</a>
+                                            <a href="{{route('erp.tipo-conta.create')}}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.tipo-conta.create') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Novo Tipo de Conta</a>
                                         </li>
                                         <li>
-                                            <a href="#" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.tipo-conta.index') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Listar Tipos de Conta</a>
+                                            <a href="{{route('erp.tipo-conta.index')}}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.tipo-conta.index') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Listar Tipos de Conta</a>
                                         </li>
                                     </ul>
                                 </li>
