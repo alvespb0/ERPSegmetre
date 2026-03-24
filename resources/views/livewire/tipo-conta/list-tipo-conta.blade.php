@@ -80,16 +80,16 @@
                 <table class="min-w-full text-sm">
                     <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
                         <tr>
-                            <th class="px-4 py-3 text-left w-24">Código</th>
-                            <th class="px-4 py-3 text-left w-full">Descrição</th>
-                            <th class="px-4 py-3 text-left w-32">Status</th>
-                            <th class="px-4 py-3 text-right w-28">Ações</th>
+                            <th class="px-4 py-3 text-left">Código</th>
+                            <th class="px-4 py-3 text-left">Descrição</th>
+                            <th class="px-4 py-3 text-left">Status</th>
+                            <th class="px-4 py-3 text-right">Ações</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse($tiposConta as $tipo)
                             <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-4 py-3 font-medium text-gray-900">
+                                <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
                                     {{ $tipo->id }}
                                 </td>
                                 <td class="px-4 py-3">
@@ -97,12 +97,12 @@
                                         {{ $tipo->descricao }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3">
+                                <td class="px-4 py-3 whitespace-nowrap">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] border">
                                         {{ $tipo->deleted_at != null ? 'Inativo' : 'Ativo' }}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 text-right relative overflow-visible" x-data="{ open: false }">
+                                <td class="px-4 py-3 text-right relative overflow-visible whitespace-nowrap" x-data="{ open: false }">
                                     <button
                                         @click="open = !open"
                                         @keydown.escape.window="open = false"

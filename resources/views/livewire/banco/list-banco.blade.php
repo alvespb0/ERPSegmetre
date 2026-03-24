@@ -80,11 +80,11 @@
                 <table class="min-w-full text-sm">
                     <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
                         <tr>
-                            <th class="px-4 py-3 text-left w-24">Código</th>
-                            <th class="px-4 py-3 text-left w-full">Nome do Banco</th>
-                            <th class="px-4 py-3 text-left w-48">CNPJ / CPF</th>
-                            <th class="px-4 py-3 text-left w-32">Status</th>
-                            <th class="px-4 py-3 text-right w-28">Ações</th>
+                            <th class="px-4 py-3 text-left">Código</th>
+                            <th class="px-4 py-3 text-left">Nome do Banco</th>
+                            <th class="px-4 py-3 text-left">CNPJ / CPF</th>
+                            <th class="px-4 py-3 text-left">Status</th>
+                            <th class="px-4 py-3 text-right">Ações</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
