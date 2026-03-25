@@ -80,7 +80,7 @@ class CreateTitulo extends Component
         ];
     }
 
-    public function submit(){
+    public function submit(TituloFinanceiroService $tituloService, ParcelaService $parcelaService){
         try{
             $data = $this->validate();
 
@@ -94,20 +94,19 @@ class CreateTitulo extends Component
                 'numero_nf' => $data['numero_nf'] ?? null,
                 'valor_total' => $data['valor_total'],
                 'data_emissao' => $data['data_emissao'] ?? Carbon::today(),
-                'data_vencimento' => $data['data_vencimento'],
                 'tipo' => 'receber',
                 'status' => $data['status'],
             ];
 
-            $this->gerarParcelas(); #executado novamente para caso o usuário tenha trocado o valor_total e não tenha clicado em gerar parcelas.
+            if(!empty($this->parcelas)){
+                $this->parcelas = [];
+            }
 
-            DB::transaction(function () use ($tituloData) {
-                $tituloService = new TituloFinanceiroService();
+            $this->parcelas = $parcelaService->gerarParcelas($data['valor_total'], $data['quantidade_parcelas'], $data['data_vencimento']); #executado novamente para caso o usuário tenha trocado o valor_total e não tenha clicado em gerar parcelas.
 
+            DB::transaction(function () use ($tituloData, $parcelaService, $tituloService) {
                 $titulo = $tituloService->store($tituloData); 
                 
-                $parcelaService = new ParcelaService();
-
                 foreach($this->parcelas as $index => $parcela){
                     $parcelaService->store([
                         'titulo_financeiro_id' => $titulo->id,
@@ -119,14 +118,14 @@ class CreateTitulo extends Component
                 }
             });
 
-            $this->dispatch('toast-success', 'Título e parcelas criados com sucesso!');
+            $this->dispatch('toast-message', 'Título e parcelas criados com sucesso!');
         }catch(\Exception $e){
             $this->dispatch('toast-error', 'Erro ao salvar título financeiro.');
             \Log::error("Erro ao salvar título: ", ['erro' => $e->getMessage()]);
         }
     }
 
-    public function gerarParcelas(){
+    public function gerarParcelas(ParcelaService $service){
         try{
             if(!$this->valor_total || !$this->quantidade_parcelas || !$this->data_vencimento){
                 $this->dispatch('toast-error', 'Verifique se os campos Valor Total, Parcelas e 1º Vencimento estão preenchidos.');
@@ -134,28 +133,9 @@ class CreateTitulo extends Component
                 if(!empty($this->parcelas)){
                     $this->parcelas = [];
                 }
-                $valorTotalCentavos = (int) round($this->valor_total * 100);
-                $valorParcelaCentavos = intdiv($valorTotalCentavos, $this->quantidade_parcelas);
-
-                $somaCentavos = $valorParcelaCentavos * $this->quantidade_parcelas;
-                $diferencaCentavos = $valorTotalCentavos - $somaCentavos;
-
-                for($i = 0; $i < $this->quantidade_parcelas; $i++){
-                    $valorCentavos = $valorParcelaCentavos;
-
-                    if ($i === $this->quantidade_parcelas - 1) {
-                        $valorCentavos += $diferencaCentavos;
-                    }
-
-                    $data = Carbon::parse($this->data_vencimento);
-                    $this->parcelas[] = [
-                        'parcela_numero' => $i + 1,
-                        'data_vencimento_parcela' => $data->addMonths($i)->format('Y-m-d'),
-                        'valor_parcela' => $valorCentavos/100,
-                    ];
-                }
-                $this->dispatch('toast-message', 'Parcelas geradas com successo!');
+                $this->parcelas = $service->gerarParcelas($this->valor_total, $this->quantidade_parcelas, $this->data_vencimento);
             }
+            $this->dispatch('toast-message', 'Projeção de parcelas geradas com successo!');
         }catch(\Exception $e){
             $this->dispatch('toast-error', 'Erro ao gerar parcelas.');
             \Log::error("Erro ao gerar parcelas: ", ['erro' => $e->getMessage()]);

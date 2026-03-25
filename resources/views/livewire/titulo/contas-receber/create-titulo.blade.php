@@ -187,7 +187,6 @@
                             </button>
                         </div>
                     </div>
-
                     @if(!empty($parcelas))
                         <div class="mt-6 pt-4 border-t border-gray-100">
                             <div class="flex items-center justify-between mb-3">

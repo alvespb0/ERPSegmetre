@@ -17,7 +17,6 @@ class TituloFinanceiroService
             'numero_nf' => $dados['numero_nf'] ?? null,
             'valor_total' => $dados['valor_total'],
             'data_emissao' => $dados['data_emissao'],
-            'data_vencimento' => $dados['data_vencimento'],
             'tipo' => $dados['tipo'],
             'status' => $dados['status'],
         ]);
@@ -36,7 +35,6 @@ class TituloFinanceiroService
             'numero_nf' => $dados['numero_nf'] ?? null,
             'valor_total' => $dados['valor_total'],
             'data_emissao' => $dados['data_emissao'],
-            'data_vencimento' => $dados['data_vencimento'],
             'tipo' => $dados['tipo'],
             'status' => $dados['status'],
         ]);

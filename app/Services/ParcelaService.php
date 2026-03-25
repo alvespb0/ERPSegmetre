@@ -3,6 +3,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
 use App\Models\Parcela;
+use Carbon\Carbon;
 
 class ParcelaService
 {
@@ -46,5 +47,31 @@ class ParcelaService
 
     public function restore($id){
         return Parcela::withTrashed()->find($id)->restore();
+    }
+
+    public function gerarParcelas($valor_total, $quantidade_parcelas, $data_vencimento){
+        $parcelas = [];
+        $valorTotalCentavos = (int) round($valor_total * 100);
+        $valorParcelaCentavos = intdiv($valorTotalCentavos, $quantidade_parcelas);
+
+        $somaCentavos = $valorParcelaCentavos * $quantidade_parcelas;
+        $diferencaCentavos = $valorTotalCentavos - $somaCentavos;
+
+        for($i = 0; $i < $quantidade_parcelas; $i++){
+            $valorCentavos = $valorParcelaCentavos;
+
+            if ($i === $quantidade_parcelas - 1) {
+                $valorCentavos += $diferencaCentavos;
+            }
+
+            $data = Carbon::parse($data_vencimento);
+            $parcelas[] = [
+                'parcela_numero' => $i + 1,
+                'data_vencimento_parcela' => $data->addMonths($i)->format('Y-m-d'),
+                'valor_parcela' => $valorCentavos/100,
+            ];
+        }
+
+        return $parcelas;
     }
 }

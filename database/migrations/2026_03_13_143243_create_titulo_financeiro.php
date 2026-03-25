@@ -22,7 +22,6 @@ return new class extends Migration
             $table->string('numero_nf')->nullable(); # pode não aplicar
             $table->decimal('valor_total', 10, 2);
             $table->date('data_emissao');
-            $table->date('data_vencimento');
             $table->enum('tipo', ['pagar', 'receber']);
             $table->enum('status', ['aberto', 'parcial', 'pago', 'cancelado'])->default('aberto');
             $table->softDeletes();

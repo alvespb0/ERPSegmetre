@@ -21,7 +21,6 @@ class TituloFinanceiro extends Model
         'numero_nf', # nullable
         'valor_total',
         'data_emissao',
-        'data_vencimento',
         'tipo', # enum [pagar, receber]
         'status', # enum [aberto, parcial, pago, cancelado] 
     ];
