@@ -32,6 +32,10 @@ class EntidadeService
         return Entidade::orderBy('razao_social', 'asc')->get();
     }
 
+    public function showClientes(){
+        return Entidade::whereIn('classificacao', ['cliente','ambos'])->orderBy('razao_social', 'asc')->get();
+    }
+
     public function destroy($id){
         $entidade = Entidade::findOrFail($id);
 

@@ -8,7 +8,7 @@ class ParcelaService
 {
     public function store(array $dados){
         return Parcela::create([
-            'titulo_financeiro_id' => $dado['titulo_financeiro_id'] ?? null,
+            'titulo_financeiro_id' => $dados['titulo_financeiro_id'] ?? null,
             'numero_parcela' => $dados['numero_parcela'],
             'valor' => $dados['valor'],
             'data_vencimento' => $dados['data_vencimento'],
@@ -20,7 +20,7 @@ class ParcelaService
         $parcela = Parcela::findOrFail($id);
 
         return $parcela->update([
-            'titulo_financeiro_id' => $dado['titulo_financeiro_id'] ?? null,
+            'titulo_financeiro_id' => $dados['titulo_financeiro_id'] ?? null,
             'numero_parcela' => $dados['numero_parcela'],
             'valor' => $dados['valor'],
             'data_vencimento' => $dados['data_vencimento'],

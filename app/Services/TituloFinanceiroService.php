@@ -8,7 +8,7 @@ class TituloFinanceiroService
 {
     public function store(array $dados){
         return TituloFinanceiro::create([
-            'centro_custo_id' => $dado['centro_custo_id'] ?? null,
+            'centro_custo_id' => $dados['centro_custo_id'] ?? null,
             'categoria_financeira_id' => $dados['categoria_financeira_id'] ?? null,
             'conta_id' => $dados['conta_id'] ?? null,
             'entidade_id' => $dados['entidade_id'],
@@ -16,6 +16,7 @@ class TituloFinanceiroService
             'observacoes' => $dados['observacoes'] ?? null,
             'numero_nf' => $dados['numero_nf'] ?? null,
             'valor_total' => $dados['valor_total'],
+            'data_emissao' => $dados['data_emissao'],
             'data_vencimento' => $dados['data_vencimento'],
             'tipo' => $dados['tipo'],
             'status' => $dados['status'],
@@ -26,7 +27,7 @@ class TituloFinanceiroService
         $titulo = TituloFinanceiro::findOrFail($id);
 
         return $titulo->update([
-            'centro_custo_id' => $dado['centro_custo_id'] ?? null,
+            'centro_custo_id' => $dados['centro_custo_id'] ?? null,
             'categoria_financeira_id' => $dados['categoria_financeira_id'] ?? null,
             'conta_id' => $dados['conta_id'] ?? null,
             'entidade_id' => $dados['entidade_id'],
@@ -34,6 +35,7 @@ class TituloFinanceiroService
             'observacoes' => $dados['observacoes'] ?? null,
             'numero_nf' => $dados['numero_nf'] ?? null,
             'valor_total' => $dados['valor_total'],
+            'data_emissao' => $dados['data_emissao'],
             'data_vencimento' => $dados['data_vencimento'],
             'tipo' => $dados['tipo'],
             'status' => $dados['status'],
