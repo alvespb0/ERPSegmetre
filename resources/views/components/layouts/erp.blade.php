@@ -245,7 +245,7 @@
                                             <a href="{{route('erp.receita.create')}}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.receita.create') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Nova Receita</a>
                                         </li>
                                         <li>
-                                            <a href="#" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.contas-receber.*') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Contas a Receber</a>
+                                            <a href="{{route('erp.receita.index')}}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.receita.index') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Contas a Receber</a>
                                         </li>
                                     </ul>
                                 </li>

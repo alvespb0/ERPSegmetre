@@ -11,4 +11,8 @@ class TituloController extends Controller
         return view('erp.titulo.conta-receber.create');
     }
 
+    public function showListViewReceita(){
+        return view('erp.titulo.conta-receber.index');
+    }
+
 }
