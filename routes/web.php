@@ -77,7 +77,7 @@ Route::middleware(['auth', 'verified'])->controller(ContaController::class)->gro
 });
 
 Route::middleware(['auth', 'verified'])->controller(TituloController::class)->group(function(){
-    Route::get('erp/titulo/receita/nova', 'showCreateViewReceita')->name('erp.titulo.create');
+    Route::get('erp/titulo/receita/nova', 'showCreateViewReceita')->name('erp.receita.create');
 });
 
 Route::post('logout', function (Request $request) {

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('nome_fantasia')->nullable();
             $table->string('cpf_cnpj')->unique();
             $table->enum('tipo', ['pf', 'pj']);
-            $table->enum('classificacao', ['fornecedor', 'cliente']);
+            $table->enum('classificacao', ['fornecedor', 'cliente', 'ambos']);
             $table->softDeletes();
             $table->timestamps();
         });

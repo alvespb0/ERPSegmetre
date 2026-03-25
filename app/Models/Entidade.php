@@ -16,7 +16,7 @@ class Entidade extends Model
         'nome_fantasia', # nullable
         'cpf_cnpj', # unique
         'tipo', # enum [pf, pj]
-        'classificacao', #enum [cliente, fornecedor]
+        'classificacao', #enum [cliente, fornecedor, ambos]
     ];
 
     public function titulos(){

@@ -52,7 +52,7 @@
                             >
                                 <option value="">Selecione o cliente...</option>
                                 @foreach($entidades as $entidade)
-                                    <option value="{{ $entidade->id }}">{{ $entidade->razaoSocial ?? $entidade->nomeFantasia }}</option>
+                                    <option value="{{ $entidade->id }}">{{ $entidade->razao_social ?? $entidade->nome_fantasia }} - {{ $entidade->cpf_cnpj }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -68,7 +68,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Status <span class="text-red-500">*</span></label>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Status
                             <select
                                 class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]"
                                 wire:model="status"
@@ -126,7 +126,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Parcelas</label>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Parcelas <span class="text-red-500">*</span></label></label>
                             <select
                                 class="w-full max-h-48 overflow-y-auto rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]"
                                 wire:model.live="quantidade_parcelas"
@@ -169,23 +169,43 @@
                                 class="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-gray-100 border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors focus:ring-2 focus:ring-gray-200 focus:outline-none whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <span wire:loading.remove wire:target="gerarParcelas" class="inline-flex items-center gap-1.5">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                    </svg>
                                     Gerar Parcelas
                                 </span>
 
                                 <span wire:loading wire:target="gerarParcelas" class="inline-flex items-center gap-1.5">
-                                    <svg class="animate-spin h-3.5 w-3.5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
                                     Gerando...
                                 </span>
                             </button>
                         </div>
                     </div>
+
+                    @if(!empty($parcelas))
+                        <div class="mt-6 pt-4 border-t border-gray-100">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-semibold text-gray-900">Parcelas</h3>
+                                <span class="text-xs text-gray-500">{{ count($parcelas) }} item(s)</span>
+                            </div>
+
+                            <div class="space-y-3">
+                                @foreach($parcelas as $parcela)
+                                    <div class="flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-3">
+                                        <div>
+                                            <p class="text-xs text-gray-500">Parcela {{ $parcela['parcela_numero'] }}</p>
+                                            <p class="text-sm font-medium text-gray-900">
+                                                Vencimento.: {{ \Carbon\Carbon::parse($parcela['data_vencimento_parcela'])->format('d/m/Y')}}
+                                            </p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-xs text-gray-500">Valor</p>
+                                            <p class="text-sm font-semibold text-gray-900">
+                                                R$ {{ number_format((float) $parcela['valor_parcela'], 2, ',', '.') }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
