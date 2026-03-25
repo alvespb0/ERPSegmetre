@@ -109,7 +109,7 @@ class EditEntidade extends Component
                 Rule::unique('entidade', 'cpf_cnpj')->ignore($this->id),
             ],
             'tipo' => 'required|in:pf,pj',
-            'classificacao' => 'required|in:cliente,fornecedor',
+            'classificacao' => 'required|in:cliente,fornecedor,ambos',
 
             'email' => 'nullable|email|max:255',
             'telefone' => 'nullable|string|max:20',

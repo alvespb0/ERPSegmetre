@@ -74,6 +74,8 @@
                                 <option value="">Selecione...</option>
                                 <option value="cliente">Cliente</option>
                                 <option value="fornecedor">Fornecedor</option>
+                                <option value="ambos">Ambos</option>
+
                             </select>
                         </div>
 

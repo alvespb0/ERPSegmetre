@@ -76,7 +76,7 @@ class CreateEntidade extends Component
             'nomeFantasia' => 'nullable|string|max:255',
             'cnpjcpf' => 'required|string|max:18|unique:entidade,cpf_cnpj',
             'tipo' => 'required|in:pf,pj',
-            'classificacao' => 'required|in:cliente,fornecedor',
+            'classificacao' => 'required|in:cliente,fornecedor,ambos',
 
             'email' => 'nullable|email|max:255',
             'telefone' => 'nullable|string|max:20',

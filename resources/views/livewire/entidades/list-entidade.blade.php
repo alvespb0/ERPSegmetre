@@ -26,27 +26,37 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <p class="text-sm text-gray-600 mb-2">Clientes</p>
                 <p class="text-3xl font-semibold text-gray-900">
                     {{$entidades->where('classificacao', 'cliente')->count()}}
                 </p>
-                <p class="text-xs text-gray-500 mt-2">Entidades do tipo cliente ativas ou inativas.</p>
+                <p class="text-xs text-gray-500 mt-2">Apenas clientes (ativos ou inativos).</p>
             </div>
+
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <p class="text-sm text-gray-600 mb-2">Fornecedores</p>
                 <p class="text-3xl font-semibold text-gray-900">
                     {{$entidades->where('classificacao', 'fornecedor')->count()}}
                 </p>
-                <p class="text-xs text-gray-500 mt-2">Parceiros responsáveis pelo fornecimento de serviços ou insumos.</p>
+                <p class="text-xs text-gray-500 mt-2">Apenas parceiros de serviços ou insumos.</p>
             </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <p class="text-sm text-gray-600 mb-2">Ambos</p>
+                <p class="text-3xl font-semibold text-[#313e50]">
+                    {{$entidades->where('classificacao', 'ambos')->count()}}
+                </p>
+                <p class="text-xs text-gray-500 mt-2">Atuam como clientes e fornecedores.</p>
+            </div>
+
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <p class="text-sm text-gray-600 mb-2">Entidades Ativas</p>
                 <p class="text-3xl font-semibold text-emerald-600">
                     {{$entidades->count()}}
                 </p>
-                <p class="text-xs text-gray-500 mt-2">Entidades disponíveis para uso em lançamentos financeiros.</p>
+                <p class="text-xs text-gray-500 mt-2">Entidades disponíveis para lançamentos.</p>
             </div>
         </div>
 
@@ -71,6 +81,7 @@
                     <option value="todos">Todos os tipos</option>
                     <option value="cliente">Clientes</option>
                     <option value="fornecedor">Fornecedores</option>
+                    <option value="ambos">Clientes e Fornecedores</option>
                 </select>
 
                 <div class="w-px h-4 bg-gray-200 mx-1"></div>
