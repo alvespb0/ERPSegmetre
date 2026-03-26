@@ -299,7 +299,7 @@
                                         </span>
                                         <div class="flex items-center gap-2 mt-0.5">
                                             <span class="text-gray-500 text-[11px]">
-                                                Parcela {{ $parcela->numero_parcela }}
+                                                Parcela {{ $parcela->numero_parcela }} / {{ $parcela->titulo->parcelas_count }}
                                             </span>
                                             <span class="text-gray-300 text-[10px]">•</span>
                                             <span class="text-gray-400 text-[10px]" title="ID do Título Pai">
