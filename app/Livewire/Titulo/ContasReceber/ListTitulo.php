@@ -22,6 +22,9 @@ class ListTitulo extends Component
 {
     use WithPagination, WithoutUrlPagination;
 
+    public $openModalDetalhesParcela = false;
+    public ?Parcela $parcelaSelecionada = null;
+
     public $search = '';
     public $filtroCompetencia;
     public $filtroCard;
@@ -160,6 +163,14 @@ class ListTitulo extends Component
         }
 
         return $query;
+    }
+
+    public function detalhesParcela(Parcela $parcela){
+        $this->parcelaSelecionada = $parcela;
+        // 2. Você pode aproveitar para carregar relacionamentos aqui, se necessário:
+        // $this->parcelaSelecionada->load('titulo.entidade', 'pagamentos');
+
+        $this->openModalDetalhesParcela = true;
     }
 
     public function render(){

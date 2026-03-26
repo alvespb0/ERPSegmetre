@@ -50,4 +50,14 @@ class Parcela extends Model
     public function getValorPagoAttribute(){
         return $this->movimentacoes->sum('valor_pago');
     }
+
+    public function getSaldoDevedorAttribute(){
+        if ($this->status === 'cancelado') {
+            return 0;
+        }
+
+        $saldo = $this->valor - $this->valor_pago;
+
+        return max($saldo, 0);
+    }
 }
