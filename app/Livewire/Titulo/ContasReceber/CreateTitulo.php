@@ -4,6 +4,7 @@ namespace App\Livewire\Titulo\ContasReceber;
 
 use Livewire\Component;
 use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
 
 use App\Services\ContaService;
 use App\Services\CategoriaFinanceiraService;
@@ -30,7 +31,7 @@ class CreateTitulo extends Component
             'numero_nf' => 'nullable|string|max:100',
             'observacoes' => 'nullable|string|min:2|max:5000',
             'descricao' => 'required|string|min:2|max:255',
-            'status' => 'nullable|in:aberto,parcial,pago,cancelado',
+            'status' => 'required|in:aberto,parcial,pago,cancelado',
             'valor_total' => 'required|numeric',
             'data_emissao' => 'nullable|date',
             'data_vencimento' => 'required|date',
@@ -61,6 +62,7 @@ class CreateTitulo extends Component
             'descricao.min' => 'A descrição deve ter pelo menos :min caracteres.',
             'descricao.max' => 'A descrição não pode ter mais que :max caracteres.',
 
+            'status' => 'O campo de status é obrigatório',
             'status.in' => 'O status deve ser: aberto, parcial, pago ou cancelado.',
 
             'valor_total.required' => 'O valor total é obrigatório.',
@@ -119,6 +121,8 @@ class CreateTitulo extends Component
             });
 
             $this->dispatch('toast-message', 'Título e parcelas criados com sucesso!');
+        }catch (ValidationException $e) {
+            throw $e;
         }catch(\Exception $e){
             $this->dispatch('toast-error', 'Erro ao salvar título financeiro.');
             \Log::error("Erro ao salvar título: ", ['erro' => $e->getMessage()]);

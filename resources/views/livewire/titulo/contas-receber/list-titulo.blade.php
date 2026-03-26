@@ -26,169 +26,231 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-red-100 border-l-4 border-l-red-500 relative overflow-hidden">
-                <p class="text-sm font-medium text-gray-600 mb-1">Vencidos</p>
-                <p class="text-2xl font-bold text-gray-900">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <button
+                wire:click="filtrarPorStatus('atrasado')"
+                class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all"
+            >
+                <p class="text-xs text-gray-400 uppercase">Vencidos</p>
+                <p class="text-xl font-semibold text-gray-900 mt-1">
                     R$ {{ number_format($totalVencido ?? 0, 2, ',', '.') }}
                 </p>
-                <p class="text-xs text-red-600 mt-1 font-medium">Requer atenção</p>
-                <div class="absolute right-3 top-5 opacity-10">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"></circle><polyline points="12 8 12 12 14 14"></polyline></svg>
-                </div>
-            </div>
+                <p class="text-xs text-gray-400 mt-1">Requer atenção</p>
+            </button>
 
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-orange-100 border-l-4 border-l-orange-400 relative overflow-hidden">
-                <p class="text-sm font-medium text-gray-600 mb-1">Vencem Hoje</p>
-                <p class="text-2xl font-bold text-gray-900">
+            <button
+                wire:click="filtrarPorPeriodo('hoje')"
+                class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all"
+            >
+                <p class="text-xs text-gray-400 uppercase">Hoje</p>
+                <p class="text-xl font-semibold text-gray-900 mt-1">
                     R$ {{ number_format($totalVenceHoje ?? 0, 2, ',', '.') }}
                 </p>
-                <p class="text-xs text-orange-600 mt-1 font-medium">Cobranças do dia</p>
-                <div class="absolute right-3 top-5 opacity-10">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-orange-500"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-blue-100 border-l-4 border-l-blue-500 relative overflow-hidden">
-                <p class="text-sm font-medium text-gray-600 mb-1">A Receber (Em Aberto)</p>
-                <p class="text-2xl font-bold text-gray-900">
-                    R$ {{ $parcelas->where('status', 'aberto')->pluck('valor')->sum()}}
+                <p class="text-xs text-gray-400 mt-1">Vencimentos do dia</p>
+            </button>
+            <button
+                wire:click="filtrarPorStatus('aberto')"
+                class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all"
+            >
+                <p class="text-xs text-gray-400 uppercase">Em aberto</p>
+                <p class="text-xl font-semibold text-gray-900 mt-1">
+                    R$ {{ $parcelas->where('status', 'aberto')->pluck('valor')->sum() }}
                 </p>
-                <p class="text-xs text-blue-600 mt-1 font-medium">Projeção futura</p>
-                <div class="absolute right-3 top-5 opacity-10">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-emerald-100 border-l-4 border-l-emerald-500 relative overflow-hidden">
-                <p class="text-sm font-medium text-gray-600 mb-1">Recebidos (Período)</p>
-                <p class="text-2xl font-bold text-gray-900">
+                <p class="text-xs text-gray-400 mt-1">Projeção</p>
+            </button>
+            <button
+                wire:click="filtrarPorStatus('pago')"
+                class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all"
+            >
+                <p class="text-xs text-gray-400 uppercase">Recebidos</p>
+                <p class="text-xl font-semibold text-gray-900 mt-1">
                     R$ {{ number_format($totalRecebidoPeriodo ?? 0, 2, ',', '.') }}
                 </p>
-                <p class="text-xs text-emerald-600 mt-1 font-medium">Entradas confirmadas</p>
-                <div class="absolute right-3 top-5 opacity-10">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                </div>
-            </div>
+                <p class="text-xs text-gray-400 mt-1">Período</p>
+            </button>
         </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all">
 
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 transition-all focus-within:ring-2 focus-within:ring-[#313e50] focus-within:border-transparent hover:shadow-md">
-            
-            <div class="p-1.5 flex flex-col lg:flex-row items-center gap-2">
-                <div class="relative flex-1 w-full flex items-center">
-                    <svg class="absolute left-3 w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <!-- HEADER -->
+            <div class="p-2 flex flex-col lg:flex-row items-center gap-2">
+
+                <!-- SEARCH -->
+                <div class="relative flex-1 w-full">
+                    <svg class="absolute left-3 top-2.5 w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
+
                     <input
                         type="text"
                         wire:model.live.debounce.500ms="search"
-                        placeholder="Buscar por cliente, descrição do título ou nº da parcela..."
-                        class="w-full pl-9 pr-4 py-2 text-sm bg-transparent border-transparent focus:border-transparent focus:ring-0 outline-none text-gray-700 placeholder-gray-400"
+                        placeholder="Buscar por cliente, descrição ou parcela..."
+                        class="w-full pl-9 pr-3 py-2 text-sm border border-transparent rounded-lg focus:border-gray-200 focus:ring-0"
                     >
                 </div>
 
-                <div class="hidden lg:block w-px h-6 bg-gray-200 mx-2"></div>
+                <div class="hidden lg:block w-px h-6 bg-gray-200"></div>
 
-                <div class="flex flex-wrap items-center w-full lg:w-auto gap-2 border-t lg:border-t-0 border-gray-100 pt-2 lg:pt-0">
-                    
+                <!-- FILTROS PRINCIPAIS -->
+                <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+
+                    <!-- COMPETÊNCIA -->
                     <select
-                        wire:model.live="periodoFiltro"
-                        class="flex-1 lg:flex-none text-sm bg-transparent border-transparent focus:border-transparent focus:ring-0 outline-none text-gray-600 cursor-pointer py-2 px-30 rounded-lg hover:bg-gray-50 transition-colors"
+                        wire:model.live="filtroCompetencia"
+                        class="text-sm border-gray-200 rounded-lg px-7 py-2 focus:ring-0"
                     >
                         <option value="todos">Qualquer Vencimento</option>
-                        <option value="hoje">Vencem Hoje</option>
-                        <option value="ontem">Venceram Ontem</option>
-                        <option value="semana">Esta Semana</option>
-                        <optgroup label="Por Mês">
-                            <option value="mes_1">Janeiro</option>
-                            <option value="mes_2">Fevereiro</option>
-                            <option value="mes_3">Março</option>
-                            <option value="mes_4">Abril</option>
-                            <option value="mes_5">Maio</option>
-                            <option value="mes_6">Junho</option>
-                            <option value="mes_7">Julho</option>
-                            <option value="mes_8">Agosto</option>
-                            <option value="mes_9">Setembro</option>
-                            <option value="mes_10">Outubro</option>
-                            <option value="mes_11">Novembro</option>
-                            <option value="mes_12">Dezembro</option>
-                        </optgroup>
-                        <option value="customizado">Período Customizado...</option>
+                        <option value="hoje">Hoje</option>
+                        <option value="ontem">Ontem</option>
+                        <option value="semana">Semana</option>
+                        <option value="mes">Mês</option>
+                        <option value="custom">Período Customizado</option>
                     </select>
 
-                    <div class="hidden md:block w-px h-4 bg-gray-200 mx-1"></div>
+                    <!-- BLOCO DINÂMICO -->
+                    <div class="flex items-center gap-2">
 
+                        <!-- HOJE / ONTEM (navegável futuramente) -->
+                        @if(in_array($filtroCompetencia, ['hoje', 'ontem']))
+                            <div class="flex items-center gap-1">
+                                <button
+                                    type="button"
+                                    wire:click="diaAnterior"
+                                    class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50"
+                                >
+                                    ←
+                                </button>
+
+                                <span class="text-sm text-gray-600 px-2">
+                                    {{ $labelDiaEspecifico ?? 'Hoje' }}
+                                </span>
+
+                                <button
+                                    type="button"
+                                    wire:click="diaPosterior"
+                                    class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50"
+                                >
+                                    →
+                                </button>
+                            </div>
+                        @endif
+
+                        <!-- SEMANA -->
+                        @if($filtroCompetencia === 'semana')
+                            <span class="text-sm text-gray-600 px-2">
+                                {{ $labelCompetencia ?? 'Semana atual' }}
+                            </span>
+                        @endif
+
+                        <!-- MÊS -->
+                        @if($filtroCompetencia === 'mes')
+                            <div class="flex items-center gap-1">
+                                <button wire:click="mesAnterior"
+                                    class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
+                                    ←
+                                </button>
+
+                                <span class="text-sm text-gray-600 px-2">
+                                    {{ $labelMesAno ?? 'Março / 2026' }}
+                                </span>
+
+                                <button wire:click="mesPosterior"
+                                    class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
+                                    →
+                                </button>
+                            </div>
+                        @endif
+
+                        <!-- RANGE CUSTOM -->
+                        @if($filtroCompetencia === 'custom')
+                            <div class="flex items-center gap-2">
+                                <input
+                                    type="date"
+                                    wire:model.live="dataInicioRange"
+                                    class="border border-gray-200 rounded px-2 py-1 text-sm"
+                                >
+
+                                <span class="text-gray-400 text-xs">até</span>
+
+                                <input
+                                    type="date"
+                                    wire:model.live="dataFimRange"
+                                    class="border border-gray-200 rounded px-2 py-1 text-sm"
+                                >
+                            </div>
+                        @endif
+
+                    </div>
+
+                    <div class="hidden md:block w-px h-4 bg-gray-200"></div>
+
+                    <!-- STATUS -->
                     <select
                         wire:model.live="statusFiltro"
-                        class="flex-1 lg:flex-none text-sm bg-transparent border-transparent focus:border-transparent focus:ring-0 outline-none text-gray-600 cursor-pointer py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors"
+                        class="text-sm border-gray-200 rounded-lg px-30 py-2 focus:ring-0"
                     >
                         <option value="todos">Todos Status</option>
-                        <option value="aberto">Em Aberto</option>
+                        <option value="aberto">Em aberto</option>
                         <option value="atrasado">Atrasados</option>
                         <option value="pago">Pagos</option>
-                        <option value="parcial">Pagos Parcialmente</option>
+                        <option value="parcial">Parcial</option>
                     </select>
 
+                    <!-- AVANÇADO -->
                     <button
                         type="button"
                         @click="mostrarFiltrosAvancados = !mostrarFiltrosAvancados"
-                        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors focus:outline-none"
+                        class="px-3 py-2 rounded-lg text-sm font-medium transition"
                         :class="mostrarFiltrosAvancados ? 'bg-[#313e50] text-white' : 'text-gray-600 hover:bg-gray-50'"
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon></svg>
-                        Filtros Avançados
+                        Filtros
                     </button>
+
                 </div>
             </div>
 
+            <!-- FILTROS AVANÇADOS -->
             <div 
-                x-show="mostrarFiltrosAvancados" 
+                x-show="mostrarFiltrosAvancados"
                 x-collapse
                 class="border-t border-gray-100 bg-gray-50/50 p-4"
-                style="display: none;"
+                style="display:none;"
             >
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    
-                    @if($periodoFiltro === 'customizado')
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Vencimento Início</label>
-                            <input type="date" wire:model.live="dataInicio" class="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:ring-[#313e50] focus:border-[#313e50]">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Vencimento Fim</label>
-                            <input type="date" wire:model.live="dataFim" class="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:ring-[#313e50] focus:border-[#313e50]">
-                        </div>
-                    @endif
 
-                    <div class="{{ $periodoFiltro === 'customizado' ? 'lg:col-span-1' : 'lg:col-span-2' }}">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Categoria Financeira</label>
-                        <select wire:model.live="categoriaFiltro" class="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:ring-[#313e50] focus:border-[#313e50]">
-                            <option value="">Todas as categorias</option>
+                    <div class="lg:col-span-2">
+                        <label class="text-xs text-gray-600 mb-1 block">Categoria</label>
+                        <select wire:model.live="categoriaFiltro"
+                            class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm">
+                            <option value="">Todas</option>
                             @foreach($categorias as $categoria)
                                 <option value="{{ $categoria->id }}">{{ $categoria->nome }}</option>
                             @endforeach
                         </select>
                     </div>
 
-                    <div class="{{ $periodoFiltro === 'customizado' ? 'lg:col-span-1' : 'lg:col-span-2' }}">
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Centro de Custo</label>
-                        <select wire:model.live="centroCustoFiltro" class="w-full rounded-lg border border-gray-200 px-3 py-1.5 text-sm focus:ring-[#313e50] focus:border-[#313e50]">
-                            <option value="">Todos os centros de custo</option>
+                    <div class="lg:col-span-2">
+                        <label class="text-xs text-gray-600 mb-1 block">Centro de Custo</label>
+                        <select wire:model.live="centroCustoFiltro"
+                            class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm">
+                            <option value="">Todos</option>
                             @foreach($centrosCusto as $centro)
                                 <option value="{{ $centro->id }}">{{ $centro->nome }}</option>
                             @endforeach
                         </select>
                     </div>
+
                 </div>
-                
+
                 <div class="mt-4 flex justify-end">
-                    <button wire:click="limparFiltros" type="button" class="text-xs font-medium text-red-600 hover:text-red-700 transition-colors">
-                        Limpar todos os filtros
+                    <button
+                        wire:click="limparFiltros"
+                        class="text-xs text-red-600 hover:text-red-700 font-medium"
+                    >
+                        Limpar filtros
                     </button>
                 </div>
             </div>
         </div>
-
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             <div class="min-w-full overflow-x-auto">
                 <table class="min-w-full text-sm">
