@@ -28,43 +28,55 @@
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
             <button
-                wire:click="filtrarPorStatus('atrasado')"
+                wire:click="filtrarPorCard('atrasado')"
                 class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all"
             >
                 <p class="text-xs text-gray-400 uppercase">Vencidos</p>
                 <p class="text-xl font-semibold text-gray-900 mt-1">
-                    R$ {{ number_format($totalVencido ?? 0, 2, ',', '.') }}
+                    R$ {{ number_format($parcelas->filter(fn($p) =>$p->status !== 'cancelado' && $p->data_vencimento < now()->startOfDay())->sum('valor'), 2, ',', '.') }}
+                </p>
+                <p class="text-xs text-gray-500 mt-1">
+                    Total do Filtro: R$ {{ number_format($vencidos, 2, ',', '.') }}
                 </p>
                 <p class="text-xs text-gray-400 mt-1">Requer atenção</p>
             </button>
 
             <button
-                wire:click="filtrarPorPeriodo('hoje')"
+                wire:click="filtrarPorCard('hoje')"
                 class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all"
             >
                 <p class="text-xs text-gray-400 uppercase">Hoje</p>
                 <p class="text-xl font-semibold text-gray-900 mt-1">
-                    R$ {{ number_format($totalVenceHoje ?? 0, 2, ',', '.') }}
+                    R$ {{ number_format($parcelas->filter(fn($p) => $p->status !== 'cancelado' && $p->data_vencimento == now()->startOfDay())->sum('valor'), 2, ',', '.') }}
+                </p>
+                <p class="text-xs text-gray-500 mt-1">
+                    Total do Filtro: R$ {{ number_format($venceHoje, 2, ',', '.') }}
                 </p>
                 <p class="text-xs text-gray-400 mt-1">Vencimentos do dia</p>
             </button>
             <button
-                wire:click="filtrarPorStatus('aberto')"
+                wire:click="filtrarPorCard('aberto')"
                 class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all"
             >
                 <p class="text-xs text-gray-400 uppercase">Em aberto</p>
                 <p class="text-xl font-semibold text-gray-900 mt-1">
-                    R$ {{ $parcelas->where('status', 'aberto')->pluck('valor')->sum() }}
+                    R$ {{  number_format($parcelas->filter(fn($p) => $p->status !== 'cancelado' && $p->data_vencimento >= now()->startOfDay())->sum('valor'), 2, ',', '.') }}
+                </p>
+                <p class="text-xs text-gray-500 mt-1">
+                    Total do Filtro: R$ {{ number_format($abertos, 2, ',', '.') }}
                 </p>
                 <p class="text-xs text-gray-400 mt-1">Projeção</p>
             </button>
             <button
-                wire:click="filtrarPorStatus('pago')"
+                wire:click="filtrarPorCard('pago')"
                 class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all"
             >
                 <p class="text-xs text-gray-400 uppercase">Recebidos</p>
                 <p class="text-xl font-semibold text-gray-900 mt-1">
-                    R$ {{ number_format($totalRecebidoPeriodo ?? 0, 2, ',', '.') }}
+                    R$ {{ number_format($parcelas->sum('valor_pago'), 2, ',', '.') }}
+                </p>
+                <p class="text-xs text-gray-500 mt-1">
+                    Total do Filtro: R$ {{ number_format($pagos, 2, ',', '.') }}
                 </p>
                 <p class="text-xs text-gray-400 mt-1">Período</p>
             </button>
@@ -272,7 +284,7 @@
                                         <span class="text-gray-900 font-medium">
                                             {{ \Carbon\Carbon::parse($parcela->data_vencimento)->format('d/m/Y') }}
                                         </span>
-                                        @if($parcela->status === 'atrasado' || ($parcela->status === 'aberto' && \Carbon\Carbon::parse($parcela->data_vencimento)->isPast()))
+                                        @if($parcela->status_calculado === 'atrasado')
                                             <span class="text-[10px] text-red-500 font-medium">
                                                 {{ \Carbon\Carbon::parse($parcela->data_vencimento)->diffInDays(now()) }} dias vencidos
                                             </span>
@@ -323,10 +335,10 @@
                                             'atrasado' => 'bg-red-50 text-red-700 border-red-200',
                                             'parcial' => 'bg-yellow-50 text-yellow-700 border-yellow-200',
                                         ];
-                                        $color = $statusColors[$parcela->status] ?? 'bg-gray-50 text-gray-500 border-gray-200';
+                                        $color = $statusColors[$parcela->status_calculado] ?? 'bg-gray-50 text-gray-500 border-gray-200';
                                         
                                         // Substituição visual se a parcela estiver em aberto mas a data já passou
-                                        $displayStatus = $parcela->status;
+                                        $displayStatus = $parcela->status_calculado;
                                         if($displayStatus === 'aberto' && \Carbon\Carbon::parse($parcela->data_vencimento)->isPast()) {
                                             $displayStatus = 'atrasado';
                                             $color = $statusColors['atrasado'];

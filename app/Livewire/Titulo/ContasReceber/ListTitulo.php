@@ -24,6 +24,8 @@ class ListTitulo extends Component
 
     public $search = '';
     public $filtroCompetencia;
+    public $filtroCard;
+    public $contas, $categorias, $centrosCusto;
 
     /* ['ontem', 'hoje'] filtros: */
     public $filtroDiaEspecifico;
@@ -33,14 +35,21 @@ class ListTitulo extends Component
     public $inicioSemana;
     public $fimSemana;
 
-    /* Mes filtros */
+    /* Mes filtros: */
     public $filtroMesAno;
     public $labelMesAno;
 
-    /* Range filtros */
+    /* Range filtros: */
     public $dataInicioRange;
     public $dataFimRange;
 
+    public function mount(ContaService $contaService, CategoriaFinanceiraService $categoriaFinanceiraService, CentroCustoService $centroCustoService){
+        $this->contas = $contaService->show();
+        $this->categorias = $categoriaFinanceiraService->showReceitas();
+        $this->centrosCusto = $centroCustoService->show();
+    }
+
+    /* FILTROS DE DATA */
     public function updatedFiltroCompetencia(){
         $this->resetarFiltrosDeData();
         switch ($this->filtroCompetencia){
@@ -99,12 +108,14 @@ class ListTitulo extends Component
         $this->filtroMesAno = Carbon::parse($this->filtroMesAno . '-01')->addMonth()->format('Y-m');
         $this->labelMesAno = Carbon::parse($this->filtroMesAno . '-01') ->format('m/Y');
     }
+    /* FIM FILTOR DE DATAS */
 
-    public function render(ContaService $contaService, CategoriaFinanceiraService $categoriaFinanceiraService, CentroCustoService $centroCustoService,
-                           ParcelaService $parcelaService,){
-        
-        $query = Parcela::query();
-        
+    /* FILTRO DE CARD */
+    public function filtrarPorCard($value){
+        $this->filtroCard = $value;
+    }
+
+    private function aplicarFiltros($query){
         if($this->filtroDiaEspecifico){
             $data = $this->filtroDiaEspecifico->toDateString();
             $query->whereDate('data_vencimento', $data);
@@ -123,17 +134,61 @@ class ListTitulo extends Component
             $query->whereBetween('data_vencimento', [$this->dataInicioRange, $this->dataFimRange]);
         }
 
+        if($this->filtroCard){
+            switch($this->filtroCard){
+                case 'aberto':
+                    $query->where('status', '!=', 'cancelado')
+                        ->whereDate('data_vencimento', '>=', now());
+                        break;
+                case 'atrasado':
+                    $query->where('status', '!=', 'cancelado')
+                        ->whereDate('data_vencimento', '<', now());
+                        break;
+                case 'hoje':
+                    $query->where('status', '!=', 'cancelado')
+                        ->whereDate('data_vencimento', now());
+                    break;
+                case 'pago':
+                    $query->where('status', '!=', 'cancelado')
+                        ->whereHas('movimentacoes', function ($q) {
+                            $q->selectRaw('parcela_id, SUM(valor_pago) as total_pago')
+                            ->groupBy('parcela_id')
+                            ->havingRaw('SUM(valor_pago) >= parcelas.valor');
+                        });
+                    break;
+            }
+        }
+
+        return $query;
+    }
+
+    public function render(){
+        $query = $this->aplicarFiltros(Parcela::query());
+
+        $queryBase = clone $query;
+
+        $vencidos = (clone $queryBase)->where('status', '!=', 'cancelado')
+                                ->whereDate('data_vencimento', '<', now())
+                                ->sum('valor');
+
+        $abertos = (clone $queryBase)->where('status', '!=', 'cancelado')
+                                ->whereDate('data_vencimento', '>=', now())
+                                ->sum('valor');
+
+        $venceHoje = (clone $queryBase)->where('status', '!=', 'cancelado')
+                                ->whereDate('data_vencimento', now())
+                                ->sum('valor');
+
+        $pagos = (clone $queryBase)->get()->sum('valor_pago');
+
         $parcelas = $query->orderBy('data_vencimento', 'asc')->paginate(10);
 
-        $contas = $contaService->show();
-        $categorias = $categoriaFinanceiraService->showReceitas();
-        $centrosCusto = $centroCustoService->show();
-
         return view('livewire.titulo.contas-receber.list-titulo', [
-            'contas' => $contas,
-            'categorias' => $categorias,
-            'centrosCusto' => $centrosCusto,
-            'parcelas' => $parcelas
+            'parcelas' => $parcelas,
+            'vencidos' => $vencidos,
+            'abertos' => $abertos,
+            'venceHoje' => $venceHoje,
+            'pagos' => $pagos
         ]);
     }
 }

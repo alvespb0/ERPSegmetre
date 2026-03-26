@@ -3,13 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Movimentacao extends Model
 {
     protected $table = 'movimentacoes';
-
-    use SoftDeletes;
 
     protected $fillable = [
         'forma_pagamento_id', #nullable

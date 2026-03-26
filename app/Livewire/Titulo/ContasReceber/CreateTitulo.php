@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class CreateTitulo extends Component
 {
-    public $entidade_id, $descricao, $status, $valor_total, $data_emissao, $data_vencimento, $quantidade_parcelas;
+    public $entidade_id, $descricao, $valor_total, $data_emissao, $data_vencimento, $quantidade_parcelas;
     public $conta_id, $categoria_financeira_id, $centro_custo_id, $numero_nf, $observacoes;
     public $parcelas = [];
 
@@ -31,7 +31,6 @@ class CreateTitulo extends Component
             'numero_nf' => 'nullable|string|max:100',
             'observacoes' => 'nullable|string|min:2|max:5000',
             'descricao' => 'required|string|min:2|max:255',
-            'status' => 'required|in:aberto,parcial,pago,cancelado',
             'valor_total' => 'required|numeric',
             'data_emissao' => 'nullable|date',
             'data_vencimento' => 'required|date',
@@ -61,9 +60,6 @@ class CreateTitulo extends Component
             'descricao.string' => 'A descrição deve ser um texto.',
             'descricao.min' => 'A descrição deve ter pelo menos :min caracteres.',
             'descricao.max' => 'A descrição não pode ter mais que :max caracteres.',
-
-            'status' => 'O campo de status é obrigatório',
-            'status.in' => 'O status deve ser: aberto, parcial, pago ou cancelado.',
 
             'valor_total.required' => 'O valor total é obrigatório.',
             'valor_total.numeric' => 'O valor total deve ser um número.',
@@ -97,7 +93,7 @@ class CreateTitulo extends Component
                 'valor_total' => $data['valor_total'],
                 'data_emissao' => $data['data_emissao'] ?? Carbon::today(),
                 'tipo' => 'receber',
-                'status' => $data['status'],
+                'status' => 'aberto',
             ];
 
             if(!empty($this->parcelas)){
@@ -115,7 +111,7 @@ class CreateTitulo extends Component
                         'numero_parcela' => $parcela['parcela_numero'],
                         'valor' => $parcela['valor_parcela'],
                         'data_vencimento' => $parcela['data_vencimento_parcela'],
-                        'status' => $this->status ? $this->status : 'aberto'
+                        'status' => 'ativo'
                     ]);
                 }
             });
