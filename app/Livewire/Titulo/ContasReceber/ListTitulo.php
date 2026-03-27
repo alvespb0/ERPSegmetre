@@ -81,6 +81,13 @@ class ListTitulo extends Component
         }
     }
 
+    public function limparFiltros(){
+        $this->resetarFiltrosDeData();
+        $this->search = '';
+        $this->filtroCard = '';
+        $this->filtroCompetencia = '';
+    }
+
     public function resetarFiltrosDeData(){
         $this->filtroDiaEspecifico = null;
         $this->labelDiaEspecifico = null;
@@ -158,6 +165,8 @@ class ListTitulo extends Component
                             ->groupBy('parcela_id')
                             ->havingRaw('SUM(valor_pago) >= parcelas.valor');
                         });
+                    break;
+                default:
                     break;
             }
         }

@@ -216,7 +216,14 @@
                     >
                         Filtros
                     </button>
-
+                    <button
+                        type="button"
+                        wire:click="limparFiltros"
+                        class="px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                        title="Limpar todos os filtros"
+                    >
+                        Limpar
+                    </button>
                 </div>
             </div>
 
@@ -349,7 +356,7 @@
                                     </span>
                                 </td>
 
-                                <td class="px-4 py-3 text-right relative overflow-visible whitespace-nowrap" x-data="{ open: false }">
+                                <td class="px-4 py-3 text-right relative overflow-visible" x-data="{ open: false }">
                                     <button
                                         @click="open = !open"
                                         @keydown.escape.window="open = false"
