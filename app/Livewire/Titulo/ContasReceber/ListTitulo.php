@@ -70,6 +70,10 @@ class ListTitulo extends Component
         $this->categorias = $categoriaFinanceiraService->showReceitas();
         $this->centrosCusto = $centroCustoService->show();
     }
+    
+    public function updated($property){
+        $this->resetPage();
+    }
 
     /**
      * Atualiza os filtros de data conforme o tipo selecionado.
@@ -210,16 +214,18 @@ class ListTitulo extends Component
         }
 
         if($this->search){
-            $query->whereHas('titulo.entidade', function($q){
-                    $q->where('razao_social', 'like', '%' . $this->search . '%')
+            $query->where(function($query){
+                $query->whereHas('titulo.entidade', function($q){
+                        $q->where('razao_social', 'like', '%' . $this->search . '%')
                         ->orWhere('cpf_cnpj', 'like', '%' . $this->search . '%');
-                })
-                ->orWhereHas('titulo', function($q){
-                    $q->where('numero_nf', 'like', '%' . $this->search . '%')
+                    })
+                    ->orWhereHas('titulo', function($q){
+                        $q->where('numero_nf', 'like', '%' . $this->search . '%')
                         ->orWhere('descricao', 'like', '%' . $this->search . '%')
                         ->orWhere('observacoes', 'like', '%' . $this->search . '%');
-                })
-                ->orWhere('valor', 'like', '%' . $this->search . '%');
+                    })
+                    ->orWhere('valor', 'like', '%' . $this->search . '%');
+            });
         }
 
         if($this->filtroCard){
@@ -294,20 +300,35 @@ class ListTitulo extends Component
         $queryBase = clone $query;
 
         $vencidos = (clone $queryBase)->where('status', '!=', 'cancelado')
+                                ->whereHas('titulo', function ($q) {
+                                    $q->where('tipo', 'receber');
+                                })
                                 ->whereDate('data_vencimento', '<', now())
                                 ->sum('valor');
 
         $abertos = (clone $queryBase)->where('status', '!=', 'cancelado')
+                                ->whereHas('titulo', function ($q) {
+                                    $q->where('tipo', 'receber');
+                                })
                                 ->whereDate('data_vencimento', '>=', now())
                                 ->sum('valor');
 
         $venceHoje = (clone $queryBase)->where('status', '!=', 'cancelado')
+                                ->whereHas('titulo', function ($q) {
+                                    $q->where('tipo', 'receber');
+                                })
                                 ->whereDate('data_vencimento', now())
                                 ->sum('valor');
 
-        $pagos = (clone $queryBase)->get()->sum('valor_pago');
+        $pagos = (clone $queryBase)->whereHas('titulo', function ($q) {
+                                    $q->where('tipo', 'receber');
+                                })->get()->sum('valor_pago');
 
-        $parcelas = $query->with(['titulo' => function ($q) { $q->withCount('parcelas'); }])->orderBy('data_vencimento', 'asc')->paginate(10);
+        $parcelas = $query->with(['titulo' => function ($q) { $q->withCount('parcelas'); }])
+                            ->whereHas('titulo', function ($q) {
+                                $q->where('tipo', 'receber');
+                            })
+                            ->orderBy('data_vencimento', 'asc')->paginate(10);
 
         return view('livewire.titulo.contas-receber.list-titulo', [
             'parcelas' => $parcelas,

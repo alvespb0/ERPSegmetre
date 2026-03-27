@@ -14,6 +14,8 @@ use App\Services\FormaPagamentoService;
 use App\Services\ParcelaService;
 use App\Services\TituloFinanceiroService;
 
+use Illuminate\Support\Facades\DB;
+
 class CreateTitulo extends Component
 {
     public $entidade_id, $descricao, $valor_total, $data_emissao, $data_vencimento, $quantidade_parcelas;
@@ -104,6 +106,53 @@ class CreateTitulo extends Component
         }catch(\Exception $e){
             $this->dispatch('toast-error', 'Erro ao gerar parcelas.');
             \Log::error("Erro ao gerar parcelas: ", ['erro' => $e->getMessage()]);
+        }
+    }
+
+    public function submit(TituloFinanceiroService $tituloService, ParcelaService $parcelaService){
+        try{
+            $data = $this->validate();
+
+            $tituloData = [
+                'centro_custo_id' => $data['centro_custo_id'] ?? null,
+                'categoria_financeira_id' => $data['categoria_financeira_id'] ?? null,
+                'conta_id' => $data['conta_id'] ?? null,
+                'entidade_id' => $data['entidade_id'],
+                'descricao' => $data['descricao'],
+                'observacoes' => $data['observacoes'] ?? null,
+                'numero_nf' => $data['numero_nf'] ?? null,
+                'valor_total' => $data['valor_total'],
+                'data_emissao' => $data['data_emissao'] ?? Carbon::today(),
+                'tipo' => 'pagar',
+                'status' => 'aberto',
+            ];
+
+            if(!empty($this->parcelas)){
+                $this->parcelas = [];
+            }
+
+            $this->parcelas = $parcelaService->gerarParcelas($data['valor_total'], $data['quantidade_parcelas'], $data['data_vencimento']); #executado novamente para caso o usuário tenha trocado o valor_total e não tenha clicado em gerar parcelas.
+
+            DB::transaction(function () use ($tituloData, $parcelaService, $tituloService) {
+                $titulo = $tituloService->store($tituloData); 
+                
+                foreach($this->parcelas as $index => $parcela){
+                    $parcelaService->store([
+                        'titulo_financeiro_id' => $titulo->id,
+                        'numero_parcela' => $parcela['parcela_numero'],
+                        'valor' => $parcela['valor_parcela'],
+                        'data_vencimento' => $parcela['data_vencimento_parcela'],
+                        'status' => 'ativo'
+                    ]);
+                }
+            });
+
+            $this->dispatch('toast-message', 'Título e parcelas criados com sucesso!');
+        }catch (ValidationException $e) {
+            throw $e;
+        }catch(\Exception $e){
+            $this->dispatch('toast-error', 'Erro ao salvar título financeiro.');
+            \Log::error("Erro ao salvar título: ", ['erro' => $e->getMessage()]);
         }
     }
 
