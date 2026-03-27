@@ -404,13 +404,6 @@
                                             </button>
                                             <button
                                                 class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
-                                                wire:click="editarParcela({{ $parcela->id }})"
-                                            >
-                                                Editar Parcela
-                                            </button>
-
-                                            <button
-                                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
                                                 wire:click="verDetalhesTitulo({{ $parcela->titulo_financeiro_id }})"
                                             >
                                                 Ver Título Completo
@@ -871,7 +864,7 @@
                         >
                             Fechar
                         </button>
-                        </div>
+                    </div>
                 </div>
             </div>
         </div>

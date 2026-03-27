@@ -36,6 +36,10 @@ class EntidadeService
         return Entidade::whereIn('classificacao', ['cliente','ambos'])->orderBy('razao_social', 'asc')->get();
     }
 
+    public function showFornecedores(){
+        return Entidade::whereIn('classificacao', ['fornecedor','ambos'])->orderBy('razao_social', 'asc')->get();
+    }
+
     public function destroy($id){
         $entidade = Entidade::findOrFail($id);
 

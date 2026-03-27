@@ -15,4 +15,7 @@ class TituloController extends Controller
         return view('erp.titulo.conta-receber.index');
     }
 
+    public function showCreateViewDespesa(){
+        return view('erp.titulo.conta-pagar.create');
+    }
 }

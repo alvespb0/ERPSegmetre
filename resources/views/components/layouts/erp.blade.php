@@ -250,7 +250,7 @@
                                     </ul>
                                 </li>
 
-                                <li x-data="{ openSub: {{ request()->routeIs('erp.despesas.*') || request()->routeIs('erp.contas-pagar.*') ? 'true' : 'false' }} }">
+                                <li x-data="{ openSub: {{ request()->routeIs('erp.despesa.*') || request()->routeIs('erp.contas-pagar.*') ? 'true' : 'false' }} }">
                                     <button type="button" @click="openSub = !openSub" class="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 text-white/60 hover:bg-white/5 hover:text-white">
                                         <div class="flex items-center gap-3">
                                             <span class="inline-flex h-5 w-5 items-center justify-center">
@@ -262,7 +262,7 @@
                                     </button>
                                     <ul x-show="openSub" x-collapse class="mt-1 space-y-1 pl-11">
                                         <li>
-                                            <a href="#" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.despesas.create') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Nova Despesa</a>
+                                            <a href="{{route('erp.despesa.create')}}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.despesa.create') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Nova Despesa</a>
                                         </li>
                                         <li>
                                             <a href="#" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.contas-pagar.*') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Contas a Pagar</a>

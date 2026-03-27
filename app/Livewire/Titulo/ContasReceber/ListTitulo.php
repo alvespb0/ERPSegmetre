@@ -19,6 +19,12 @@ use Livewire\WithPagination;
 use Livewire\WithoutUrlPagination;
 use Illuminate\Support\Facades\Crypt;
 
+/**
+ * Class ListTitulo
+ *
+ * Componente Livewire responsável por listar e gerenciar os títulos financeiros
+ * do tipo contas a receber, incluindo filtros, paginação e visualização de detalhes.
+ */
 class ListTitulo extends Component
 {
     use WithPagination, WithoutUrlPagination;
@@ -50,13 +56,26 @@ class ListTitulo extends Component
     public $dataInicioRange;
     public $dataFimRange;
 
+    /**
+     * Método executado ao montar o componente.
+     * Carrega dados iniciais necessários para filtros.
+     *
+     * @param ContaService $contaService
+     * @param CategoriaFinanceiraService $categoriaFinanceiraService
+     * @param CentroCustoService $centroCustoService
+     * @return void
+     */
     public function mount(ContaService $contaService, CategoriaFinanceiraService $categoriaFinanceiraService, CentroCustoService $centroCustoService){
         $this->contas = $contaService->show();
         $this->categorias = $categoriaFinanceiraService->showReceitas();
         $this->centrosCusto = $centroCustoService->show();
     }
 
-    /* FILTROS DE DATA */
+    /**
+     * Atualiza os filtros de data conforme o tipo selecionado.
+     *
+     * @return void
+     */
     public function updatedFiltroCompetencia(){
         $this->resetarFiltrosDeData();
         switch ($this->filtroCompetencia){
@@ -85,6 +104,11 @@ class ListTitulo extends Component
         }
     }
 
+    /**
+     * Limpa todos os filtros aplicados.
+     *
+     * @return void
+     */
     public function limparFiltros(){
         $this->resetarFiltrosDeData();
         $this->search = '';
@@ -92,6 +116,11 @@ class ListTitulo extends Component
         $this->filtroCompetencia = '';
     }
 
+    /**
+     * Reseta todos os filtros de data.
+     *
+     * @return void
+     */
     public function resetarFiltrosDeData(){
         $this->filtroDiaEspecifico = null;
         $this->labelDiaEspecifico = null;
@@ -103,32 +132,64 @@ class ListTitulo extends Component
         $this->dataFimRange = null;
     }
 
+    /**
+     * Retrocede um dia no filtro de data específica.
+     *
+     * @return void
+     */
     public function diaAnterior(){
         $this->filtroDiaEspecifico->subDay();
         $this->labelDiaEspecifico = $this->filtroDiaEspecifico->format('d/m/Y');
     }
 
+    /**
+     * Avança um dia no filtro de data específica.
+     *
+     * @return void
+     */
     public function diaPosterior(){
         $this->filtroDiaEspecifico->addDay();
         $this->labelDiaEspecifico = $this->filtroDiaEspecifico->format('d/m/Y');
     }
 
+
+    /**
+     * Retrocede um mês no filtro de mês/ano.
+     *
+     * @return void
+     */
     public function mesAnterior(){
         $this->filtroMesAno = Carbon::parse($this->filtroMesAno . '-01')->subMonth()->format('Y-m');
         $this->labelMesAno = Carbon::parse($this->filtroMesAno . '-01') ->format('m/Y');
     }
 
+    /**
+     * Avança um mês no filtro de mês/ano.
+     *
+     * @return void
+     */
     public function mesPosterior(){
         $this->filtroMesAno = Carbon::parse($this->filtroMesAno . '-01')->addMonth()->format('Y-m');
         $this->labelMesAno = Carbon::parse($this->filtroMesAno . '-01') ->format('m/Y');
     }
     /* FIM FILTOR DE DATAS */
 
-    /* FILTRO DE CARD */
+    /**
+     * Aplica filtro baseado no card selecionado.
+     *
+     * @param string $value
+     * @return void
+     */
     public function filtrarPorCard($value){
         $this->filtroCard = $value;
     }
 
+    /**
+     * Aplica todos os filtros na query de parcelas.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     private function aplicarFiltros($query){
         if($this->filtroDiaEspecifico){
             $data = $this->filtroDiaEspecifico->toDateString();
@@ -146,6 +207,19 @@ class ListTitulo extends Component
         
         if($this->dataInicioRange && $this->dataFimRange){
             $query->whereBetween('data_vencimento', [$this->dataInicioRange, $this->dataFimRange]);
+        }
+
+        if($this->search){
+            $query->whereHas('titulo.entidade', function($q){
+                    $q->where('razao_social', 'like', '%' . $this->search . '%')
+                        ->orWhere('cpf_cnpj', 'like', '%' . $this->search . '%');
+                })
+                ->orWhereHas('titulo', function($q){
+                    $q->where('numero_nf', 'like', '%' . $this->search . '%')
+                        ->orWhere('descricao', 'like', '%' . $this->search . '%')
+                        ->orWhere('observacoes', 'like', '%' . $this->search . '%');
+                })
+                ->orWhere('valor', 'like', '%' . $this->search . '%');
         }
 
         if($this->filtroCard){
@@ -178,6 +252,12 @@ class ListTitulo extends Component
         return $query;
     }
 
+    /**
+     * Abre o modal com detalhes do título financeiro.
+     *
+     * @param TituloFinanceiro $titulo
+     * @return void
+     */
     public function verDetalhesTitulo(TituloFinanceiro $titulo){
         $titulo->load([
             'entidade', 
@@ -191,12 +271,23 @@ class ListTitulo extends Component
         $this->openModalDetalhesTitulo = true;
     }
 
+    /**
+     * Abre o modal com detalhes de uma parcela.
+     *
+     * @param Parcela $parcela
+     * @return void
+     */
     public function detalhesParcela(Parcela $parcela){
         $this->parcelaSelecionada = $parcela;
 
         $this->openModalDetalhesParcela = true;
     }
 
+    /**
+     * Renderiza o componente com os dados filtrados e métricas.
+     *
+     * @return \Illuminate\View\View
+     */
     public function render(){
         $query = $this->aplicarFiltros(Parcela::query());
 

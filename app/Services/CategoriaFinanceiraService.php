@@ -32,6 +32,10 @@ class CategoriaFinanceiraService
         return CategoriaFinanceira::where('tipo', 'receita')->get();
     }
 
+    public function showDespesas(){
+        return CategoriaFinanceira::where('tipo', 'despesa')->get();
+    }
+
     public function destroy($id){
         $categoria = CategoriaFinanceira::findOrFail($id);
 
