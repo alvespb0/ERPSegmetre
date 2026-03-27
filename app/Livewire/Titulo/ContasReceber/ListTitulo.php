@@ -5,6 +5,7 @@ namespace App\Livewire\Titulo\ContasReceber;
 use Livewire\Component;
 use Carbon\Carbon;
 use App\Models\Parcela;
+use App\Models\TituloFinanceiro;
 
 use App\Services\ContaService;
 use App\Services\CategoriaFinanceiraService;
@@ -24,6 +25,9 @@ class ListTitulo extends Component
 
     public $openModalDetalhesParcela = false;
     public ?Parcela $parcelaSelecionada = null;
+
+    public $openModalDetalhesTitulo = false;
+    public ?TituloFinanceiro $tituloSelecionado = null;
 
     public $search = '';
     public $filtroCompetencia;
@@ -174,10 +178,21 @@ class ListTitulo extends Component
         return $query;
     }
 
+    public function verDetalhesTitulo(TituloFinanceiro $titulo){
+        $titulo->load([
+            'entidade', 
+            'categoriaFinanceira', 
+            'centroCusto', 
+            'conta.banco', 
+            'parcelas.movimentacoes'
+        ]);
+
+        $this->tituloSelecionado = $titulo;
+        $this->openModalDetalhesTitulo = true;
+    }
+
     public function detalhesParcela(Parcela $parcela){
         $this->parcelaSelecionada = $parcela;
-        // 2. Você pode aproveitar para carregar relacionamentos aqui, se necessário:
-        // $this->parcelaSelecionada->load('titulo.entidade', 'pagamentos');
 
         $this->openModalDetalhesParcela = true;
     }
