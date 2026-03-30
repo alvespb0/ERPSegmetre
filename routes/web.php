@@ -80,6 +80,7 @@ Route::middleware(['auth', 'verified'])->controller(TituloController::class)->gr
     Route::get('erp/titulo/receita/nova', 'showCreateViewReceita')->name('erp.receita.create');
     Route::get('erp/titulo/receita', 'showListViewReceita')->name('erp.receita.index');
     Route::get('erp/titulo/despesa/nova', 'showCreateViewDespesa')->name('erp.despesa.create');
+    Route::get('erp/titulo/despesa', 'showListViewDespesa')->name('erp.despesa.index');
 });
 
 Route::post('logout', function (Request $request) {
