@@ -32,10 +32,10 @@ class Parcela extends Model
         
         $valorPago = $this->valor_pago;
 
-        if ($valorPago >= $this->valor) {
+        if (abs($valorPago - $this->valor) < 0.01) {
             return 'pago';
         }
-
+        
         if ($valorPago > 0 && $valorPago < $this->valor) {
             return 'parcial';
         }

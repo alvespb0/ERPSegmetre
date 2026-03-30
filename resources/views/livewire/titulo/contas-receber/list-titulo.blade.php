@@ -356,7 +356,7 @@
                                     </span>
                                 </td>
 
-                                <td class="px-4 py-3 text-right relative overflow-visible" x-data="{ open: false }">
+                                <td class="px-4 py-3 text-right" x-data="{ open: false }">
                                     <button
                                         @click="open = !open"
                                         @keydown.escape.window="open = false"
@@ -364,6 +364,7 @@
                                         class="inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#313e50] transition-all"
                                         aria-haspopup="menu"
                                         :aria-expanded="open"
+                                        id="btn-{{ $parcela->id }}"
                                     >
                                         Ações
                                         <svg class="ml-1.5 w-4 h-4 text-gray-500 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -373,43 +374,40 @@
 
                                     <div x-show="open" @click="open = false" class="fixed inset-0 z-40"></div>
 
-                                    <div
-                                        x-show="open"
-                                        x-transition:enter="transition ease-out duration-100"
-                                        x-transition:enter-start="opacity-0 scale-95"
-                                        x-transition:enter-end="opacity-100 scale-100"
-                                        x-transition:leave="transition ease-in duration-75"
-                                        x-transition:leave-start="opacity-100 scale-100"
-                                        x-transition:leave-end="opacity-0 scale-95"
-                                        class="absolute right-0 z-50 w-44 mt-2 origin-top-right bg-white border border-gray-200 rounded-lg shadow-lg focus:outline-none"
-                                        @click.away="open = false"
-                                        style="display: none;"
-                                    >
-                                        <div class="py-1">
-                                            @if($parcela->status !== 'pago')
+                                    <template x-teleport="body">
+                                        <div
+                                            x-show="open" 
+                                            @click.away="open = false"
+                                            x-anchor.bottom-end="document.getElementById('btn-{{ $parcela->id }}')"
+                                            class="z-[100] w-44 bg-white border border-gray-200 rounded-lg shadow-lg"
+                                        >
+
+                                            <div class="py-1">
+                                                @if($parcela->status !== 'pago')
+                                                    <button
+                                                        class="w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-green-50 font-medium"
+                                                        wire:click="receberParcela({{ $parcela->id }})"
+                                                    >
+                                                        Informar Recebimento
+                                                    </button>
+                                                    <div class="h-px bg-gray-100 my-1"></div>
+                                                @endif
                                                 <button
-                                                    class="w-full text-left px-4 py-2 text-sm text-green-700 hover:bg-green-50 font-medium"
-                                                    wire:click="receberParcela({{ $parcela->id }})"
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                    wire:click="detalhesParcela({{ $parcela->id }})"
+                                                    @click="open = false"
                                                 >
-                                                    Informar Recebimento
+                                                    Detalhes da Parcela
                                                 </button>
-                                                <div class="h-px bg-gray-100 my-1"></div>
-                                            @endif
-                                            <button
-                                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
-                                                wire:click="detalhesParcela({{ $parcela->id }})"
-                                                @click="open = false"
-                                            >
-                                                Detalhes da Parcela
-                                            </button>
-                                            <button
-                                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
-                                                wire:click="verDetalhesTitulo({{ $parcela->titulo_financeiro_id }})"
-                                            >
-                                                Ver Título Completo
-                                            </button>
+                                                <button
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                    wire:click="verDetalhesTitulo({{ $parcela->titulo_financeiro_id }})"
+                                                >
+                                                    Ver Título Completo
+                                                </button>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </template>
                                 </td>
                             </tr>
                         @empty
