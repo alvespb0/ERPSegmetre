@@ -17,7 +17,7 @@
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
             class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm transition-opacity" 
-            @click="show = false; setTimeout(() => $wire.fechar(), 200)"
+            @click="show = false; setTimeout(() => $wire.$parent.set('openModalDetalhesParcela', false), 200)"
         ></div> 
 
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0 pointer-events-none">
@@ -195,7 +195,7 @@
                 <div class="bg-white border-t border-gray-100 px-6 py-4 flex justify-end gap-3 rounded-b-xl">
                     <button 
                         type="button" 
-                        @click="show = false; setTimeout(() => $wire.fechar(), 200)" 
+                        @click="show = false; setTimeout(() => $wire.$parent.set('openModalDetalhesParcela', false), 200)"
                         class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
                     >
                         Fechar
