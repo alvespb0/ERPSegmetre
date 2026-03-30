@@ -25,19 +25,7 @@ class TituloFinanceiroService
     public function update(array $dados, $id){
         $titulo = TituloFinanceiro::findOrFail($id);
 
-        return $titulo->update([
-            'centro_custo_id' => $dados['centro_custo_id'] ?? null,
-            'categoria_financeira_id' => $dados['categoria_financeira_id'] ?? null,
-            'conta_id' => $dados['conta_id'] ?? null,
-            'entidade_id' => $dados['entidade_id'],
-            'descricao' => $dados['descricao'],
-            'observacoes' => $dados['observacoes'] ?? null,
-            'numero_nf' => $dados['numero_nf'] ?? null,
-            'valor_total' => $dados['valor_total'],
-            'data_emissao' => $dados['data_emissao'],
-            'tipo' => $dados['tipo'],
-            'status' => $dados['status'],
-        ]);
+        return $titulo->update($dados);
     }
 
     public function show(){

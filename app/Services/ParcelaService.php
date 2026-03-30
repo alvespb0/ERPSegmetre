@@ -20,13 +20,7 @@ class ParcelaService
     public function update(array $dados, $id){
         $parcela = Parcela::findOrFail($id);
 
-        return $parcela->update([
-            'titulo_financeiro_id' => $dados['titulo_financeiro_id'] ?? null,
-            'numero_parcela' => $dados['numero_parcela'],
-            'valor' => $dados['valor'],
-            'data_vencimento' => $dados['data_vencimento'],
-            'status' => $dados['status']
-        ]);
+        return $parcela->update($dados);
     }
 
     public function show(){
