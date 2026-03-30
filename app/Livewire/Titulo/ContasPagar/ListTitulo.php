@@ -340,6 +340,12 @@ class ListTitulo extends Component
         $this->dispatch('toast-message', 'Pagamento lançado com sucesso!');
     }
 
+    public function excluirMovimentacao(MovimentacaoService $movimentacaoService, $id){
+        $movimentacaoService->destroy($id);
+
+        $this->dispatch('toast-message', 'Movimentação excluída com sucesso');
+    }
+
     /**
      * Renderiza o componente com os dados filtrados e métricas.
      *

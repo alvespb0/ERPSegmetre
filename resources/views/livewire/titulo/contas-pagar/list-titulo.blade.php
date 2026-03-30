@@ -600,7 +600,7 @@
                                             <th class="px-4 py-2 font-medium">Data</th>
                                             <th class="px-4 py-2 font-medium">Forma de Pagamento</th>
                                             <th class="px-4 py-2 font-medium text-right">Valor Pago</th>
-                                        </tr>
+                                            <th class="px-4 py-2 font-medium text-center w-10">Ações</th> </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-50">
                                         @forelse($parcelaSelecionada->movimentacoes as $movimentacao)
@@ -614,11 +614,24 @@
                                                 <td class="px-4 py-3 text-right font-medium text-green-600">
                                                     R$ {{ number_format($movimentacao->valor_pago, 2, ',', '.') }}
                                                 </td>
+                                                <td class="px-4 py-3 text-center">
+                                                    <button 
+                                                        type="button"
+                                                        wire:click="excluirMovimentacao({{ $movimentacao->id }})"
+                                                        wire:confirm="Tem certeza que deseja excluir/estornar este pagamento? O saldo devedor da parcela será recalculado."
+                                                        class="text-gray-400 hover:text-red-600 transition-colors p-1.5 rounded-lg hover:bg-red-50"
+                                                        title="Excluir Pagamento"
+                                                    >
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                        </svg>
+                                                    </button>
+                                                </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="3" class="px-4 py-6 text-center text-gray-400">
-                                                    Nenhuma despesa registrado para esta parcela ainda.
+                                                <td colspan="4" class="px-4 py-6 text-center text-gray-400">
+                                                    Nenhum pagamento registrado para esta parcela ainda.
                                                 </td>
                                             </tr>
                                         @endforelse
@@ -962,7 +975,6 @@
                                                 type="number" 
                                                 step="0.01" 
                                                 min="0.01"
-                                                max="{{ $parcelaParaPagar->saldo_devedor }}"
                                                 id="pagamentoValor" 
                                                 wire:model="pagamentoValor" 
                                                 class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#313e50] focus:ring-1 focus:ring-[#313e50] outline-none transition-all @error('pagamentoValor') border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500 @enderror"

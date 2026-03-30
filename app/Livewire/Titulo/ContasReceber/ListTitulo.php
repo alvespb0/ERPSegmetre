@@ -10,10 +10,10 @@ use App\Models\TituloFinanceiro;
 use App\Services\ContaService;
 use App\Services\CategoriaFinanceiraService;
 use App\Services\CentroCustoService;
-use App\Services\EntidadeService;
 use App\Services\FormaPagamentoService;
 use App\Services\ParcelaService;
 use App\Services\TituloFinanceiroService;
+use App\Services\MovimentacaoService;
 
 use Livewire\WithPagination;
 use Livewire\WithoutUrlPagination;
@@ -34,6 +34,14 @@ class ListTitulo extends Component
 
     public $openModalDetalhesTitulo = false;
     public ?TituloFinanceiro $tituloSelecionado = null;
+
+    public bool $openModalReceberParcela = false;
+    public ?Parcela $parcelaAReceber = null;
+
+    public $formasPagamento;
+    public $pagamentoData;
+    public $pagamentoValor;
+    public $pagamentoFormaId = '';
 
     public $search = '';
     public $filtroCompetencia;
@@ -65,10 +73,11 @@ class ListTitulo extends Component
      * @param CentroCustoService $centroCustoService
      * @return void
      */
-    public function mount(ContaService $contaService, CategoriaFinanceiraService $categoriaFinanceiraService, CentroCustoService $centroCustoService){
+    public function mount(ContaService $contaService, CategoriaFinanceiraService $categoriaFinanceiraService, CentroCustoService $centroCustoService, FormaPagamentoService $formasPagamentoService){
         $this->contas = $contaService->show();
         $this->categorias = $categoriaFinanceiraService->showReceitas();
         $this->centrosCusto = $centroCustoService->show();
+        $this->formasPagamento = $formasPagamentoService->show();
     }
     
     public function updated($property){
@@ -287,6 +296,59 @@ class ListTitulo extends Component
         $this->parcelaSelecionada = $parcela;
 
         $this->openModalDetalhesParcela = true;
+    }
+
+    /**
+     * Abre o modal de recebimento de parcela.
+     *
+     * @param Parcela $parcela
+     * @return void
+     */
+    public function receberParcela(Parcela $parcela){
+        $this->parcelaAReceber = $parcela;
+        
+        $this->pagamentoData = today()->format('Y-m-d');
+        $this->pagamentoValor = $parcela->saldo_devedor;
+        $this->pagamentoFormaId = '';
+        
+        $this->openModalReceberParcela = true;
+    }
+
+    public function salvarRecebimento(MovimentacaoService $movimentacaoService){
+        $this->validate([
+            'pagamentoData' => 'required|date',
+            'pagamentoValor' => 'required|numeric|min:0.01|max:' . $this->parcelaAReceber->saldo_devedor, // Evita pagar mais que o devido
+            'pagamentoFormaId' => 'required|exists:forma_pagamento,id',
+        ], [
+            'pagamentoData.required' => 'A data do pagamento é obrigatória.',
+            'pagamentoData.date' => 'Informe uma data de pagamento válida.',
+
+            'pagamentoValor.required' => 'O valor do pagamento é obrigatório.',
+            'pagamentoValor.numeric' => 'O valor do pagamento deve ser um número.',
+            'pagamentoValor.min' => 'O valor do pagamento deve ser maior que zero.',
+            'pagamentoValor.max' => 'O valor pago não pode ser maior que o saldo devedor.',
+
+            'pagamentoFormaId.required' => 'A forma de pagamento é obrigatória.',
+            'pagamentoFormaId.exists' => 'A forma de pagamento selecionada é inválida.',
+        ]);
+
+        $movimentacaoService->store([
+            'forma_pagamento_id' => $this->pagamentoFormaId ?? null,
+            'parcela_id' => $this->parcelaAReceber->id,
+            'valor_pago' => $this->pagamentoValor,
+            'data_pagamento' => $this->pagamentoData
+        ]);
+
+        $this->openModalReceberParcela = false;
+        $this->reset(['parcelaAReceber', 'pagamentoData', 'pagamentoValor', 'pagamentoFormaId']);
+        
+        $this->dispatch('toast-message', 'Pagamento lançado com sucesso!');
+    }
+
+    public function excluirMovimentacao(MovimentacaoService $movimentacaoService, $id){
+        $movimentacaoService->destroy($id);
+
+        $this->dispatch('toast-message', 'Movimentação excluída com sucesso');
     }
 
     /**
