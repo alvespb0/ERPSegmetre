@@ -3,7 +3,10 @@
 namespace App\Livewire\Titulo\ContasReceber;
 
 use Livewire\Component;
+use Livewire\Attributes\On;
+
 use Carbon\Carbon;
+
 use App\Models\Parcela;
 use App\Models\TituloFinanceiro;
 
@@ -49,12 +52,6 @@ class ListTitulo extends Component
     public $editCentroCustoId;
     public $editContaId;
     public $editObservacoes;
-
-    /* Variáveis da modal de lançamento de movimentação */
-    public $formasPagamento;
-    public $pagamentoData;
-    public $pagamentoValor;
-    public $pagamentoFormaId = '';
 
     public $search = '';
     public $filtroCompetencia;
@@ -319,43 +316,15 @@ class ListTitulo extends Component
      */
     public function receberParcela(Parcela $parcela){
         $this->parcelaAReceber = $parcela;
-        
-        $this->pagamentoData = today()->format('Y-m-d');
-        $this->pagamentoValor = $parcela->saldo_devedor;
-        $this->pagamentoFormaId = '';
-        
+                
         $this->openModalReceberParcela = true;
     }
-
-    public function salvarRecebimento(MovimentacaoService $movimentacaoService){
-        $this->validate([
-            'pagamentoData' => 'required|date',
-            'pagamentoValor' => 'required|numeric|min:0.01|max:' . $this->parcelaAReceber->saldo_devedor, // Evita pagar mais que o devido
-            'pagamentoFormaId' => 'required|exists:forma_pagamento,id',
-        ], [
-            'pagamentoData.required' => 'A data do pagamento é obrigatória.',
-            'pagamentoData.date' => 'Informe uma data de pagamento válida.',
-
-            'pagamentoValor.required' => 'O valor do pagamento é obrigatório.',
-            'pagamentoValor.numeric' => 'O valor do pagamento deve ser um número.',
-            'pagamentoValor.min' => 'O valor do pagamento deve ser maior que zero.',
-            'pagamentoValor.max' => 'O valor pago não pode ser maior que o saldo devedor.',
-
-            'pagamentoFormaId.required' => 'A forma de pagamento é obrigatória.',
-            'pagamentoFormaId.exists' => 'A forma de pagamento selecionada é inválida.',
-        ]);
-
-        $movimentacaoService->store([
-            'forma_pagamento_id' => $this->pagamentoFormaId ?? null,
-            'parcela_id' => $this->parcelaAReceber->id,
-            'valor_pago' => $this->pagamentoValor,
-            'data_pagamento' => $this->pagamentoData
-        ]);
-
+    
+    #[On('fechar-modal-recebimento')]
+    public function fecharModalRecebimento(){
         $this->openModalReceberParcela = false;
-        $this->reset(['parcelaAReceber', 'pagamentoData', 'pagamentoValor', 'pagamentoFormaId']);
-        
-        $this->dispatch('toast-message', 'Pagamento lançado com sucesso!');
+
+        $this->parcelaAReceber = null;
     }
 
     public function editarParcela(Parcela $parcela){
@@ -364,7 +333,6 @@ class ListTitulo extends Component
 
         $titulo = $parcela->titulo;
 
-        // Popula os campos editáveis
         $this->editDataVencimento = $parcela->data_vencimento;
         $this->editDescricao = $titulo->descricao;
         $this->editDataEmissao = $titulo->data_emissao;
