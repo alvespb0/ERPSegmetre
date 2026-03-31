@@ -91,7 +91,6 @@ class CreateTitulo extends Component
             'quantidade_parcelas.max' => 'A quantidade de parcelas não pode ser maior que :max.',
         ];
     }
-
     public function gerarParcelas(ParcelaService $service){
         try{
             if(!$this->valor_total || !$this->quantidade_parcelas || !$this->data_vencimento){
@@ -124,7 +123,7 @@ class CreateTitulo extends Component
                 'valor_total' => $data['valor_total'],
                 'data_emissao' => $data['data_emissao'] ?? Carbon::today(),
                 'tipo' => 'pagar',
-                'status' => 'aberto',
+                'status' => 'ativo',
             ];
 
             if(!empty($this->parcelas)){

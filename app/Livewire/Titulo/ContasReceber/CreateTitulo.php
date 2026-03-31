@@ -20,7 +20,21 @@ class CreateTitulo extends Component
 {
     public $entidade_id, $descricao, $valor_total, $data_emissao, $data_vencimento, $quantidade_parcelas;
     public $conta_id, $categoria_financeira_id, $centro_custo_id, $numero_nf, $observacoes;
+    public $contas, $categoriasFinanceira, $centrosCusto, $entidades, $formasPagamento;
     public $parcelas = [];
+
+    public function mount(ContaService $contaService,
+        CategoriaFinanceiraService $categoriaFinanceiraService,
+        CentroCustoService $centroCustoService,
+        EntidadeService $entidadeService,
+        FormaPagamentoService $formaPagamentoService
+    ){
+        $this->contas = $contaService->show();
+        $this->categoriasFinanceira = $categoriaFinanceiraService->showReceitas();
+        $this->centrosCusto = $centroCustoService->show();
+        $this->entidades = $entidadeService->showClientes();
+        $this->formasPagamento = $formaPagamentoService->show();
+    }
 
     public function rules(){
         return [
@@ -93,7 +107,7 @@ class CreateTitulo extends Component
                 'valor_total' => $data['valor_total'],
                 'data_emissao' => $data['data_emissao'] ?? Carbon::today(),
                 'tipo' => 'receber',
-                'status' => 'aberto',
+                'status' => 'ativo',
             ];
 
             if(!empty($this->parcelas)){
@@ -142,27 +156,7 @@ class CreateTitulo extends Component
         }
     }
 
-    public function render(
-        ContaService $contaService,
-        CategoriaFinanceiraService $categoriaFinanceiraService,
-        CentroCustoService $centroCustoService,
-        EntidadeService $entidadeService,
-        FormaPagamentoService $formaPagamentoService
-    )
-    {
-        $contas = $contaService->show();
-        $categorias = $categoriaFinanceiraService->showReceitas();
-        $centrosCusto = $centroCustoService->show();
-        $entidades = $entidadeService->showClientes();
-        $formasPagamento = $formaPagamentoService->show();
-
-        return view('livewire.titulo.contas-receber.create-titulo', [
-            'contas' => $contas,
-            'categoriasFinanceira' => $categorias,
-            'centrosCusto' => $centrosCusto,
-            'entidades' => $entidades,
-            'formasPagamento' => $formasPagamento,
-        ]);
-
+    public function render(){
+        return view('livewire.titulo.contas-receber.create-titulo');
     }
 }

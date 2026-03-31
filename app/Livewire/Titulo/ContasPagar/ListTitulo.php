@@ -236,12 +236,17 @@ class ListTitulo extends Component
             switch($this->filtroCard){
                 case 'aberto':
                     $query->where('status', '!=', 'cancelado')
-                        ->whereDate('data_vencimento', '>=', now());
-                        break;
+                        ->whereDate('data_vencimento', '>=', now())
+                        ->whereDoesntHave('movimentacoes', function ($q) {
+                            $q->selectRaw('parcela_id')
+                                ->groupBy('parcela_id')
+                                ->havingRaw('SUM(valor_pago) > 0');
+                        });
+                    break;
                 case 'atrasado':
                     $query->where('status', '!=', 'cancelado')
                         ->whereDate('data_vencimento', '<', now());
-                        break;
+                    break;
                 case 'hoje':
                     $query->where('status', '!=', 'cancelado')
                         ->whereDate('data_vencimento', now());
@@ -348,7 +353,13 @@ class ListTitulo extends Component
                                     $q->where('tipo', 'pagar');
                                 })
                                 ->whereDate('data_vencimento', '>=', now())
-                                ->sum('valor');
+                                ->get()
+                                ->filter(function ($parcela) {
+                                    return $parcela->valor_pago < $parcela->valor;
+                                })
+                                ->sum(function ($parcela) {
+                                    return $parcela->valor - $parcela->valor_pago;
+                                });
 
         $venceHoje = (clone $queryBase)->where('status', '!=', 'cancelado')
                                 ->whereHas('titulo', function ($q) {

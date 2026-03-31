@@ -44,4 +44,43 @@ class TituloFinanceiro extends Model
     public function parcelas(){
         return $this->hasMany(Parcela::class);
     }
+
+    public function getStatusCalculadoAttribute(){
+        if ($this->status === 'cancelado') {
+            return 'cancelado';
+        }
+
+        $total = $this->valor_total;
+        $pago = $this->parcelas->sum->valor_pago;
+
+        if ($pago >= $total) {
+            return 'pago';
+        }
+
+        if ($pago > 0) {
+            return 'parcial';
+        }
+
+        $temAtrasado = $this->parcelas->contains(function ($parcela) {
+            return $parcela->status_calculado === 'atrasado';
+        });
+
+        if ($temAtrasado) {
+            return 'atrasado';
+        }
+
+        return 'aberto';
+    }
+
+    public function getValorPagoAttribute(){
+        return $this->parcelas->sum->valor_pago;
+    }
+
+    public function getSaldoDevedorAttribute(){
+        if ($this->status === 'cancelado') {
+            return 0;
+        }
+
+        return max($this->valor_total - $this->valor_pago, 0);
+    }
 }

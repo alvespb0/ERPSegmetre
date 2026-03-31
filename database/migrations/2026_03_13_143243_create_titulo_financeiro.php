@@ -23,7 +23,7 @@ return new class extends Migration
             $table->decimal('valor_total', 10, 2);
             $table->date('data_emissao');
             $table->enum('tipo', ['pagar', 'receber']);
-            $table->enum('status', ['aberto', 'parcial', 'pago', 'cancelado'])->default('aberto');
+            $table->enum('status', ['ativo', 'cancelado', 'renegociado'])->default('ativo');
             $table->softDeletes();
             $table->foreign('centro_custo_id')->references('id')->on('centro_custo')->nullOnDelete();
             $table->foreign('categoria_financeira_id')->references('id')->on('categoria_financeira')->nullOnDelete();
