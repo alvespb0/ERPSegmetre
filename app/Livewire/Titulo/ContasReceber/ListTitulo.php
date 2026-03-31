@@ -331,74 +331,14 @@ class ListTitulo extends Component
         $parcela->load('titulo.entidade');
         $this->parcelaParaEditar = $parcela;
 
-        $titulo = $parcela->titulo;
-
-        $this->editDataVencimento = $parcela->data_vencimento;
-        $this->editDescricao = $titulo->descricao;
-        $this->editDataEmissao = $titulo->data_emissao;
-        $this->editNumeroNf = $titulo->numero_nf;
-        $this->editCategoriaId = $titulo->categoria_financeira_id;
-        $this->editCentroCustoId = $titulo->centro_custo_id;
-        $this->editContaId = $titulo->conta_id;
-        $this->editObservacoes = $titulo->observacoes;
-
         $this->openModalEditarParcela = true;
     }
 
-    public function salvarEdicao(ParcelaService $parcelaService, TituloFinanceiroService $tituloService){
-        $this->validate([
-            'editDataVencimento' => 'required|date',
-            'editDescricao' => 'required|string|max:255',
-            'editDataEmissao' => 'required|date',
-            'editNumeroNf' => 'nullable|string|max:50',
-            'editCategoriaId' => 'nullable|exists:categoria_financeira,id',
-            'editCentroCustoId' => 'nullable|exists:centro_custo,id',
-            'editContaId' => 'nullable|exists:conta,id',
-            'editObservacoes' => 'nullable|string',
-        ], [
-            'editDataVencimento.required' => 'A data de vencimento é obrigatória.',
-            'editDataVencimento.date' => 'Informe uma data de vencimento válida.',
-
-            'editDescricao.required' => 'A descrição é obrigatória.',
-            'editDescricao.string' => 'A descrição deve ser um texto válido.',
-            'editDescricao.max' => 'A descrição pode ter no máximo 255 caracteres.',
-
-            'editDataEmissao.required' => 'A data de emissão é obrigatória.',
-            'editDataEmissao.date' => 'Informe uma data de emissão válida.',
-
-            'editNumeroNf.string' => 'O número da nota fiscal deve ser um texto válido.',
-            'editNumeroNf.max' => 'O número da nota fiscal pode ter no máximo 50 caracteres.',
-
-            'editCategoriaId.exists' => 'A categoria selecionada é inválida.',
-
-            'editCentroCustoId.exists' => 'O centro de custo selecionado é inválido.',
-
-            'editContaId.exists' => 'A conta selecionada é inválida.',
-
-            'editObservacoes.string' => 'As observações devem ser um texto válido.',
-        ]);
-        
-        $parcelaService->update([
-            'data_vencimento' => $this->editDataVencimento
-        ], $this->parcelaParaEditar->id);
-
-        $tituloService->update([
-            'descricao' => $this->editDescricao,
-            'data_emissao' => $this->editDataEmissao,
-            'numero_nf' => $this->editNumeroNf,
-            'categoria_financeira_id' => $this->editCategoriaId ?? null,
-            'centro_custo_id' => $this->editCentroCustoId ?? null,
-            'conta_id' => $this->editContaId ?? null,
-            'observacoes' => $this->editObservacoes,
-        ], $this->parcelaParaEditar->titulo->id);
-
+    #[On('fechar-modal-edicao')]
+    public function fecharModalEdicao(){
         $this->openModalEditarParcela = false;
-        $this->reset([
-            'parcelaParaEditar', 'editDataVencimento', 'editDescricao', 'editDataEmissao', 
-            'editNumeroNf', 'editCategoriaId', 'editCentroCustoId', 'editContaId', 'editObservacoes'
-        ]);
-        
-        $this->dispatch('toast-message', 'Título/Parcela atualizada com sucesso!');
+
+        $this->parcelaParaEditar = null;
     }
 
     /**
