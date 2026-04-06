@@ -113,6 +113,7 @@
                                         wire:model.live="escopoStatus" 
                                         class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#313e50] focus:ring-1 focus:ring-[#313e50] outline-none transition-all @error('escopoStatus') border-red-300 @enderror"
                                     >
+                                        <option value="">Selecione o escopo da alteracao</option>
                                         <option value="parcela">Apenas nesta Parcela ({{ $parcela->numero_parcela }})</option>
                                         <option value="titulo">No Título Completo (Todas as parcelas)</option>
                                     </select>

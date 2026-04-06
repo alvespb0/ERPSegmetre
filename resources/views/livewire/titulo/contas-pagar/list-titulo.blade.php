@@ -409,14 +409,15 @@
                                                 >
                                                     Editar
                                                 </button>
-                                                <button
-                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
-                                                    wire:click="editarStatus({{ $parcela->id }})"
-                                                    @click="open = false"
-                                                >
-                                                    Alterar Status 
-                                                </button>
-
+                                                @if($parcela->status_calculado != 'pago' && $parcela->status_calculado != 'cancelado')
+                                                    <button
+                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                        wire:click="editarStatus({{ $parcela->id }})"
+                                                        @click="open = false"
+                                                    >
+                                                        Alterar Status 
+                                                    </button>
+                                                @endif
                                                 <button
                                                     class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
                                                     wire:click="detalhesParcela({{ $parcela->id }})"
