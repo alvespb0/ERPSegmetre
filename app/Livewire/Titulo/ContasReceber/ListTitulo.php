@@ -44,15 +44,6 @@ class ListTitulo extends Component
     public bool $openModalEditarParcela = false;
     public ?Parcela $parcelaParaEditar = null;
 
-    public $editDataVencimento;
-    public $editDescricao;
-    public $editDataEmissao;
-    public $editNumeroNf;
-    public $editCategoriaId;
-    public $editCentroCustoId;
-    public $editContaId;
-    public $editObservacoes;
-
     public $search = '';
     public $filtroCompetencia;
     public $filtroCard;

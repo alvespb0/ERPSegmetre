@@ -83,4 +83,13 @@ class TituloFinanceiro extends Model
 
         return max($this->valor_total - $this->valor_pago, 0);
     }
+
+    public function getParcelasFaltantesAttribute(){
+        return $this->parcelas
+            ->filter(function ($parcela) {
+                return $parcela->status_calculado !== 'pago' && $parcela->status_calculado !== 'cancelado';
+            })
+            ->count();
+    }
+
 }

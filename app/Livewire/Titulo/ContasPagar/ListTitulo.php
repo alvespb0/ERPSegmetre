@@ -38,6 +38,9 @@ class ListTitulo extends Component
     public bool $openModalEditarParcela = false;
     public ?Parcela $parcelaParaEditar = null;
 
+    public bool $openModalEditarStatus = false;
+    public ?Parcela $parcelaParaEditarStatus = null;
+
     public $search = '';
     public $filtroCompetencia;
     public $filtroCard;
@@ -245,7 +248,12 @@ class ListTitulo extends Component
                     break;
                 case 'atrasado':
                     $query->where('status', '!=', 'cancelado')
-                        ->whereDate('data_vencimento', '<', now());
+                        ->whereDate('data_vencimento', '<', now())
+                        ->whereDoesntHave('movimentacoes', function ($q) {
+                            $q->selectRaw('parcela_id')
+                                ->groupBy('parcela_id')
+                                ->havingRaw('SUM(valor_pago) > 0');
+                        });
                     break;
                 case 'hoje':
                     $query->where('status', '!=', 'cancelado')
@@ -331,6 +339,19 @@ class ListTitulo extends Component
         $this->parcelaParaEditar = null;
     }
     
+    public function editarStatus(Parcela $parcela){
+        $parcela->load('titulo.entidade');
+        $this->parcelaParaEditarStatus = $parcela;
+        $this->openModalEditarStatus = true;
+    }
+
+    #[On('fechar-modal-status')]
+    public function fecharModalStatus(){
+        $this->openModalEditarStatus = false;
+
+        $this->parcelaParaEditarStatus = null;
+    }
+
     /**
      * Renderiza o componente com os dados filtrados e métricas.
      *
@@ -346,7 +367,13 @@ class ListTitulo extends Component
                                     $q->where('tipo', 'pagar');
                                 })
                                 ->whereDate('data_vencimento', '<', now())
-                                ->sum('valor');
+                                ->get()
+                                ->filter(function ($parcela) {
+                                    return $parcela->valor_pago < $parcela->valor;
+                                })
+                                ->sum(function ($parcela) { 
+                                    return $parcela->valor - $parcela->valor_pago;
+                                });
 
         $abertos = (clone $queryBase)->where('status', '!=', 'cancelado')
                                 ->whereHas('titulo', function ($q) {

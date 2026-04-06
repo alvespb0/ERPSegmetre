@@ -409,6 +409,13 @@
                                                 >
                                                     Editar
                                                 </button>
+                                                <button
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                    wire:click="editarStatus({{ $parcela->id }})"
+                                                    @click="open = false"
+                                                >
+                                                    Alterar Status 
+                                                </button>
 
                                                 <button
                                                     class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
@@ -489,4 +496,11 @@
             wire:key="modal-receber-{{ $parcelaParaEditar->id }}" 
         />
     @endif
+    @if($parcelaParaEditarStatus && $openModalEditarStatus)
+        <livewire:Modais.ContasPagar.EditarStatus
+            :parcela-id="$parcelaParaEditarStatus->id" 
+            wire:key="modal-receber-{{ $parcelaParaEditarStatus->id }}" 
+        />
+    @endif
+
 </div>
