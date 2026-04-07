@@ -72,7 +72,7 @@ class TituloFinanceiroService
 
         if($novoStatus == 'suspenso' || $novoStatus == 'renegociado'){
             $titulo = $parcela->titulo;
-            DB::transaction(function () use ($titulo) {
+            DB::transaction(function () use ($titulo, $novoStatus) {
                 $this->update([
                     'status' => $novoStatus,
                 ], $titulo->id); 

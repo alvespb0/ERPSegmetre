@@ -410,6 +410,15 @@
                                                 >
                                                     Editar
                                                 </button>
+                                                @if($parcela->status_calculado != 'pago' && $parcela->status_calculado != 'cancelado')
+                                                    <button
+                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                        wire:click="editarStatus({{ $parcela->id }})"
+                                                        @click="open = false"
+                                                    >
+                                                        Alterar Status 
+                                                    </button>
+                                                @endif
                                                 <button
                                                     class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
                                                     wire:click="detalhesParcela({{ $parcela->id }})"
@@ -487,6 +496,12 @@
         <livewire:Modais.ContasReceber.EditarParcela 
             :parcela-id="$parcelaParaEditar->id" 
             wire:key="modal-receber-{{ $parcelaParaEditar->id }}" 
+        />
+    @endif
+    @if($parcelaParaEditarStatus && $openModalEditarStatus)
+        <livewire:Modais.ContasReceber.EditarStatus
+            :parcela-id="$parcelaParaEditarStatus->id" 
+            wire:key="modal-receber-{{ $parcelaParaEditarStatus->id }}" 
         />
     @endif
 </div>
