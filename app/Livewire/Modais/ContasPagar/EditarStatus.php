@@ -108,25 +108,90 @@ class EditarStatus extends Component
 
     public function salvarStatus(TituloFinanceiroService $tituloService, ParcelaService $parcelaService){
         try{
-            if($this->novoStatus == 'cancelado' && $this->escopoStatus == 'parcela'){
-                if(!$this->tipoAjuste){
-                    $this->addError('tipoAjuste', 'Selecione uma opção de ajuste para continuar.');
+            if($this->escopoStatus == 'parcela'){
+                if($this->novoStatus == 'cancelado'){
+                    if(!$this->tipoAjuste){
+                        $this->addError('tipoAjuste', 'Selecione uma opção de ajuste para continuar.');
+                        return;
+                    }
+                
+                    if($this->tipoAjuste == 'desconto'){
+                        $this->aplicarDesconto($parcelaService, $tituloService);
+                        return;
+                    }
+
+                    if($this->tipoAjuste == 'redistribuir'){
+                        $this->redistribuirParcela($parcelaService);
+                        return;
+                    }
+                }
+
+                if($this->novoStatus == 'suspenso' || $this->novoStatus == 'renegociado'){
+                    if($this->parcela->movimentacoes()->exists()){
+                        $this->dispatch('toast-error', 'Não foi possível alterar o status da parcela, a mesma possui movimentaçoes.');
+
+                        $this->dispatch('fechar-modal-status');
+                        return;
+                    }
+                    
+                    $parcelaService->update(['status' => $this->novoStatus], $this->parcela->id);
+
+                    $this->dispatch('fechar-modal-status');
+
+                    $this->dispatch('toast-message', 'Status alterado com sucesso');
+                }
+
+                if($this->novoStatus == 'ativo'){                    
+                    $parcelaService->update(['status' => $this->novoStatus], $this->parcela->id);
+
+                    $this->dispatch('fechar-modal-status');
+
+                    $this->dispatch('toast-message', 'Status alterado com sucesso');
+                }
+            }
+
+            if($this->escopoStatus == 'titulo'){
+                if($this->novoStatus == 'cancelado'){
+                    $this->cancelarTitulo($tituloService);
                     return;
                 }
-                
-                if($this->tipoAjuste == 'desconto'){
-                    $this->aplicarDesconto($parcelaService, $tituloService);
+
+                if($this->novoStatus == 'ativo'){
+                    $titulo = $this->parcela->titulo;
+                    DB::transaction(function () use ($titulo, $tituloService) {
+                        $tituloService->update([
+                            'status' => 'ativo'
+                        ], $titulo->id); 
+                        
+                        $titulo->parcelas()->update([
+                            'status' => 'ativo'
+                        ]);
+                    });
+                    $this->dispatch('fechar-modal-status');
+
+                    $this->dispatch('toast-message', 'Status alterado com sucesso!');
                 }
 
-                if($this->tipoAjuste == 'redistribuir'){
-                    $this->redistribuirParcela($parcelaService);
+                if($this->novoStatus == 'suspenso' || $this->novoStatus == 'renegociado'){
+                    $titulo = $this->parcela->titulo;
+                    DB::transaction(function () use ($titulo, $tituloService) {
+                        $tituloService->update([
+                            'status' => $this->novoStatus,
+                        ], $titulo->id); 
+
+                        $titulo->parcelas()
+                            ->doesntHave('movimentacoes')
+                            ->update([
+                                'status' => $this->novoStatus
+                            ]);
+                    });
+                    
+                    $this->dispatch('fechar-modal-status');
+
+                    $this->dispatch('toast-message', 'Status alterado no título e em todas as parcelas sem movimentações!');
                 }
-                
             }
 
-            if($this->novoStatus == 'cancelado' && $this->escopoStatus == 'titulo'){
-                $this->cancelarTitulo($tituloService);
-            }
 
         }catch(\Exception $e){
             $this->dispatch('fechar-modal-status');
