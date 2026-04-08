@@ -199,6 +199,7 @@
                 </svg>
                 <input
                     type="text"
+                    wire:model.live.debounce.500ms="search"
                     placeholder="Buscar por entidade, descrição ou documento..."
                     class="w-full pl-9 pr-3 py-2 text-sm border border-transparent rounded-lg focus:border-gray-200 focus:ring-0"
                 >
@@ -207,11 +208,93 @@
             <div class="hidden lg:block w-px h-6 bg-gray-200"></div>
 
             <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
-                <select class="text-sm border-gray-200 rounded-lg px-7 py-2 focus:ring-0">
-                    <option>Competência: Abril/2026</option>
-                    <option>Competência: Março/2026</option>
-                    <option>Competência: Fevereiro/2026</option>
+                <!-- COMPETÊNCIA -->
+                <select
+                    wire:model.live="filtroCompetencia"
+                    class="text-sm border-gray-200 rounded-lg px-7 py-2 focus:ring-0"
+                >
+                    <option value="todos">Qualquer Vencimento</option>
+                    <option value="hoje">Hoje</option>
+                    <option value="ontem">Ontem</option>
+                    <option value="semana">Semana</option>
+                    <option value="mes">Mês</option>
+                    <option value="custom">Período Customizado</option>
                 </select>
+
+                <!-- BLOCO DINÂMICO -->
+                <div class="flex items-center gap-2">
+
+                    <!-- HOJE / ONTEM (navegável futuramente) -->
+                    @if(in_array($filtroCompetencia, ['hoje', 'ontem']))
+                        <div class="flex items-center gap-1">
+                            <button
+                                type="button"
+                                wire:click="diaAnterior"
+                                class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50"
+                            >
+                                ←
+                            </button>
+
+                            <span class="text-sm text-gray-600 px-2">
+                                {{ $labelDiaEspecifico ?? 'Hoje' }}
+                            </span>
+
+                            <button
+                                type="button"
+                                wire:click="diaPosterior"
+                                class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50"
+                            >
+                                →
+                            </button>
+                        </div>
+                    @endif
+
+                    <!-- SEMANA -->
+                    @if($filtroCompetencia === 'semana')
+                        <span class="text-sm text-gray-600 px-2">
+                            {{ $labelCompetencia ?? 'Semana atual' }}
+                        </span>
+                    @endif
+
+                    <!-- MÊS -->
+                    @if($filtroCompetencia === 'mes')
+                        <div class="flex items-center gap-1">
+                            <button wire:click="mesAnterior"
+                                class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
+                                ←
+                            </button>
+
+                            <span class="text-sm text-gray-600 px-2">
+                                {{ $labelMesAno ?? 'Março / 2026' }}
+                            </span>
+
+                            <button wire:click="mesPosterior"
+                                class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50">
+                                →
+                            </button>
+                        </div>
+                    @endif
+
+                    <!-- RANGE CUSTOM -->
+                    @if($filtroCompetencia === 'custom')
+                        <div class="flex items-center gap-2">
+                            <input
+                                type="date"
+                                wire:model.live="dataInicioRange"
+                                class="border border-gray-200 rounded px-2 py-1 text-sm"
+                            >
+
+                            <span class="text-gray-400 text-xs">até</span>
+
+                            <input
+                                type="date"
+                                wire:model.live="dataFimRange"
+                                class="border border-gray-200 rounded px-2 py-1 text-sm"
+                            >
+                        </div>
+                    @endif
+
+                </div>
 
                 <select class="text-sm border-gray-200 rounded-lg px-7 py-2 focus:ring-0">
                     <option value="todos">Tipo: Todos</option>
@@ -226,6 +309,15 @@
                     <option value="pago">Pagos</option>
                     <option value="parcial">Parcial</option>
                 </select>
+
+                <button
+                    type="button"
+                    wire:click="limparFiltros"
+                    class="px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                    title="Limpar todos os filtros"
+                >
+                    Limpar
+                </button>
             </div>
         </div>
 
