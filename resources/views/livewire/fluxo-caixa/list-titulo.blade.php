@@ -1,88 +1,4 @@
 @php
-    $cards = [
-        [
-            'label' => 'Entradas (mês)',
-            'valor' => 128450.35,
-            'hint'  => 'Recebimentos confirmados',
-        ],
-        [
-            'label' => 'Saídas (mês)',
-            'valor' => 94620.10,
-            'hint'  => 'Pagamentos confirmados',
-        ],
-        [
-            'label' => 'Saldo (mês)',
-            'valor' => 33830.25,
-            'hint'  => 'Entradas - Saídas',
-        ],
-        [
-            'label' => 'Previsto (próx. 7 dias)',
-            'valor' => 17890.00,
-            'hint'  => 'Projeção líquida',
-        ],
-    ];
-
-    $chartLabels = ['01/04', '02/04', '03/04', '04/04', '05/04', '06/04', '07/04', '08/04', '09/04', '10/04', '11/04', '12/04'];
-    $chartRecebimentos = [5400, 8200, 3100, 9100, 4800, 12000, 7600, 6600, 9800, 4300, 8700, 10500];
-    $chartPagamentos   = [4200, 6100, 5200, 7300, 3900, 8800, 6400, 7100, 5600, 6200, 6900, 7400];
-
-    $titulosFake = [
-        [
-            'data' => '07/04/2026',
-            'descricao' => 'Mensalidade - Plano Premium',
-            'entidade' => 'Clínica São Lucas',
-            'documento' => '12.345.678/0001-90',
-            'tipo' => 'receita',
-            'status' => 'pago',
-            'valor' => 3200.00,
-        ],
-        [
-            'data' => '07/04/2026',
-            'descricao' => 'Fornecedor - Material de limpeza',
-            'entidade' => 'Higiene Brasil Ltda',
-            'documento' => '45.987.123/0001-10',
-            'tipo' => 'despesa',
-            'status' => 'aberto',
-            'valor' => 860.50,
-        ],
-        [
-            'data' => '06/04/2026',
-            'descricao' => 'Convênio - Repasse',
-            'entidade' => 'Saúde Mais',
-            'documento' => '09.111.222/0001-33',
-            'tipo' => 'receita',
-            'status' => 'parcial',
-            'valor' => 12450.00,
-        ],
-        [
-            'data' => '05/04/2026',
-            'descricao' => 'Aluguel - Unidade Centro',
-            'entidade' => 'Imóveis Central',
-            'documento' => '33.444.555/0001-77',
-            'tipo' => 'despesa',
-            'status' => 'pago',
-            'valor' => 5800.00,
-        ],
-        [
-            'data' => '03/04/2026',
-            'descricao' => 'Serviços - Contabilidade',
-            'entidade' => 'Contábil & Associados',
-            'documento' => '22.333.444/0001-55',
-            'tipo' => 'despesa',
-            'status' => 'atrasado',
-            'valor' => 1350.00,
-        ],
-        [
-            'data' => '02/04/2026',
-            'descricao' => 'Pacote de consultas',
-            'entidade' => 'Paciente Particular',
-            'documento' => 'CPF não informado',
-            'tipo' => 'receita',
-            'status' => 'aberto',
-            'valor' => 420.00,
-        ],
-    ];
-
     $statusColors = [
         'aberto' => 'bg-blue-50 text-blue-700 border-blue-200',
         'pago' => 'bg-green-50 text-green-700 border-green-200',
@@ -91,8 +7,8 @@
     ];
 
     $tipoColors = [
-        'receita' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-        'despesa' => 'bg-rose-50 text-rose-700 border-rose-200',
+        'receber' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        'pagar' => 'bg-rose-50 text-rose-700 border-rose-200',
     ];
 @endphp
 
@@ -125,15 +41,43 @@
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-        @foreach($cards as $card)
-            <div class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all">
-                <p class="text-xs text-gray-400 uppercase">{{ $card['label'] }}</p>
-                <p class="text-xl font-semibold text-gray-900 mt-1">
-                    R$ {{ number_format($card['valor'], 2, ',', '.') }}
-                </p>
-                <p class="text-xs text-gray-400 mt-1">{{ $card['hint'] }}</p>
-            </div>
-        @endforeach
+        <div class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all">
+            <p class="text-xs text-gray-400 uppercase">Entradas</p>
+            <p class="text-xl font-semibold text-gray-900 mt-1">
+                R$ {{ number_format(
+                    $recebidos,
+                    2, ',', '.'
+                ) }}
+            </p>
+            <p class="text-xs text-gray-400 mt-1">Recebimentos Confirmados</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all">
+            <p class="text-xs text-gray-400 uppercase">Saídas</p>
+            <p class="text-xl font-semibold text-gray-900 mt-1">
+                R$ {{ number_format(
+                    $pagos,
+                    2, ',', '.'
+                ) }}
+            </p>
+            <p class="text-xs text-gray-400 mt-1">Pagamentos Confirmados</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all">
+            <p class="text-xs text-gray-400 uppercase">Saldo (mês)</p>
+            <p class="text-xl font-semibold text-gray-900 mt-1">
+                R$ {{ number_format(
+                    $recebidos - $pagos,
+                    2, ',', '.'
+                ) }}
+            </p>
+            <p class="text-xs text-gray-400 mt-1">Entradas - Saídas</p>
+        </div>
+        <div class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all">
+            <p class="text-xs text-gray-400 uppercase">Previsto (próx. dias)</p>
+            <p class="text-xl font-semibold text-gray-900 mt-1">
+                R$ 
+            </p>
+            <p class="text-xs text-gray-400 mt-1">Projeção Líquida</p>
+        </div>
     </div>
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
@@ -299,34 +243,34 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    @forelse($titulosFake as $row)
+                    @forelse($parcelas as $parcela)
                         @php
-                            $tipoColor = $tipoColors[$row['tipo']] ?? 'bg-gray-50 text-gray-600 border-gray-200';
-                            $statusColor = $statusColors[$row['status']] ?? 'bg-gray-50 text-gray-600 border-gray-200';
-                            $tipoLabel = $row['tipo'] === 'receita' ? 'Receita' : 'Despesa';
+                            $tipoColor = $tipoColors[$parcela->titulo->tipo] ?? 'bg-gray-50 text-gray-600 border-gray-200';
+                            $statusColor = $statusColors[$parcela->status_calculado] ?? 'bg-gray-50 text-gray-600 border-gray-200';
+                            $tipoLabel = $parcela->titulo->tipo === 'receber' ? 'Receita' : 'Despesa';
                         @endphp
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="px-4 py-3 whitespace-nowrap">
-                                <span class="text-gray-900 font-medium">{{ $row['data'] }}</span>
+                                <span class="text-gray-900 font-medium">{{ \Carbon\Carbon::parse($parcela->data_vencimento)->format('d/m/Y')}}</span>
                             </td>
 
                             <td class="px-4 py-3">
                                 <div class="flex flex-col">
-                                    <span class="text-gray-900 font-medium truncate max-w-[320px]" title="{{ $row['descricao'] }}">
-                                        {{ $row['descricao'] }}
+                                    <span class="text-gray-900 font-medium truncate max-w-[320px]" title="{{ $parcela->titulo->descricao }}">
+                                        {{ $parcela->titulo->descricao }}
                                     </span>
                                     <span class="text-gray-400 text-[11px] mt-0.5">
-                                        Lançamento ilustrativo
+                                        Parcela {{ $parcela->numero_parcela }} / {{ $parcela->titulo->parcelas_count }}
                                     </span>
                                 </div>
                             </td>
 
                             <td class="px-4 py-3">
-                                <span class="text-gray-700 font-medium truncate max-w-[220px] block" title="{{ $row['entidade'] }}">
-                                    {{ $row['entidade'] }}
+                                <span class="text-gray-700 font-medium truncate max-w-[220px] block" title="{{ $parcela->titulo->entidade->razao_social }}">
+                                    {{ $parcela->titulo->entidade->razao_social ?? $parcela->titulo->entidade->nome_fantasia ?? 'Sem entidade' }}
                                 </span>
                                 <span class="text-gray-400 text-sm block">
-                                    {{ $row['documento'] }}
+                                    {{ $parcela->titulo->entidade->cpf_cnpj ?? 'CNPJ não informado' }}
                                 </span>
                             </td>
 
@@ -337,12 +281,12 @@
                             </td>
 
                             <td class="px-4 py-3 text-right font-medium text-gray-900 whitespace-nowrap">
-                                {{ number_format($row['valor'], 2, ',', '.') }}
+                                {{ number_format($parcela->valor, 2, ',', '.') }}
                             </td>
 
                             <td class="px-4 py-3 text-center whitespace-nowrap">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium border {{ $statusColor }}">
-                                    {{ ucfirst($row['status']) }}
+                                    {{ ucfirst($parcela->status_calculado) }}
                                 </span>
                             </td>
 
@@ -366,18 +310,45 @@
             </table>
         </div>
 
+        @php
+            $paginator = $titulos ?? $parcelas ?? null;
+        @endphp
+
         <div class="border-t border-gray-100 px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
-            <p>
-                Mostrando <span class="font-medium text-gray-900">{{ count($titulosFake) }}</span> registros (fake)
-            </p>
-            <div class="flex gap-2">
-                <button class="px-3 py-1.5 rounded-lg border border-gray-200 transition-colors text-gray-400 bg-gray-50 cursor-not-allowed" disabled>
-                    Anterior
-                </button>
-                <button class="px-3 py-1.5 rounded-lg border border-gray-200 transition-colors text-gray-700 bg-white hover:bg-gray-50">
-                    Próximo
-                </button>
-            </div>
+            @if($paginator && method_exists($paginator, 'total'))
+                <p>
+                    Mostrando <span class="font-medium text-gray-900">{{ $paginator->firstItem() ?? 0 }}</span>
+                    a <span class="font-medium text-gray-900">{{ $paginator->lastItem() ?? 0 }}</span>
+                    de <span class="font-medium text-gray-900">{{ $paginator->total() }}</span> registros
+                </p>
+                <div class="flex gap-2">
+                    <button
+                        @if($paginator->onFirstPage()) disabled @else wire:click="previousPage" @endif
+                        class="px-3 py-1.5 rounded-lg border border-gray-200 transition-colors {{ $paginator->onFirstPage() ? 'text-gray-400 bg-gray-50 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50' }}"
+                    >
+                        Anterior
+                    </button>
+
+                    <button
+                        @if(!$paginator->hasMorePages()) disabled @else wire:click="nextPage" @endif
+                        class="px-3 py-1.5 rounded-lg border border-gray-200 transition-colors {{ !$paginator->hasMorePages() ? 'text-gray-400 bg-gray-50 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50' }}"
+                    >
+                        Próximo
+                    </button>
+                </div>
+            @else
+                <p>
+                    Mostrando <span class="font-medium text-gray-900">{{ is_countable($titulosFake ?? []) ? count($titulosFake) : 0 }}</span> registros
+                </p>
+                <div class="flex gap-2">
+                    <button class="px-3 py-1.5 rounded-lg border border-gray-200 transition-colors text-gray-400 bg-gray-50 cursor-not-allowed" disabled>
+                        Anterior
+                    </button>
+                    <button class="px-3 py-1.5 rounded-lg border border-gray-200 transition-colors text-gray-700 bg-white hover:bg-gray-50" disabled>
+                        Próximo
+                    </button>
+                </div>
+            @endif
         </div>
     </div>
 
