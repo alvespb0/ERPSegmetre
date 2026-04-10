@@ -44,6 +44,10 @@ class TituloFinanceiro extends Model
     public function parcelas(){
         return $this->hasMany(Parcela::class);
     }
+    
+    public function anexos(){
+        return $this->morphMany(Anexo::class, 'anexavel');
+    }
 
     public function getStatusCalculadoAttribute(){
         if ($this->status === 'cancelado') {

@@ -19,6 +19,10 @@ class Movimentacao extends Model
         return $this->belongsTo(FormaPagamento::class, 'forma_pagamento_id');
     }
 
+    public function anexos(){
+        return $this->morphMany(Anexo::class, 'anexavel');
+    }
+
     public function parcela(){
         return $this->belongsTo(Parcela::class, 'parcela_id');
     }

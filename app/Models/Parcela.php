@@ -25,6 +25,10 @@ class Parcela extends Model
         return $this->hasMany(Movimentacao::class);
     }
 
+    public function anexos(){
+        return $this->morphMany(Anexo::class, 'anexavel');
+    }
+    
     public function getStatusCalculadoAttribute(){
         if ($this->status === 'cancelado') {
             return 'cancelado';
