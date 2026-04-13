@@ -6,6 +6,7 @@ use App\Models\Anexo;
 
 use App\Models\Movimentacao;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class AnexoService
 {
@@ -22,5 +23,15 @@ class AnexoService
             'path' => $path,
             'tipo' => $tipo,
         ]);
+    }
+
+    public function download($anexoId){
+        $anexo = Anexo::findOrFail($anexoId);
+
+        return Storage::disk('public')->download($anexo->path);
+    }
+
+    public function destroy($anexoId){
+        return Anexo::findOrFail($anexoId)->delete();
     }
 }
