@@ -3,19 +3,28 @@
 namespace App\Livewire\Modais\ContasReceber;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
+
+use Illuminate\Support\Facades\DB;
 
 use App\Models\Parcela;
 
 use App\Services\MovimentacaoService;
 use App\Services\FormaPagamentoService;
+use App\Services\AnexoService;
 
 class ReceberParcela extends Component
 {
+
+    use WithFileUploads;
+    
     public $parcela;
     public $formasPagamento;
     public $pagamentoData;
     public $pagamentoValor;
     public $pagamentoFormaId = '';
+    public $comprovante;
+    public $descricaoAnexo;
     public $contas;
 
     public function mount($parcelaId, FormaPagamentoService $formasPagamentoService){
@@ -30,6 +39,8 @@ class ReceberParcela extends Component
             'pagamentoData' => 'required|date',
             'pagamentoValor' => 'required|numeric|min:0.01|max:' . $this->parcela->saldo_devedor, // Evita pagar mais que o devido
             'pagamentoFormaId' => 'required|exists:forma_pagamento,id',
+            'comprovante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'descricaoAnexo' => 'nullable|string|max:255',
         ], [
             'pagamentoData.required' => 'A data do pagamento é obrigatória.',
             'pagamentoData.date' => 'Informe uma data de pagamento válida.',
@@ -41,16 +52,32 @@ class ReceberParcela extends Component
 
             'pagamentoFormaId.required' => 'A forma de pagamento é obrigatória.',
             'pagamentoFormaId.exists' => 'A forma de pagamento selecionada é inválida.',
+
+            'comprovante.file' => 'O comprovante deve ser um arquivo válido.',
+            'comprovante.mimes' => 'O comprovante deve ser um arquivo do tipo: PDF, JPG ou PNG.',
+            'comprovante.max' => 'O comprovante não pode ser maior que 5MB.',
+
+            'descricaoAnexo.string' => 'A descrição do anexo deve ser um texto válido.',
+            'descricaoAnexo.max' => 'A descrição do anexo pode ter no máximo 255 caracteres.',
+
         ]);
 
-        $movimentacaoService->store([
-            'forma_pagamento_id' => $this->pagamentoFormaId ?? null,
-            'parcela_id' => $this->parcela->id,
-            'valor_pago' => $this->pagamentoValor,
-            'data_pagamento' => $this->pagamentoData
-        ]);
+        DB::transaction(function () use ($movimentacaoService) {
+            $movimentacao = $movimentacaoService->store([
+                'forma_pagamento_id' => $this->pagamentoFormaId ?? null,
+                'parcela_id' => $this->parcela->id,
+                'valor_pago' => $this->pagamentoValor,
+                'data_pagamento' => $this->pagamentoData
+            ]);
 
-        $this->reset(['pagamentoData', 'pagamentoValor', 'pagamentoFormaId']);
+            if($this->comprovante){
+                $service = new AnexoService();
+
+                $service->criarAnexoMovimentacao($movimentacao, $this->comprovante, 'comprovante', $this->descricaoAnexo ?? null);
+            }
+        });
+
+        $this->reset(['pagamentoData', 'pagamentoValor', 'pagamentoFormaId', 'comprovante', 'descricaoAnexo']);
 
         $this->dispatch('fechar-modal-recebimento');    
 

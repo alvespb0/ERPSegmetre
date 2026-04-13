@@ -115,7 +115,42 @@
                                     </select>
                                     @error('pagamentoFormaId') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                                 </div>
+                                <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 mt-2 border-t border-gray-100">
+                                    <div>
+                                        <label for="comprovante" class="block text-xs text-gray-500 mb-1">
+                                            Comprovante / Anexo <span class="text-gray-400 font-normal">(Opcional)</span>
+                                        </label>
+                                        <div class="flex items-center gap-3">
+                                            <input 
+                                                type="file" 
+                                                id="comprovante" 
+                                                wire:model="comprovante" 
+                                                class="w-full border border-gray-200 rounded-lg text-sm text-gray-500 focus:border-[#313e50] focus:ring-1 focus:ring-[#313e50] outline-none transition-all file:mr-4 file:py-2 file:px-4 file:rounded-l-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100 cursor-pointer @error('comprovante') border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500 @enderror"
+                                            >
+                                            <div wire:loading wire:target="comprovante" class="flex-shrink-0">
+                                                <svg class="animate-spin h-5 w-5 text-[#313e50]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            </div>
+                                        </div>
+                                        @error('comprovante') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                                    </div>
 
+                                    <div>
+                                        <label for="descricaoAnexo" class="block text-xs text-gray-500 mb-1">
+                                            Descrição do Anexo <span class="text-gray-400 font-normal">(Opcional)</span>
+                                        </label>
+                                        <input 
+                                            type="text" 
+                                            id="descricaoAnexo" 
+                                            wire:model="descricaoAnexo" 
+                                            placeholder="Ex: Comprovante PIX Nubank"
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#313e50] focus:ring-1 focus:ring-[#313e50] outline-none transition-all @error('descricaoAnexo') border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500 @enderror"
+                                        >
+                                        @error('descricaoAnexo') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
