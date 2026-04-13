@@ -3,18 +3,21 @@
 namespace App\Livewire\Modais\ContasPagar;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
+
+use Illuminate\Support\Facades\DB;
 
 use App\Models\Parcela;
 
 use App\Services\MovimentacaoService;
 use App\Services\FormaPagamentoService;
-use Livewire\WithFileUploads;
+use App\Services\AnexoService;
 
 class PagarParcela extends Component
 {
 
     use WithFileUploads;
-    
+
     public $parcela;
     public $formasPagamento;
     public $pagamentoData;
@@ -58,37 +61,27 @@ class PagarParcela extends Component
             'descricaoAnexo.max' => 'A descrição do anexo pode ter no máximo 255 caracteres.',
         ]);
 
-        $movimentacao = $movimentacaoService->store([
-            'forma_pagamento_id' => $this->pagamentoFormaId ?? null,
-            'parcela_id' => $this->parcela->id,
-            'valor_pago' => $this->pagamentoValor,
-            'data_pagamento' => $this->pagamentoData
-        ]);
+        DB::transaction(function () use ($movimentacaoService) {
+            $movimentacao = $movimentacaoService->store([
+                'forma_pagamento_id' => $this->pagamentoFormaId ?? null,
+                'parcela_id' => $this->parcela->id,
+                'valor_pago' => $this->pagamentoValor,
+                'data_pagamento' => $this->pagamentoData
+            ]);
 
-        if($this->comprovante){
-            $this->saveAnexo($movimentacao);
-        }
+            if($this->comprovante){
+                $service = new AnexoService();
+
+                $service->criarAnexoMovimentacao($movimentacao, $this->comprovante, 'comprovante', $this->descricaoAnexo ?? null);
+            }
+
+        });
 
         $this->reset(['pagamentoData', 'pagamentoValor', 'pagamentoFormaId', 'comprovante', 'descricaoAnexo']);
 
         $this->dispatch('fechar-modal-pagamento');    
 
         $this->dispatch('toast-message', 'Pagamento lançado com sucesso!');
-    }
-
-    public function saveAnexo($mov){
-        $fileName = uniqid() . '.' . $this->comprovante->getClientOriginalExtension();
-
-        $path = $this->comprovante->storeAs(
-            "anexos/movimentacao/{$mov->id}",
-            $fileName, 'public'
-        );
-
-        $mov->anexos()->create([
-            'descricao' => $this->descricaoAnexo ?? null,
-            'path' => $path,
-            'tipo' => 'comprovante',
-        ]);
     }
 
     public function render()
