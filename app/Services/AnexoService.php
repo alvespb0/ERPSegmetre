@@ -22,11 +22,21 @@ class AnexoService
             $fileName, 'public'
         );
 
-        return $movimentacao->anexos()->create([
-            'descricao' => $descricao ?? null,
-            'path' => $path,
-            'tipo' => $tipo,
-        ]);
+        try{
+            return $movimentacao->anexos()->create([
+                'descricao' => $descricao ?? null,
+                'path' => $path,
+                'tipo' => $tipo,
+            ]);
+        }catch(\Throwable $e){
+            \Log::error('Erro ao fazer upload de anexo', [
+                'exception' => $e,
+                'movimentacao_id' => $movimentacao->id,
+                'path' => $path ?? null,
+            ]);
+            Storage::disk('public')->delete($path);
+            throw $e;
+        }
     }
 
     public function criarAnexoParcela(Parcela $parcela, $file, $tipo, $descricao = null){

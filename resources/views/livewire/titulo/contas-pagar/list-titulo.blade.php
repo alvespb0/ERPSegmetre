@@ -33,7 +33,7 @@
             >
                 <p class="text-xs text-gray-400 uppercase">Vencidos</p>
                 <p class="text-xl font-semibold text-gray-900 mt-1">
-                    R$ {{ number_format($parcelas->filter(fn($p) =>$p->status !== 'cancelado' && $p->data_vencimento < now()->startOfDay())->sum('valor'), 2, ',', '.') }}
+                    R$ {{ number_format($parcelas->filter(fn($p) =>$p->status !== 'cancelado' && $p->status_calculado != 'pago' &&$p->data_vencimento < now()->startOfDay())->sum('valor'), 2, ',', '.') }}
                 </p>
                 <p class="text-xs text-gray-500 mt-1">
                     Total do Filtro: R$ {{ number_format($vencidos, 2, ',', '.') }}
