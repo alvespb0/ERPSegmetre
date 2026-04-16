@@ -47,6 +47,9 @@ class ListTitulo extends Component
     public bool $openModalEditarStatus = false;
     public ?Parcela $parcelaParaEditarStatus = null;
 
+    public bool $openModalAnexos = false;
+    public ?Parcela $parcelaParaAnexos = null;
+
     public $search = '';
     public $filtroCompetencia;
     public $filtroCard;
@@ -356,6 +359,25 @@ class ListTitulo extends Component
         $this->openModalEditarStatus = false;
 
         $this->parcelaParaEditarStatus = null;
+    }
+
+    public function anexosParcela(Parcela $parcela){
+        $parcela->load([
+                'titulo', 
+                'anexos', 
+                'movimentacoes', 
+            ]);
+            
+        $this->parcelaParaAnexos = $parcela;
+
+        $this->openModalAnexos = true;
+    }
+
+    #[On('fechar-modal-anexos')]
+    public function fecharModalAnexos(){
+        $this->openModalAnexos = false;
+
+        $this->parcelaParaAnexos = null;
     }
 
     /**

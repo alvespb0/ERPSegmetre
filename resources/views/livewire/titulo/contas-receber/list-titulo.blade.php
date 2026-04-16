@@ -432,6 +432,13 @@
                                                 >
                                                     Ver Título Completo
                                                 </button>
+                                                <button
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                    wire:click="anexosParcela({{ $parcela->id }})"
+                                                >
+                                                    Anexos
+                                                </button>
+
                                             </div>
                                         </div>
                                     </template>
@@ -502,6 +509,12 @@
         <livewire:Modais.ContasReceber.EditarStatus
             :parcela-id="$parcelaParaEditarStatus->id" 
             wire:key="modal-receber-{{ $parcelaParaEditarStatus->id }}" 
+        />
+    @endif
+    @if($parcelaParaAnexos && $openModalAnexos)
+        <livewire:Modais.ContasReceber.Anexos
+            :parcela-id="$parcelaParaAnexos->id" 
+            wire:key="modal-receber-{{ $parcelaParaAnexos->id }}" 
         />
     @endif
 </div>
