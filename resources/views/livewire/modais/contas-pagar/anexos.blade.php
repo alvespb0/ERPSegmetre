@@ -90,7 +90,7 @@
                                     </div>
                                     <div class="col-span-1">
                                         <label class="block text-xs font-medium text-gray-700 mb-1">Tipo *</label>
-                                        <select wire:model="tipo_anexo" class="block w-full text-sm border-gray-200 rounded-md shadow-sm focus:border-[#313e50] focus:ring-[#313e50] py-2">
+                                        <select wire:model="tipoAnexo" class="block w-full text-sm border-gray-200 rounded-md shadow-sm focus:border-[#313e50] focus:ring-[#313e50] py-2">
                                             <option value="">Selecione...</option>
                                             <option value="comprovante">Comprovante</option>
                                             <option value="pix">PIX</option>
@@ -98,12 +98,12 @@
                                             <option value="fatura">Fatura</option>
                                             <option value="outros">Outros</option>
                                         </select>
-                                        @error('tipo_anexo') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                        @error('tipoAnexo') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                     </div>
                                     <div class="col-span-1">
                                         <label class="block text-xs font-medium text-gray-700 mb-1">Descrição</label>
-                                        <input type="text" wire:model="descricao_anexo" placeholder="Opcional" class="block w-full text-sm border-gray-200 rounded-md shadow-sm focus:border-[#313e50] focus:ring-[#313e50] py-2">
-                                        @error('descricao_anexo') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                        <input type="text" wire:model="descricaoAnexo" placeholder="Opcional" class="block w-full text-sm border-gray-200 rounded-md shadow-sm focus:border-[#313e50] focus:ring-[#313e50] py-2">
+                                        @error('descricaoAnexo') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                                 <div class="flex justify-end gap-2">
@@ -180,12 +180,12 @@
                                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                                     <div class="col-span-2">
                                         <label class="block text-xs font-medium text-gray-700 mb-1">Arquivo *</label>
-                                        <input type="file" wire:model="arquivo_titulo" class="block w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 border border-gray-200 rounded-md bg-white cursor-pointer focus:ring-[#313e50] focus:border-[#313e50]">
-                                        @error('arquivo_titulo') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                        <input type="file" wire:model="arquivoTitulo" class="block w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 border border-gray-200 rounded-md bg-white cursor-pointer focus:ring-[#313e50] focus:border-[#313e50]">
+                                        @error('arquivoTitulo') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                     </div>
                                     <div class="col-span-1">
                                         <label class="block text-xs font-medium text-gray-700 mb-1">Tipo *</label>
-                                        <select wire:model="tipo_anexo_titulo" class="block w-full text-sm border-gray-200 rounded-md shadow-sm focus:border-[#313e50] focus:ring-[#313e50] py-2">
+                                        <select wire:model="tipoAnexoTitulo" class="block w-full text-sm border-gray-200 rounded-md shadow-sm focus:border-[#313e50] focus:ring-[#313e50] py-2">
                                             <option value="">Selecione...</option>
                                             <option value="comprovante">Comprovante</option>
                                             <option value="pix">PIX</option>
@@ -193,12 +193,12 @@
                                             <option value="fatura">Fatura</option>
                                             <option value="outros">Outros</option>
                                         </select>
-                                        @error('tipo_anexo_titulo') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                        @error('tipoAnexoTitulo') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                     </div>
                                     <div class="col-span-1">
                                         <label class="block text-xs font-medium text-gray-700 mb-1">Descrição</label>
-                                        <input type="text" wire:model="descricao_anexo_titulo" placeholder="Opcional" class="block w-full text-sm border-gray-200 rounded-md shadow-sm focus:border-[#313e50] focus:ring-[#313e50] py-2">
-                                        @error('descricao_anexo_titulo') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                        <input type="text" wire:model="descricaoAnexoTitulo" placeholder="Opcional" class="block w-full text-sm border-gray-200 rounded-md shadow-sm focus:border-[#313e50] focus:ring-[#313e50] py-2">
+                                        @error('descricaoAnexoTitulo') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
                                 <div class="flex justify-end gap-2">
