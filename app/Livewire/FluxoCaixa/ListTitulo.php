@@ -3,20 +3,36 @@
 namespace App\Livewire\FluxoCaixa;
 
 use Livewire\Component;
-use App\Models\Parcela;
 use Livewire\WithPagination;
 use Livewire\WithoutUrlPagination;
+
+use Livewire\Attributes\On;
+
+use App\Models\Parcela;
+use App\Models\TituloFinanceiro;
+
 use \Carbon\Carbon;
 
 class ListTitulo extends Component
 {
     use WithPagination, WithoutUrlPagination;
 
+    public $openModalDetalhesParcela = false;
+    public ?Parcela $parcelaSelecionada = null;
+
+    public $openModalDetalhesTitulo = false;
+    public ?TituloFinanceiro $tituloSelecionado = null;
+
+    public bool $openModalAnexos = false;
+    public ?Parcela $parcelaParaAnexos = null;
+
+    public $statusColors, $tipoColors;
+
+    /* Variáveis do chart do fluxo */
     public $chartLabels = [];
     public $chartRecebimentos = [];
     public $chartPagamentos = [];
     public $chartSaldo = [];
-
 
     public $search = '';
     public $filtroCompetencia;
@@ -37,6 +53,23 @@ class ListTitulo extends Component
     public $dataInicioRange;
     public $dataFimRange;
 
+    public function mount(){
+        $this->statusColors = [
+            'aberto' => 'bg-blue-50 text-blue-700 border-blue-200',
+            'pago' => 'bg-green-50 text-green-700 border-green-200',
+            'atrasado' => 'bg-red-50 text-red-700 border-red-200',
+            'parcial' => 'bg-yellow-50 text-yellow-700 border-yellow-200',
+        ];
+
+        $this->tipoColors = [
+            'receber' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+            'pagar' => 'bg-rose-50 text-rose-700 border-rose-200',
+        ];
+    }
+
+    /**
+     * Pega o filtro de referencia para aplicar retornar ui de filtro de competencia
+     */
     public function updatedFiltroCompetencia(){
         $this->resetarFiltrosDeData();
         switch ($this->filtroCompetencia){
@@ -170,6 +203,9 @@ class ListTitulo extends Component
         }
     }
 
+    /**
+     * Aplica os filtros na query
+     */
     public function aplicarFiltros($query){
         if($this->filtroDiaEspecifico){
             $data = $this->filtroDiaEspecifico->toDateString();
@@ -207,6 +243,62 @@ class ListTitulo extends Component
         return $query;
     }
 
+    /**
+     * Abre o modal com detalhes de uma parcela.
+     *
+     * @param Parcela $parcela
+     * @return void
+     */
+    public function detalhesParcela(Parcela $parcela){
+        $this->parcelaSelecionada = $parcela;
+
+        $this->openModalDetalhesParcela = true;
+    }
+
+    /**
+     * Abre o modal com detalhes do título financeiro.
+     *
+     * @param TituloFinanceiro $titulo
+     * @return void
+     */
+    public function verDetalhesTitulo(TituloFinanceiro $titulo){
+        $titulo->load([
+            'entidade', 
+            'categoriaFinanceira', 
+            'centroCusto', 
+            'conta.banco', 
+            'parcelas.movimentacoes'
+        ]);
+
+        $this->tituloSelecionado = $titulo;
+        $this->openModalDetalhesTitulo = true;
+    }
+
+    /**
+     * Abre o modal com anexos do titulo, parcela e movimetacoes.
+     *
+     * @param Parcela $titulo
+     * @return void
+     */
+    public function anexosParcela(Parcela $parcela){
+        $parcela->load([
+                'titulo', 
+                'anexos', 
+                'movimentacoes', 
+            ]);
+            
+        $this->parcelaParaAnexos = $parcela;
+
+        $this->openModalAnexos = true;
+    }
+
+    #[On('fechar-modal-anexos')]
+    public function fecharModalAnexos(){
+        $this->openModalAnexos = false;
+
+        $this->parcelaParaAnexos = null;
+    }
+
     public function render(){
         $query = $this->aplicarFiltros(Parcela::query());
 
@@ -231,7 +323,7 @@ class ListTitulo extends Component
             ->orderBy('data_vencimento', 'asc')
             ->paginate(10);
 
-        $this->gerarGrafico($queryBase);
+        $this->gerarGrafico(clone $queryBase);
         
         return view('livewire.fluxo-caixa.list-titulo', [
             'parcelas' => $parcelas,

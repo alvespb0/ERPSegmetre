@@ -52,7 +52,7 @@ Route::middleware(['auth', 'verified'])->controller(CategoriaFinanceiraControlle
     Route::get('erp/categoria-financeira/editar/{idEnc}', 'showEditView')->name('erp.categoria-financeira.update');
 });
 Route::middleware(['auth', 'verified'])->controller(CategoriaFinanceiraController::class)->group(function(){
-    Route::get('erp/fluxo', function(){ return view('erp.fluxo-caixa.index'); });
+    Route::get('erp/fluxo-caixa', function(){ return view('erp.fluxo-caixa.index'); })->name('erp.fluxo-caixa');
 });
 
 Route::middleware(['auth', 'verified'])->controller(BancoController::class)->group(function(){

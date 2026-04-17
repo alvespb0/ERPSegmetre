@@ -1,17 +1,3 @@
-@php
-    $statusColors = [
-        'aberto' => 'bg-blue-50 text-blue-700 border-blue-200',
-        'pago' => 'bg-green-50 text-green-700 border-green-200',
-        'atrasado' => 'bg-red-50 text-red-700 border-red-200',
-        'parcial' => 'bg-yellow-50 text-yellow-700 border-yellow-200',
-    ];
-
-    $tipoColors = [
-        'receber' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-        'pagar' => 'bg-rose-50 text-rose-700 border-rose-200',
-    ];
-@endphp
-
 <div class="space-y-6">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -382,13 +368,65 @@
                                 </span>
                             </td>
 
-                            <td class="px-4 py-3 text-right">
+                            <td class="px-4 py-3 text-right" x-data="{ open: false }">
                                 <button
-                                    type="button"
+                                    @click="open = !open"
+                                    @keydown.escape.window="open = false"
+                                    :class="open ? 'bg-gray-50 ring-2 ring-[#313e50]' : ''"
                                     class="inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#313e50] transition-all"
+                                    aria-haspopup="menu"
+                                    :aria-expanded="open"
+                                    id="btn-{{ $parcela->id }}"
                                 >
-                                    Detalhes
+                                    Ações
+                                    <svg class="ml-1.5 w-4 h-4 text-gray-500 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                    </svg>
                                 </button>
+
+                                <div x-show="open" @click="open = false" class="fixed inset-0 z-40"></div>
+
+                                <template x-teleport="body">
+                                    <div
+                                        x-show="open" 
+                                        @click.away="open = false"
+                                        x-anchor.bottom-end="document.getElementById('btn-{{ $parcela->id }}')"
+                                        class="z-[100] w-44 bg-white border border-gray-200 rounded-lg shadow-lg"
+                                    >
+
+                                        <div class="py-1">
+                                            @if($parcela->status_calculado != 'pago' && $parcela->status_calculado != 'cancelado')
+                                                <button
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                    wire:click="editarStatus({{ $parcela->id }})"
+                                                    @click="open = false"
+                                                >
+                                                    Alterar Status 
+                                                </button>
+                                            @endif
+                                            <button
+                                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                wire:click="detalhesParcela({{ $parcela->id }})"
+                                                @click="open = false"
+                                            >
+                                                Detalhes da Parcela
+                                            </button>
+                                            <button
+                                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                wire:click="verDetalhesTitulo({{ $parcela->titulo_financeiro_id }})"
+                                            >
+                                                Ver Título Completo
+                                            </button>
+                                            <button
+                                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                wire:click="anexosParcela({{ $parcela->id }})"
+                                            >
+                                                Anexos
+                                            </button>
+
+                                        </div>
+                                    </div>
+                                </template>
                             </td>
                         </tr>
                     @empty
@@ -443,5 +481,51 @@
             @endif
         </div>
     </div>
+
+    @if($openModalDetalhesParcela && $parcelaSelecionada)
+        @if($parcelaSelecionada->titulo->tipo == 'receber')
+            <livewire:Modais.ContasReceber.DetalhesParcela 
+                :parcela-id="$parcelaSelecionada->id" 
+                wire:key="modal-detalhes-{{ $parcelaSelecionada->id }}" 
+                @fechar-modal.camel="$set('openModalDetalhesParcela', false)" 
+            />
+        @else
+            <livewire:Modais.ContasPagar.DetalhesParcela 
+                :parcela-id="$parcelaSelecionada->id" 
+                wire:key="modal-detalhes-{{ $parcelaSelecionada->id }}" 
+                @fechar-modal.camel="$set('openModalDetalhesParcela', false)" 
+            />
+        @endif
+    @endif
+
+    @if($openModalDetalhesTitulo && $tituloSelecionado)
+        @if($tituloSelecionado->tipo == 'receber')
+            <livewire:Modais.ContasReceber.DetalhesTitulo 
+                :titulo-id="$tituloSelecionado->id" 
+                wire:key="modal-detalhes-titulo-{{ $tituloSelecionado->id }}" 
+                @fechar-modal.camel="$set('openModalDetalhesTitulo', false)" 
+            />
+        @else
+            <livewire:Modais.ContasPagar.DetalhesTitulo 
+                :titulo-id="$tituloSelecionado->id" 
+                wire:key="modal-detalhes-titulo-{{ $tituloSelecionado->id }}" 
+                @fechar-modal.camel="$set('openModalDetalhesTitulo', false)" 
+            />
+        @endif
+    @endif
+
+    @if($parcelaParaAnexos && $openModalAnexos)
+        @if($parcelaParaAnexos->titulo->tipo == 'receber')
+            <livewire:Modais.ContasReceber.Anexos
+                :parcela-id="$parcelaParaAnexos->id" 
+                wire:key="modal-receber-{{ $parcelaParaAnexos->id }}" 
+            />
+        @else
+            <livewire:Modais.ContasPagar.Anexos
+                :parcela-id="$parcelaParaAnexos->id" 
+                wire:key="modal-receber-{{ $parcelaParaAnexos->id }}" 
+            />
+        @endif
+    @endif
 
 </div>
