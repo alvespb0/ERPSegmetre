@@ -15,12 +15,19 @@ class Entidade extends Model
         'razao_social',
         'nome_fantasia', # nullable
         'cpf_cnpj', # unique
-        'email', # nullable
-        'telefone', # nullable
         'tipo', # enum [pf, pj]
+        'classificacao', #enum [cliente, fornecedor, ambos]
     ];
 
     public function titulos(){
         return $this->hasMany(TituloFinanceiro::class);
+    }
+
+    public function contatos(){
+        return $this->hasMany(Contato::class);
+    }
+
+    public function enderecos(){
+        return $this->hasMany(EnderecoEntidade::class);
     }
 }

@@ -3,13 +3,10 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Movimentacao extends Model
 {
     protected $table = 'movimentacoes';
-
-    use SoftDeletes;
 
     protected $fillable = [
         'forma_pagamento_id', #nullable
@@ -20,6 +17,10 @@ class Movimentacao extends Model
 
     public function formaPagamento(){
         return $this->belongsTo(FormaPagamento::class, 'forma_pagamento_id');
+    }
+
+    public function anexos(){
+        return $this->morphMany(Anexo::class, 'anexavel');
     }
 
     public function parcela(){

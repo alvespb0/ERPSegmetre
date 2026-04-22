@@ -16,9 +16,8 @@ return new class extends Migration
             $table->string('razao_social');
             $table->string('nome_fantasia')->nullable();
             $table->string('cpf_cnpj')->unique();
-            $table->string('email')->nullable();
-            $table->string('telefone')->nullable();
             $table->enum('tipo', ['pf', 'pj']);
+            $table->enum('classificacao', ['fornecedor', 'cliente', 'ambos']);
             $table->softDeletes();
             $table->timestamps();
         });
