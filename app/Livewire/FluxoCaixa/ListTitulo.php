@@ -13,6 +13,13 @@ use App\Models\TituloFinanceiro;
 
 use \Carbon\Carbon;
 
+/**
+ * Class ListTitulo
+ * * Componente Livewire responsável pela listagem, filtragem e exibição gráfica
+ * do fluxo de caixa (Títulos e Parcelas).
+ *
+ * @package App\Livewire\FluxoCaixa
+ */
 class ListTitulo extends Component
 {
     use WithPagination, WithoutUrlPagination;
@@ -28,12 +35,17 @@ class ListTitulo extends Component
 
     public $statusColors, $tipoColors;
 
-    /* Variáveis do chart do fluxo */
+    /* =========================================
+       Variáveis do Gráfico de Fluxo (ApexCharts)
+       ========================================= */ 
     public $chartLabels = [];
     public $chartRecebimentos = [];
     public $chartPagamentos = [];
     public $chartSaldo = [];
 
+    /* =========================================
+       Filtros de Busca e Período
+       ========================================= */
     public $search = '';
     public $filtroCompetencia;
 
@@ -56,6 +68,11 @@ class ListTitulo extends Component
     public $tipoTitulo = "todos";
     public $statusCalculadoParcela = "todos";
 
+    /**
+     * Inicializa o componente definindo os mapeamentos de cores base.
+     *
+     * @return void
+     */
     public function mount(){
         $this->statusColors = [
             'aberto' => 'bg-blue-50 text-blue-700 border-blue-200',
@@ -71,8 +88,11 @@ class ListTitulo extends Component
     }
 
     /**
-     * Pega o filtro de referencia para aplicar retornar ui de filtro de competencia
-     */
+     * Gatilho executado sempre que a propriedade $filtroCompetencia é atualizada.
+     * Define as variáveis de datas baseadas na seleção rápida do usuário.
+     *
+     * @return void
+     */    
     public function updatedFiltroCompetencia(){
         $this->resetarFiltrosDeData();
         switch ($this->filtroCompetencia){
@@ -109,7 +129,8 @@ class ListTitulo extends Component
     public function limparFiltros(){
         $this->resetarFiltrosDeData();
         $this->search = '';
-        $this->filtroCard = '';
+        $this->tipoTitulo = 'todos';
+        $this->statusCalculadoParcela = 'todos';
         $this->filtroCompetencia = '';
     }
 
@@ -170,6 +191,13 @@ class ListTitulo extends Component
         $this->labelMesAno = Carbon::parse($this->filtroMesAno . '-01') ->format('m/Y');
     }
 
+    /**
+     * Processa os dados filtrados para gerar as arrays utilizadas no gráfico ApexCharts.
+     * Agrupa valores por dia cronológico e acumula saldos.
+     *
+     * @param Builder $query Query Builder com os filtros já aplicados.
+     * @return void
+     */
     public function gerarGrafico($query){
         $this->chartLabels = [];
         $this->chartRecebimentos = [];
@@ -197,13 +225,11 @@ class ListTitulo extends Component
             }
         }
 
-        // Agora a ordenação alfabética fará sentido cronológico (Ex: 2024-01-01 vem antes de 2024-01-02)
         ksort($dados);
 
         $saldoAcumulado = 0;
 
         foreach($dados as $dataIndex => $valores){
-            // Formatamos para d/m apenas para exibição na label do gráfico
             $this->chartLabels[] = Carbon::parse($dataIndex)->format('d/m');
             $this->chartRecebimentos[] = $valores['receita'];
             $this->chartPagamentos[] = $valores['despesa'];
@@ -214,8 +240,12 @@ class ListTitulo extends Component
     }
 
     /**
-     * Aplica os filtros na query
-     */
+     * Intercepta e constrói as condições da consulta (Where) com base
+     * nos filtros preenchidos pelo usuário.
+     *
+     * @param Builder $query
+     * @return Builder
+     */ 
     public function aplicarFiltros($query){
         if($this->filtroDiaEspecifico){
             $data = $this->filtroDiaEspecifico->toDateString();
@@ -347,6 +377,12 @@ class ListTitulo extends Component
         $this->openModalAnexos = true;
     }
 
+    /**
+     * Carrega a parcela e suas relações para o gerenciamento de anexos no modal.
+     *
+     * @param Parcela $parcela
+     * @return void
+     */
     #[On('fechar-modal-anexos')]
     public function fecharModalAnexos(){
         $this->openModalAnexos = false;

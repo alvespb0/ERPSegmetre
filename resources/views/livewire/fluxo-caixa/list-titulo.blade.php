@@ -139,8 +139,6 @@
 
                         this.chart.render();
 
-                        // A MÁGICA ACONTECE AQUI:
-                        // Observa mudanças nas labels vindas do backend (acionado pelos filtros) e injeta no gráfico via API
                         $wire.$watch('chartLabels', () => {
                             if (this.chart) {
                                 this.chart.updateOptions({ xaxis: { categories: $wire.chartLabels } });
@@ -152,7 +150,6 @@
                         });
                     };
 
-                    // Lógica de CDN que você já tinha (Mantida intacta)
                     const ensureApexAndRender = () => {
                         if (typeof ApexCharts !== 'undefined') {
                             render();
