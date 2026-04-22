@@ -282,13 +282,13 @@
 
                 </div>
 
-                <select class="text-sm border-gray-200 rounded-lg px-7 py-2 focus:ring-0">
+                <select wire:model.live="tipoTitulo" class="text-sm border-gray-200 rounded-lg px-7 py-2 focus:ring-0">
                     <option value="todos">Tipo: Todos</option>
                     <option value="receita">Receita</option>
                     <option value="despesa">Despesa</option>
                 </select>
 
-                <select class="text-sm border-gray-200 rounded-lg px-30 py-2 focus:ring-0">
+                <select wire:model.live="statusCalculadoParcela" class="text-sm border-gray-200 rounded-lg px-30 py-2 focus:ring-0">
                     <option value="todos">Status: Todos</option>
                     <option value="aberto">Em aberto</option>
                     <option value="atrasado">Atrasados</option>

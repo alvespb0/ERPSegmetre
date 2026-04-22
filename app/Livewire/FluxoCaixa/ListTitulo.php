@@ -53,6 +53,9 @@ class ListTitulo extends Component
     public $dataInicioRange;
     public $dataFimRange;
 
+    public $tipoTitulo = "todos";
+    public $statusCalculadoParcela = "todos";
+
     public function mount(){
         $this->statusColors = [
             'aberto' => 'bg-blue-50 text-blue-700 border-blue-200',
@@ -168,6 +171,11 @@ class ListTitulo extends Component
     }
 
     public function gerarGrafico($query){
+        $this->chartLabels = [];
+        $this->chartRecebimentos = [];
+        $this->chartPagamentos = [];
+        $this->chartSaldo = [];
+
         $dados = [];
         
         $parcelas = (clone $query)->get();
@@ -240,6 +248,51 @@ class ListTitulo extends Component
             });
         }
 
+        if($this->tipoTitulo != "todos"){
+            $query->whereHas('titulo', function($q){
+                $q->where('tipo', $this->tipoTitulo == 'receita' ? 'receber' : 'pagar');
+            });
+        }
+
+        if($this->statusCalculadoParcela != "todos"){
+            switch($this->statusCalculadoParcela){
+                case 'aberto':
+                    $query->where('status', '!=', 'cancelado')
+                        ->whereDate('data_vencimento', '>=', now())
+                        ->whereDoesntHave('movimentacoes', function ($q) {
+                            $q->selectRaw('parcela_id')
+                                ->groupBy('parcela_id')
+                                ->havingRaw('SUM(valor_pago) > 0');
+                        });
+                    break;
+                case 'atrasado':
+                    $query->where('status', '!=', 'cancelado')
+                        ->whereDate('data_vencimento', '<', now())
+                        ->whereDoesntHave('movimentacoes', function ($q) {
+                            $q->selectRaw('parcela_id')
+                                ->groupBy('parcela_id')
+                                ->havingRaw('SUM(valor_pago) > 0');
+                        });
+                    break;
+                case 'pago':
+                    $query->where('status', '!=', 'cancelado')
+                        ->whereHas('movimentacoes', function ($q) {
+                            $q->selectRaw('parcela_id, SUM(valor_pago) as total_pago')
+                            ->groupBy('parcela_id')
+                            ->havingRaw('SUM(valor_pago) >= parcelas.valor');
+                        });
+                    break;
+                case 'parcial':
+                    $query->where('status', '!=', 'cancelado')
+                        ->whereHas('movimentacoes', function ($q) {
+                            $q->selectRaw('parcela_id, SUM(valor_pago) as total_pago')
+                            ->groupBy('parcela_id')
+                            ->havingRaw('SUM(valor_pago) < parcelas.valor');
+                        });
+                    break; 
+            }
+        }
+        
         return $query;
     }
 
