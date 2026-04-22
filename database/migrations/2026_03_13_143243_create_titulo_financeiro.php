@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('centro_custo_id')->nullable();
             $table->unsignedBigInteger('categoria_financeira_id')->nullable();
-            $table->unsignedBigInteger('conta_id')->nullable();
             $table->unsignedBigInteger('entidade_id');
             $table->string('descricao');
             $table->text('observacoes')->nullable();
@@ -27,7 +26,6 @@ return new class extends Migration
             $table->softDeletes();
             $table->foreign('centro_custo_id')->references('id')->on('centro_custo')->nullOnDelete();
             $table->foreign('categoria_financeira_id')->references('id')->on('categoria_financeira')->nullOnDelete();
-            $table->foreign('conta_id')->references('id')->on('conta')->nullOnDelete();
             $table->foreign('entidade_id')->references('id')->on('entidade')->onDelete('cascade');
             $table->timestamps();
         });

@@ -207,20 +207,7 @@
                         <p class="text-xs text-gray-500 mt-1">Atribua a conta, categoria de despesa e centro de custo (opcionais).</p>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Conta de Pagamento</label>
-                            <select
-                                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]"
-                                wire:model="conta_id"
-                            >
-                                <option value="">Não informada</option>
-                                @foreach($contas as $conta)
-                                    <option value="{{ $conta->id }}">{{ $conta->nome }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-medium text-gray-700 mb-1">Categoria</label>
                             <select

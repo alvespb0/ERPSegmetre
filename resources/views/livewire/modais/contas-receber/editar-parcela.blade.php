@@ -169,22 +169,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-
-                                <div>
-                                    <label for="editContaId" class="block text-xs text-gray-700 font-medium mb-1">Conta Bancária</label>
-                                    <select 
-                                        id="editContaId" 
-                                        wire:model="editContaId" 
-                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#313e50] focus:ring-1 focus:ring-[#313e50] outline-none transition-all"
-                                    >
-                                        <option value="">Selecione...</option>
-                                        @foreach($contas as $conta)
-                                            <option value="{{ $conta->id }}">{{ $conta->nome }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <div class="md:col-span-2">
+                                <div class="md:col-span-3">
                                     <label for="editObservacoes" class="block text-xs text-gray-700 font-medium mb-1">Observações Gerais</label>
                                     <textarea 
                                         id="editObservacoes" 

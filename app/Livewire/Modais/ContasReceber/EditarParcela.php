@@ -10,7 +10,6 @@ use App\Services\ParcelaService;
 use App\Services\TituloFinanceiroService;
 use App\Services\CategoriaFinanceiraService;
 use App\Services\CentroCustoService;
-use App\Services\ContaService;
 
 class EditarParcela extends Component
 {
@@ -21,14 +20,11 @@ class EditarParcela extends Component
     public $editNumeroNf;
     public $editCategoriaId;
     public $editCentroCustoId;
-    public $editContaId;
     public $editObservacoes;
     public $categorias;
     public $centrosCusto;
-    public $contas;
 
-    public function mount($parcelaId, ContaService $contaService, CategoriaFinanceiraService $categoriaFinanceiraService, CentroCustoService $centroCustoService){
-        $this->contas = $contaService->show();
+    public function mount($parcelaId, CategoriaFinanceiraService $categoriaFinanceiraService, CentroCustoService $centroCustoService){
         $this->categorias = $categoriaFinanceiraService->showDespesas();
         $this->centrosCusto = $centroCustoService->show();
 
@@ -42,7 +38,6 @@ class EditarParcela extends Component
         $this->editNumeroNf = $titulo->numero_nf;
         $this->editCategoriaId = $titulo->categoria_financeira_id;
         $this->editCentroCustoId = $titulo->centro_custo_id;
-        $this->editContaId = $titulo->conta_id;
         $this->editObservacoes = $titulo->observacoes;
     }
 
@@ -54,7 +49,6 @@ class EditarParcela extends Component
             'editNumeroNf' => 'nullable|string|max:50',
             'editCategoriaId' => 'nullable|exists:categoria_financeira,id',
             'editCentroCustoId' => 'nullable|exists:centro_custo,id',
-            'editContaId' => 'nullable|exists:conta,id',
             'editObservacoes' => 'nullable|string',
         ], [
             'editDataVencimento.required' => 'A data de vencimento é obrigatória.',
@@ -74,8 +68,6 @@ class EditarParcela extends Component
 
             'editCentroCustoId.exists' => 'O centro de custo selecionado é inválido.',
 
-            'editContaId.exists' => 'A conta selecionada é inválida.',
-
             'editObservacoes.string' => 'As observações devem ser um texto válido.',
         ]);
         
@@ -89,14 +81,13 @@ class EditarParcela extends Component
             'numero_nf' => $this->editNumeroNf,
             'categoria_financeira_id' => $this->editCategoriaId ?? null,
             'centro_custo_id' => $this->editCentroCustoId ?? null,
-            'conta_id' => $this->editContaId ?? null,
             'observacoes' => $this->editObservacoes,
         ], $this->parcela->titulo->id);
 
         
         $this->reset([
             'editDataVencimento', 'editDescricao', 'editDataEmissao', 
-            'editNumeroNf', 'editCategoriaId', 'editCentroCustoId', 'editContaId', 'editObservacoes'
+            'editNumeroNf', 'editCategoriaId', 'editCentroCustoId', 'editObservacoes'
         ]);
         
         $this->dispatch('fechar-modal-edicao');

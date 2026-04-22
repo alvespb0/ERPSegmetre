@@ -122,10 +122,6 @@
                                 <p class="text-gray-500 text-xs mb-0.5">Centro de Custo</p>
                                 <p class="font-medium text-gray-900">{{ $titulo->centroCusto->nome ?? 'Padrão' }}</p>
                             </div>
-                            <div>
-                                <p class="text-gray-500 text-xs mb-0.5">Conta</p>
-                                <p class="font-medium text-gray-900">{{ $titulo->conta->descricao ?? 'Não informada' }}</p>
-                            </div> 
                             @if($titulo->observacoes)
                                 <div class="col-span-1 md:col-span-2 lg:col-span-3 pt-2">
                                     <p class="text-gray-500 text-xs mb-0.5">Observações</p>

@@ -110,16 +110,6 @@
                                 <p class="text-gray-500 text-xs mb-0.5">Centro de Custo</p>
                                 <p class="font-medium text-gray-900">{{ $titulo->centroCusto->nome ?? 'Padrão' }}</p>
                             </div>
-                            <div>
-                                <p class="text-gray-500 text-xs mb-0.5">Conta Bancária Origem/Destino</p>
-                                <p class="font-medium text-gray-900">
-                                    {{ $titulo->conta->nome ?? 'Não informada' }}
-                                    @if($titulo->conta)
-                                        <span class="text-gray-400 text-[11px] block">{{ $titulo->conta->banco->nome ?? '' }} Ag {{ $titulo->conta->agencia }} Cta {{ $titulo->conta->conta }}</span>
-                                    @endif
-                                </p>
-                            </div>
-
                             @if($titulo->observacoes)
                                 <div class="col-span-1 md:col-span-2 lg:col-span-3 pt-2">
                                     <p class="text-gray-500 text-xs mb-0.5">Observações</p>

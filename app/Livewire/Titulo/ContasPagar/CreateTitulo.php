@@ -6,7 +6,6 @@ use Livewire\Component;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 
-use App\Services\ContaService;
 use App\Services\CategoriaFinanceiraService;
 use App\Services\CentroCustoService;
 use App\Services\EntidadeService;
@@ -19,17 +18,16 @@ use Illuminate\Support\Facades\DB;
 class CreateTitulo extends Component
 {
     public $entidade_id, $descricao, $valor_total, $data_emissao, $data_vencimento, $quantidade_parcelas;
-    public $conta_id, $categoria_financeira_id, $centro_custo_id, $numero_nf, $observacoes;
-    public $contas, $categoriasFinanceira, $centrosCusto, $entidades, $formasPagamento;
+    public $categoria_financeira_id, $centro_custo_id, $numero_nf, $observacoes;
+    public $categoriasFinanceira, $centrosCusto, $entidades, $formasPagamento;
     public $parcelas = [];
 
-    public function mount(ContaService $contaService,
+    public function mount(
         CategoriaFinanceiraService $categoriaFinanceiraService,
         CentroCustoService $centroCustoService,
         EntidadeService $entidadeService,
         FormaPagamentoService $formaPagamentoService
     ){
-        $this->contas = $contaService->show();
         $this->categoriasFinanceira = $categoriaFinanceiraService->showDespesas();
         $this->centrosCusto = $centroCustoService->show();
         $this->entidades = $entidadeService->showFornecedores();
@@ -39,7 +37,6 @@ class CreateTitulo extends Component
     public function rules(){
         return [
             'entidade_id' => 'required|exists:entidade,id',
-            'conta_id' => 'nullable|exists:conta,id',
             'categoria_financeira_id' => 'nullable|exists:categoria_financeira,id',
             'centro_custo_id' => 'nullable|exists:centro_custo,id',
             'numero_nf' => 'nullable|string|max:100',
@@ -56,8 +53,6 @@ class CreateTitulo extends Component
         return [
             'entidade_id.required' => 'A entidade é obrigatória.',
             'entidade_id.exists' => 'A entidade informada é inválida.',
-
-            'conta_id.exists' => 'A conta informada é inválida.',
 
             'categoria_financeira_id.exists' => 'A categoria financeira informada é inválida.',
 
@@ -115,7 +110,6 @@ class CreateTitulo extends Component
             $tituloData = [
                 'centro_custo_id' => $data['centro_custo_id'] ?? null,
                 'categoria_financeira_id' => $data['categoria_financeira_id'] ?? null,
-                'conta_id' => $data['conta_id'] ?? null,
                 'entidade_id' => $data['entidade_id'],
                 'descricao' => $data['descricao'],
                 'observacoes' => $data['observacoes'] ?? null,

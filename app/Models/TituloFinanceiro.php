@@ -14,7 +14,6 @@ class TituloFinanceiro extends Model
     protected $fillable = [
         'centro_custo_id', # nullable
         'categoria_financeira_id', # nullable
-        'conta_id', # nullable
         'entidade_id',
         'descricao',
         'observacoes', # nullable
@@ -31,10 +30,6 @@ class TituloFinanceiro extends Model
 
     public function categoriaFinanceira(){
         return $this->belongsTo(CategoriaFinanceira::class, 'categoria_financeira_id');
-    }
-
-    public function conta(){
-        return $this->belongsTo(Conta::class, 'conta_id');
     }
 
     public function entidade(){

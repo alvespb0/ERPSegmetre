@@ -11,6 +11,7 @@ class Movimentacao extends Model
     protected $fillable = [
         'forma_pagamento_id', #nullable
         'parcela_id',
+        'conta_id', #nullable
         'valor_pago',
         'data_pagamento',
     ];
@@ -26,4 +27,9 @@ class Movimentacao extends Model
     public function parcela(){
         return $this->belongsTo(Parcela::class, 'parcela_id');
     }
+    
+    public function conta(){
+        return $this->belongsTo(Conta::class, 'conta_id');
+    }
+
 }
