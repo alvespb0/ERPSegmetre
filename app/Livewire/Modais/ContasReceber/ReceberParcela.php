@@ -12,6 +12,7 @@ use App\Models\Parcela;
 use App\Services\MovimentacaoService;
 use App\Services\FormaPagamentoService;
 use App\Services\AnexoService;
+use App\Services\ContaService;
 
 class ReceberParcela extends Component
 {
@@ -26,10 +27,12 @@ class ReceberParcela extends Component
     public $comprovante;
     public $descricaoAnexo;
     public $contas;
+    public $contaId = '';
 
-    public function mount($parcelaId, FormaPagamentoService $formasPagamentoService){
+    public function mount($parcelaId, FormaPagamentoService $formasPagamentoService, ContaService $contaService){
         $this->parcela = Parcela::with('titulo.entidade', 'movimentacoes')->findOrFail($parcelaId);
         $this->formasPagamento = $formasPagamentoService->show();
+        $this->contas = $contaService->show();
         $this->pagamentoData = today()->format('Y-m-d');
         $this->pagamentoValor = $this->parcela->saldo_devedor;
     }
@@ -39,6 +42,7 @@ class ReceberParcela extends Component
             'pagamentoData' => 'required|date',
             'pagamentoValor' => 'required|numeric|min:0.01|max:' . $this->parcela->saldo_devedor, // Evita pagar mais que o devido
             'pagamentoFormaId' => 'required|exists:forma_pagamento,id',
+            'contaId' => 'nullable|exists:conta,id',
             'comprovante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'descricaoAnexo' => 'nullable|string|max:255',
         ], [
@@ -52,6 +56,8 @@ class ReceberParcela extends Component
 
             'pagamentoFormaId.required' => 'A forma de pagamento é obrigatória.',
             'pagamentoFormaId.exists' => 'A forma de pagamento selecionada é inválida.',
+            
+            'contaId.exists' => 'A Conta selecionada é inválida.',
 
             'comprovante.file' => 'O comprovante deve ser um arquivo válido.',
             'comprovante.mimes' => 'O comprovante deve ser um arquivo do tipo: PDF, JPG ou PNG.',
@@ -65,6 +71,7 @@ class ReceberParcela extends Component
         DB::transaction(function () use ($movimentacaoService) {
             $movimentacao = $movimentacaoService->store([
                 'forma_pagamento_id' => $this->pagamentoFormaId ?? null,
+                'conta_id' => $this->contaId ?? null,
                 'parcela_id' => $this->parcela->id,
                 'valor_pago' => $this->pagamentoValor,
                 'data_pagamento' => $this->pagamentoData
@@ -77,7 +84,7 @@ class ReceberParcela extends Component
             }
         });
 
-        $this->reset(['pagamentoData', 'pagamentoValor', 'pagamentoFormaId', 'comprovante', 'descricaoAnexo']);
+        $this->reset(['pagamentoData', 'pagamentoValor', 'pagamentoFormaId', 'contaId', 'comprovante', 'descricaoAnexo']);
 
         $this->dispatch('fechar-modal-recebimento');    
 

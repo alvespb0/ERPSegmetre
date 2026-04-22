@@ -9,6 +9,7 @@ class MovimentacaoService
     public function store(array $dados){
         return Movimentacao::create([
             'forma_pagamento_id' => $dados['forma_pagamento_id'] ?? null,
+            'conta_id' => $dados['conta_id'] ?? null,
             'parcela_id' => $dados['parcela_id'],
             'valor_pago' => $dados['valor_pago'],
             'data_pagamento' => $dados['data_pagamento']

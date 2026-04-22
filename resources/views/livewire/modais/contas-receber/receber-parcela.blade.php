@@ -97,24 +97,42 @@
                                         >
                                         @error('pagamentoValor') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                                     </div>
+
+                                    <div>
+                                        <label for="pagamentoFormaId" class="block text-xs text-gray-500 mb-1">
+                                            Forma de Pagamento <span class="text-red-500">*</span>
+                                        </label>
+                                        <select 
+                                            id="pagamentoFormaId" 
+                                            wire:model="pagamentoFormaId" 
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#313e50] focus:ring-1 focus:ring-[#313e50] outline-none transition-all @error('pagamentoFormaId') border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500 @enderror"
+                                        >
+                                            <option value="">Selecione uma forma...</option>
+                                            @foreach($formasPagamento as $forma)
+                                                <option value="{{ $forma->id }}">{{ $forma->nome }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('pagamentoFormaId') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <div>
+                                        <label for="contaId" class="block text-xs text-gray-500 mb-1">
+                                            Conta de Destino <span class="text-gray-400 font-normal">(Opcional)</span>
+                                        </label>
+                                        <select 
+                                            id="contaId" 
+                                            wire:model="contaId" 
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#313e50] focus:ring-1 focus:ring-[#313e50] outline-none transition-all @error('conta_id') border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500 @enderror"
+                                        >
+                                            <option value="">Selecione uma conta...</option>
+                                            @foreach($contas as $conta)
+                                                <option value="{{ $conta->id }}">{{ $conta->nome }}</option>
+                                            @endforeach
+                                        </select>
+                                        @error('conta_id') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                                    </div>
                                 </div>
 
-                                <div>
-                                    <label for="pagamentoFormaId" class="block text-xs text-gray-500 mb-1">
-                                        Forma de Pagamento <span class="text-red-500">*</span>
-                                    </label>
-                                    <select 
-                                        id="pagamentoFormaId" 
-                                        wire:model="pagamentoFormaId" 
-                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#313e50] focus:ring-1 focus:ring-[#313e50] outline-none transition-all @error('pagamentoFormaId') border-red-300 text-red-900 focus:ring-red-500 focus:border-red-500 @enderror"
-                                    >
-                                        <option value="">Selecione uma forma...</option>
-                                        @foreach($formasPagamento as $forma)
-                                            <option value="{{ $forma->id }}">{{ $forma->nome }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('pagamentoFormaId') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
-                                </div>
                                 <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 mt-2 border-t border-gray-100">
                                     <div>
                                         <label for="comprovante" class="block text-xs text-gray-500 mb-1">

@@ -12,7 +12,6 @@ class TituloFinanceiroService
         return TituloFinanceiro::create([
             'centro_custo_id' => $dados['centro_custo_id'] ?? null,
             'categoria_financeira_id' => $dados['categoria_financeira_id'] ?? null,
-            'conta_id' => $dados['conta_id'] ?? null,
             'entidade_id' => $dados['entidade_id'],
             'descricao' => $dados['descricao'],
             'observacoes' => $dados['observacoes'] ?? null,
