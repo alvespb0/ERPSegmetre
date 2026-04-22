@@ -97,6 +97,8 @@
                     const render = () => {
                         const el = this.$refs.chart;
                         if (!el || typeof ApexCharts === 'undefined') return;
+                        
+                        // Garante que gráficos anteriores sejam destruídos antes de recriar
                         if (this.chart) { this.chart.destroy(); this.chart = null; }
 
                         this.chart = new ApexCharts(el, {
@@ -113,7 +115,7 @@
                             fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.18, opacityTo: 0.02, stops: [0, 90, 100] } },
                             grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
                             xaxis: {
-                                categories: @js($chartLabels),
+                                categories: $wire.chartLabels, // Usando $wire para pegar o estado atual
                                 labels: { style: { colors: '#6b7280', fontSize: '11px' } },
                                 axisBorder: { show: false },
                                 axisTicks: { show: false },
@@ -130,14 +132,27 @@
                             },
                             legend: { show: false },
                             series: [
-                                { name: 'Recebimentos', data: @js($chartRecebimentos) },
-                                { name: 'Pagamentos', data: @js($chartPagamentos) },
+                                { name: 'Recebimentos', data: $wire.chartRecebimentos },
+                                { name: 'Pagamentos', data: $wire.chartPagamentos },
                             ],
                         });
 
                         this.chart.render();
+
+                        // A MÁGICA ACONTECE AQUI:
+                        // Observa mudanças nas labels vindas do backend (acionado pelos filtros) e injeta no gráfico via API
+                        $wire.$watch('chartLabels', () => {
+                            if (this.chart) {
+                                this.chart.updateOptions({ xaxis: { categories: $wire.chartLabels } });
+                                this.chart.updateSeries([
+                                    { name: 'Recebimentos', data: $wire.chartRecebimentos },
+                                    { name: 'Pagamentos', data: $wire.chartPagamentos },
+                                ]);
+                            }
+                        });
                     };
 
+                    // Lógica de CDN que você já tinha (Mantida intacta)
                     const ensureApexAndRender = () => {
                         if (typeof ApexCharts !== 'undefined') {
                             render();

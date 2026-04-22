@@ -181,28 +181,30 @@ class ListTitulo extends Component
         $parcelas = (clone $query)->get();
 
         foreach($parcelas as $parcela){
-            $data = Carbon::parse($parcela->data_vencimento)->format('d/m');
+            $dataIndex = Carbon::parse($parcela->data_vencimento)->format('Y-m-d');
 
-            if(!isset($dados[$data])){
-                $dados[$data] = [
+            if(!isset($dados[$dataIndex])){
+                $dados[$dataIndex] = [
                     'receita' => 0,
                     'despesa' => 0
                 ];
             }
 
             if ($parcela->titulo->tipo === 'receber') {
-                $dados[$data]['receita'] += $parcela->valor;
+                $dados[$dataIndex]['receita'] += $parcela->valor;
             } else {
-                $dados[$data]['despesa'] += $parcela->valor;
+                $dados[$dataIndex]['despesa'] += $parcela->valor;
             }
         }
 
+        // Agora a ordenação alfabética fará sentido cronológico (Ex: 2024-01-01 vem antes de 2024-01-02)
         ksort($dados);
 
         $saldoAcumulado = 0;
 
-        foreach($dados as $data => $valores){
-            $this->chartLabels[] = $data;
+        foreach($dados as $dataIndex => $valores){
+            // Formatamos para d/m apenas para exibição na label do gráfico
+            $this->chartLabels[] = Carbon::parse($dataIndex)->format('d/m');
             $this->chartRecebimentos[] = $valores['receita'];
             $this->chartPagamentos[] = $valores['despesa'];
 
