@@ -351,7 +351,6 @@ class ListTitulo extends Component
             'entidade', 
             'categoriaFinanceira', 
             'centroCusto', 
-            'conta.banco', 
             'parcelas.movimentacoes'
         ]);
 

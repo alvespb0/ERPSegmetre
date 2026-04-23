@@ -11,7 +11,7 @@ class DetalhesTitulo extends Component
     public $titulo;
 
     public function mount($tituloId){
-        $this->titulo = TituloFinanceiro::findOrFail($tituloId);
+        $this->titulo = TituloFinanceiro::with('parcelas')->findOrFail($tituloId);
     }
 
     public function fechar(){
