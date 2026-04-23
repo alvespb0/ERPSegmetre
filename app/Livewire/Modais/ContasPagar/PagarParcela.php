@@ -42,7 +42,7 @@ class PagarParcela extends Component
             'pagamentoData' => 'required|date',
             'pagamentoValor' => 'required|numeric|min:0.01|max:' . $this->parcela->saldo_devedor, // Evita pagar mais que o devido
             'pagamentoFormaId' => 'required|exists:forma_pagamento,id',
-            'contaId' => 'nullable|exists:conta,id',
+            'contaId' => 'required|exists:conta,id',
             'comprovante' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             'descricaoAnexo' => 'nullable|string|max:255',
         ], [
@@ -57,6 +57,7 @@ class PagarParcela extends Component
             'pagamentoFormaId.required' => 'A forma de pagamento é obrigatória.',
             'pagamentoFormaId.exists' => 'A forma de pagamento selecionada é inválida.',
            
+            'contaId.required' => 'A conta de saída é obrigatória.',
             'contaId.exists' => 'A Conta selecionada é inválida.',
 
             'comprovante.file' => 'O comprovante deve ser um arquivo válido.',

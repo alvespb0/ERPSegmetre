@@ -118,7 +118,7 @@
 
                                     <div>
                                         <label for="contaId" class="block text-xs text-gray-500 mb-1">
-                                            Conta de Saída <span class="text-gray-400 font-normal">(Opcional)</span>
+                                            Conta de Saída <span class="text-red-500">*</span>
                                         </label>
                                         <select 
                                             id="contaId" 
@@ -130,7 +130,7 @@
                                                 <option value="{{ $conta->id }}">{{ $conta->nome }}</option>
                                             @endforeach
                                         </select>
-                                        @error('conta_id') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                                        @error('contaId') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
 
