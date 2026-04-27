@@ -32,6 +32,8 @@ class ListTitulo extends Component
 {
     use WithPagination, WithoutUrlPagination;
 
+    public $selecionados = [];
+
     public $openModalDetalhesParcela = false;
     public ?Parcela $parcelaSelecionada = null;
 
@@ -431,7 +433,6 @@ class ListTitulo extends Component
                                 $q->where('tipo', 'receber');
                             })
                             ->orderBy('data_vencimento', 'asc')->paginate(10);
-
         return view('livewire.titulo.contas-receber.list-titulo', [
             'parcelas' => $parcelas,
             'vencidos' => $vencidos,

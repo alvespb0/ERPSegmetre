@@ -19,9 +19,18 @@
                 </a>
                 <button
                     type="button"
-                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                    wire:click="exportar"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
                 >
-                    Exportar
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                    </svg>
+                    Exportar 
+                    @if(count($selecionados ?? []) > 0)
+                        <span class="bg-gray-100 text-gray-700 py-0.5 px-2 rounded-full text-xs font-bold">
+                            {{ count($selecionados) }}
+                        </span>
+                    @endif
                 </button>
             </div>
         </div>
@@ -94,10 +103,8 @@
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all">
 
-            <!-- HEADER -->
             <div class="p-2 flex flex-col lg:flex-row items-center gap-2">
 
-                <!-- SEARCH -->
                 <div class="relative flex-1 w-full">
                     <svg class="absolute left-3 top-2.5 w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -113,10 +120,8 @@
 
                 <div class="hidden lg:block w-px h-6 bg-gray-200"></div>
 
-                <!-- FILTROS PRINCIPAIS -->
                 <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto">
 
-                    <!-- COMPETÊNCIA -->
                     <select
                         wire:model.live="filtroCompetencia"
                         class="text-sm border-gray-200 rounded-lg px-7 py-2 focus:ring-0"
@@ -129,10 +134,8 @@
                         <option value="custom">Período Customizado</option>
                     </select>
 
-                    <!-- BLOCO DINÂMICO -->
                     <div class="flex items-center gap-2">
 
-                        <!-- HOJE / ONTEM (navegável futuramente) -->
                         @if(in_array($filtroCompetencia, ['hoje', 'ontem']))
                             <div class="flex items-center gap-1">
                                 <button
@@ -157,14 +160,12 @@
                             </div>
                         @endif
 
-                        <!-- SEMANA -->
                         @if($filtroCompetencia === 'semana')
                             <span class="text-sm text-gray-600 px-2">
                                 {{ $labelCompetencia ?? 'Semana atual' }}
                             </span>
                         @endif
 
-                        <!-- MÊS -->
                         @if($filtroCompetencia === 'mes')
                             <div class="flex items-center gap-1">
                                 <button wire:click="mesAnterior"
@@ -183,7 +184,6 @@
                             </div>
                         @endif
 
-                        <!-- RANGE CUSTOM -->
                         @if($filtroCompetencia === 'custom')
                             <div class="flex items-center gap-2">
                                 <input
@@ -206,7 +206,6 @@
 
                     <div class="hidden md:block w-px h-4 bg-gray-200"></div>
 
-                    <!-- STATUS -->
                     <select
                         wire:model.live="statusFiltro"
                         class="text-sm border-gray-200 rounded-lg px-30 py-2 focus:ring-0"
@@ -218,7 +217,6 @@
                         <option value="parcial">Parcial</option>
                     </select>
 
-                    <!-- AVANÇADO -->
                     <button
                         type="button"
                         @click="mostrarFiltrosAvancados = !mostrarFiltrosAvancados"
@@ -238,7 +236,6 @@
                 </div>
             </div>
 
-            <!-- FILTROS AVANÇADOS -->
             <div 
                 x-show="mostrarFiltrosAvancados"
                 x-collapse
@@ -286,6 +283,7 @@
                 <table class="min-w-full text-sm">
                     <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
                         <tr>
+                            <th class="px-4 py-3 text-left w-10"></th>
                             <th class="px-4 py-3 text-left">Vencimento</th>
                             <th class="px-4 py-3 text-left w-1/3">Descrição do Título & Parcela</th>
                             <th class="px-4 py-3 text-left">Cliente / Pagador</th>
@@ -296,7 +294,16 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse($parcelas as $parcela)
-                            <tr class="hover:bg-gray-50 transition-colors">
+                            <tr class="hover:bg-gray-50 transition-colors {{ in_array($parcela->id, $selecionados ?? []) ? 'bg-blue-50/50' : '' }}">
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <input 
+                                        type="checkbox" 
+                                        value="{{ $parcela->id }}" 
+                                        wire:model.live="selecionados"
+                                        class="rounded border-gray-300 text-[#313e50] shadow-sm focus:ring-[#313e50] focus:ring-opacity-50"
+                                    >
+                                </td>
+                                
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     <div class="flex flex-col">
                                         <span class="text-gray-900 font-medium">
@@ -446,7 +453,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500">
+                                <td colspan="7" class="px-4 py-8 text-center text-sm text-gray-500">
                                     Nenhuma parcela encontrada para os filtros selecionados.
                                 </td>
                             </tr>
