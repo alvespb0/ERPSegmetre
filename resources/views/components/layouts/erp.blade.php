@@ -278,22 +278,6 @@
                                         <span>Fluxo de caixa</span>
                                     </a>
                                 </li>
-                                <li>
-                                    <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.movimentacoes.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
-                                        <span class="inline-flex h-5 w-5 items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
-                                        </span>
-                                        <span>Movimentações</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.titulos.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
-                                        <span class="inline-flex h-5 w-5 items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
-                                        </span>
-                                        <span>Lançamento de Títulos</span>
-                                    </a>
-                                </li>
                             </ul>
                         </li>
 
@@ -370,17 +354,20 @@
                             </svg>
                         </button>
 
-                        <div class="hidden sm:block w-full max-w-md">
-                            <div class="relative">
-                                <input
-                                    type="search"
-                                    placeholder="Buscar lançamentos financeiros..."
-                                    class="w-full rounded-full border border-gray-200 bg-gray-50/50 py-2 pl-10 pr-4 text-sm text-gray-700 placeholder-gray-400 focus:border-[#2C394B] focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#2C394B] transition-all"
-                                >
-                                <span class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
-                                </span>
-                            </div>
+                        <div class="hidden sm:flex w-full max-w-md items-center gap-3">
+                            <a href="{{ route('erp.receita.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-[#2C394B] px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-[#1a2332] transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Nova Receita
+                            </a>
+                            
+                            <a href="{{ route('erp.despesa.create') }}" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Nova Despesa
+                            </a>
                         </div>
                     </div>
                     

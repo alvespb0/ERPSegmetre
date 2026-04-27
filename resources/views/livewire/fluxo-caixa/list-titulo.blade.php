@@ -105,7 +105,7 @@
                             chart: {
                                 type: 'area',
                                 height: 300,
-                                toolbar: { show: false },
+                                toolbar: { show: true },
                                 zoom: { enabled: false },
                                 fontFamily: 'inherit',
                             },
@@ -130,7 +130,7 @@
                                 theme: 'light',
                                 y: { formatter: (v) => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) },
                             },
-                            legend: { show: false },
+                            legend: { show: true },
                             series: [
                                 { name: 'Recebimentos', data: $wire.chartRecebimentos },
                                 { name: 'Pagamentos', data: $wire.chartPagamentos },
@@ -407,15 +407,6 @@
                                     >
 
                                         <div class="py-1">
-                                            @if($parcela->status_calculado != 'pago' && $parcela->status_calculado != 'cancelado')
-                                                <button
-                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
-                                                    wire:click="editarStatus({{ $parcela->id }})"
-                                                    @click="open = false"
-                                                >
-                                                    Alterar Status 
-                                                </button>
-                                            @endif
                                             <button
                                                 class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
                                                 wire:click="detalhesParcela({{ $parcela->id }})"
