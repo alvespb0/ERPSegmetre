@@ -328,6 +328,10 @@ class ListTitulo extends Component
         $this->openModalReceberParcela = true;
     }
     
+    /**
+     * Evento acionado para fechar o modal de recebimento e limpar os dados.
+     * * @return void
+     */
     #[On('fechar-modal-recebimento')]
     public function fecharModalRecebimento(){
         $this->openModalReceberParcela = false;
@@ -335,6 +339,11 @@ class ListTitulo extends Component
         $this->parcelaAReceber = null;
     }
 
+    /**
+     * Abre o modal para edição de uma parcela específica.
+     * * @param Parcela $parcela
+     * @return void
+     */
     public function editarParcela(Parcela $parcela){
         $parcela->load('titulo.entidade');
         $this->parcelaParaEditar = $parcela;
@@ -342,19 +351,32 @@ class ListTitulo extends Component
         $this->openModalEditarParcela = true;
     }
 
+    /**
+     * Evento acionado para fechar o modal de edição e limpar os dados.
+     * * @return void
+     */
     #[On('fechar-modal-edicao')]
     public function fecharModalEdicao(){
         $this->openModalEditarParcela = false;
 
         $this->parcelaParaEditar = null;
     }
-
+    
+    /**
+     * Abre o modal para alteração rápida de status de uma parcela.
+     * * @param Parcela $parcela
+     * @return void
+     */
     public function editarStatus(Parcela $parcela){
         $parcela->load('titulo.entidade');
         $this->parcelaParaEditarStatus = $parcela;
         $this->openModalEditarStatus = true;
     }
 
+    /**
+     * Evento acionado para fechar o modal de status e limpar os dados.
+     * * @return void
+     */
     #[On('fechar-modal-status')]
     public function fecharModalStatus(){
         $this->openModalEditarStatus = false;
@@ -362,6 +384,11 @@ class ListTitulo extends Component
         $this->parcelaParaEditarStatus = null;
     }
 
+    /**
+     * Abre o modal de anexos de uma parcela, carregando relacionamentos necessários.
+     * * @param Parcela $parcela
+     * @return void
+     */
     public function anexosParcela(Parcela $parcela){
         $parcela->load([
                 'titulo', 
@@ -374,6 +401,10 @@ class ListTitulo extends Component
         $this->openModalAnexos = true;
     }
 
+    /**
+     * Evento acionado para fechar o modal de anexos e limpar os dados.
+     * * @return void
+     */
     #[On('fechar-modal-anexos')]
     public function fecharModalAnexos(){
         $this->openModalAnexos = false;
