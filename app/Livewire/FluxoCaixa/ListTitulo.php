@@ -2,6 +2,8 @@
 
 namespace App\Livewire\FluxoCaixa;
 
+use Maatwebsite\Excel\Facades\Excel;
+
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithoutUrlPagination;
@@ -10,6 +12,8 @@ use Livewire\Attributes\On;
 
 use App\Models\Parcela;
 use App\Models\TituloFinanceiro;
+
+use App\Exports\TitulosExport;
 
 use \Carbon\Carbon;
 
@@ -23,6 +27,8 @@ use \Carbon\Carbon;
 class ListTitulo extends Component
 {
     use WithPagination, WithoutUrlPagination;
+
+    public $selecionados = [];
 
     public $openModalDetalhesParcela = false;
     public ?Parcela $parcelaSelecionada = null;
@@ -389,8 +395,31 @@ class ListTitulo extends Component
         $this->parcelaParaAnexos = null;
     }
 
-    public function render(){
+    private function getQuery(){
         $query = $this->aplicarFiltros(Parcela::query());
+
+        return $query->with(['titulo' => function ($q) { $q->withCount('parcelas'); }]);
+    }
+
+    public function exportar(){
+        if(!empty($this->selecionados)){
+            return Excel::download(new TitulosExport($this->selecionados), 'relatorio_lancamentos.xlsx');
+        }else{
+            $query = $this->getQuery();
+            
+            $query->with([
+                'titulo.entidade',
+                'titulo.centroCusto',
+                'titulo.categoriaFinanceira',
+                'movimentacoes'
+            ]);
+
+            return Excel::download(new TitulosExport($this->selecionados, $query), 'relatorio_lancamentos.xlsx');
+        }
+    }
+
+    public function render(){
+        $query = $this->getQuery();
 
         $queryBase = clone $query;
 
@@ -409,7 +438,6 @@ class ListTitulo extends Component
             ->sum('valor_pago');
 
         $parcelas = $query
-            ->with(['titulo' => function ($q) { $q->withCount('parcelas'); }])
             ->orderBy('data_vencimento', 'asc')
             ->paginate(10);
 
