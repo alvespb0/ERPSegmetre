@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Titulo\ContasPagar;
 
+use Maatwebsite\Excel\Facades\Excel;
+
 use Livewire\Component;
 use Livewire\Attributes\On;
 
@@ -9,6 +11,8 @@ use Carbon\Carbon;
 
 use App\Models\Parcela;
 use App\Models\TituloFinanceiro;
+
+use App\Exports\TitulosExport;
 
 use App\Services\ContaService;
 use App\Services\CategoriaFinanceiraService;
@@ -25,6 +29,8 @@ use Illuminate\Support\Facades\Crypt;
 class ListTitulo extends Component
 {
     use WithPagination, WithoutUrlPagination;
+
+    public $selecionados = [];
 
     public $openModalDetalhesParcela = false;
     public ?Parcela $parcelaSelecionada = null;
@@ -404,21 +410,44 @@ class ListTitulo extends Component
         $this->parcelaParaAnexos = null;
     }
 
+    private function getQuery(){
+        $query = $this->aplicarFiltros(Parcela::query());
+
+        return $query->whereHas('titulo', function ($q) {
+            $q->where('tipo', 'pagar');
+        });
+    }
+
+    public function exportar(){
+        if(!empty($this->selecionados)){
+            return Excel::download(new TitulosExport($this->selecionados), 'relatorio_lancamentos.xlsx');
+        }else{
+            $query = $this->getQuery();
+            
+            $query->with([
+                'titulo.entidade',
+                'titulo.centroCusto',
+                'titulo.categoriaFinanceira',
+                'movimentacoes'
+            ]);
+
+            return Excel::download(new TitulosExport($this->selecionados, $query), 'relatorio_lancamentos.xlsx');
+        }
+    }
+
     /**
      * Renderiza o componente com os dados filtrados e métricas.
      *
      * @return \Illuminate\View\View
      */
     public function render(){
-        $query = $this->aplicarFiltros(Parcela::query());
+        $query = $this->getQuery();
 
         $queryBase = clone $query;
 
         $vencidos = (clone $queryBase)->where('status', '!=', 'cancelado')
-                                ->whereHas('titulo', function ($q) {
-                                    $q->where('tipo', 'pagar');
-                                })
                                 ->whereDate('data_vencimento', '<', now())
+                                ->with('movimentacoes')
                                 ->get()
                                 ->filter(function ($parcela) {
                                     return $parcela->valor_pago < $parcela->valor;
@@ -428,10 +457,8 @@ class ListTitulo extends Component
                                 });
 
         $abertos = (clone $queryBase)->where('status', '!=', 'cancelado')
-                                ->whereHas('titulo', function ($q) {
-                                    $q->where('tipo', 'pagar');
-                                })
                                 ->whereDate('data_vencimento', '>=', now())
+                                ->with('movimentacoes')
                                 ->get()
                                 ->filter(function ($parcela) {
                                     return $parcela->valor_pago < $parcela->valor;
@@ -441,20 +468,12 @@ class ListTitulo extends Component
                                 });
 
         $venceHoje = (clone $queryBase)->where('status', '!=', 'cancelado')
-                                ->whereHas('titulo', function ($q) {
-                                    $q->where('tipo', 'pagar');
-                                })
                                 ->whereDate('data_vencimento', now())
                                 ->sum('valor');
 
-        $pagos = (clone $queryBase)->whereHas('titulo', function ($q) {
-                                    $q->where('tipo', 'pagar');
-                                })->get()->sum('valor_pago');
+        $pagos = (clone $queryBase)->get()->sum('valor_pago');
 
         $parcelas = $query->with(['titulo' => function ($q) { $q->withCount('parcelas'); }])
-                            ->whereHas('titulo', function ($q) {
-                                $q->where('tipo', 'pagar');
-                            })
                             ->orderBy('data_vencimento', 'asc')->paginate(10);
 
         return view('livewire.titulo.contas-pagar.list-titulo', [
