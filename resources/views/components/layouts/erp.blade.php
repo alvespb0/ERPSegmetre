@@ -289,7 +289,7 @@
                             <ul class="mt-1 space-y-1">
 
                                 <li>
-                                    <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.relatorios.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
+                                    <a href="{{ route('erp.relatorios.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.relatorios.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
                                         <span class="inline-flex h-5 w-5 items-center justify-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z" /><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z" /></svg>
                                         </span>
