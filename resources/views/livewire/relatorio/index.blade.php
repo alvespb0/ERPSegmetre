@@ -49,12 +49,9 @@
                                     type="button"
                                     wire:click="irParaGeracao(@js($rel['id']))"
                                     wire:loading.attr="disabled"
-                                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors disabled:opacity-60"
+                                    class="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors disabled:opacity-60"
                                 >
                                     Seguir para geração do relatório
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 opacity-90 shrink-0">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                                    </svg>
                                 </button>
                             </div>
                         </div>
@@ -63,4 +60,8 @@
             </div>
         @endforeach
     </div>
+
+    @if ($openModalDre)
+        <livewire:relatorio.modais.d-r-e-modal wire:key="modal-dre-filtros" />
+    @endif
 </div>
