@@ -64,4 +64,20 @@
     @if ($openModalDre)
         <livewire:relatorio.modais.d-r-e-modal wire:key="modal-dre-filtros" />
     @endif
+
+    @if ($openModalFluxoCaixa)
+        <livewire:relatorio.modais.fluxo-caixa-modal wire:key="modal-fluxo-caixa-filtros" />
+    @endif
+
+    @if ($openModalAnaliseFinanceira)
+        <livewire:relatorio.modais.analise-financeira-modal wire:key="modal-analise-financeira-filtros" />
+    @endif
+
+    @if ($openModalVendas)
+        <livewire:relatorio.modais.vendas-modal wire:key="modal-vendas-filtros" />
+    @endif
+
+    @if ($openModalDespesas)
+        <livewire:relatorio.modais.despesas-modal wire:key="modal-despesas-filtros" />
+    @endif
 </div>

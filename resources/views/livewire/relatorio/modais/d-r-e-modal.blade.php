@@ -1,15 +1,20 @@
 <div
-    class="fixed inset-0 z-50 flex items-end justify-center sm:items-center p-0 sm:p-6"
+    class="fixed inset-0 z-50 overflow-y-auto"
     role="dialog"
     aria-modal="true"
     aria-labelledby="dre-modal-titulo"
 >
-    <div class="absolute inset-0 bg-gray-900/50" wire:click="fechar" aria-hidden="true"></div>
-
     <div
-        class="relative z-10 flex max-h-[min(92vh,880px)] w-full max-w-5xl flex-col rounded-t-2xl border border-gray-200 bg-white shadow-xl sm:rounded-2xl"
-        wire:click.stop
-    >
+        class="fixed inset-0 bg-gray-900/50"
+        wire:click="fechar"
+        aria-hidden="true"
+    ></div>
+
+    <div class="flex min-h-full items-end justify-center p-0 pointer-events-none sm:items-center sm:p-6">
+        <div
+            class="relative z-10 flex max-h-[min(92vh,880px)] w-full max-w-5xl flex-col rounded-t-2xl border border-gray-200 bg-white shadow-xl pointer-events-auto sm:rounded-2xl"
+            wire:click.stop
+        >
         <header class="flex shrink-0 items-start justify-between gap-4 border-b border-gray-100 px-5 py-4 sm:px-6">
             <div>
                 <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-400">Relatório</p>
@@ -109,5 +114,6 @@
                 <span wire:loading wire:target="gerar">Processando…</span>
             </button>
         </footer>
+        </div>
     </div>
 </div>

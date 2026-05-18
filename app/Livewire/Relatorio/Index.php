@@ -11,6 +11,14 @@ class Index extends Component
 
     public bool $openModalDre = false;
 
+    public bool $openModalFluxoCaixa = false;
+
+    public bool $openModalAnaliseFinanceira = false;
+
+    public bool $openModalVendas = false;
+
+    public bool $openModalDespesas = false;
+
     /** @var array<int, array<string, string>> */
     public array $relatorios = [];
 
@@ -66,13 +74,59 @@ class Index extends Component
             return;
         }
 
-        // Reservado: modais ou rotas dos demais relatórios (fluxo de caixa, etc.).
+        if ($relatorioId === 'fluxo-caixa') {
+            $this->openModalFluxoCaixa = true;
+
+            return;
+        }
+
+        if ($relatorioId === 'analise-financeira') {
+            $this->openModalAnaliseFinanceira = true;
+
+            return;
+        }
+
+        if ($relatorioId === 'vendas') {
+            $this->openModalVendas = true;
+
+            return;
+        }
+
+        if ($relatorioId === 'despesas') {
+            $this->openModalDespesas = true;
+
+            return;
+        }
     }
 
     #[On('fechar-modal-dre')]
     public function fecharModalDre(): void
     {
         $this->openModalDre = false;
+    }
+
+    #[On('fechar-modal-fluxo-caixa')]
+    public function fecharModalFluxoCaixa(): void
+    {
+        $this->openModalFluxoCaixa = false;
+    }
+
+    #[On('fechar-modal-analise-financeira')]
+    public function fecharModalAnaliseFinanceira(): void
+    {
+        $this->openModalAnaliseFinanceira = false;
+    }
+
+    #[On('fechar-modal-vendas')]
+    public function fecharModalVendas(): void
+    {
+        $this->openModalVendas = false;
+    }
+
+    #[On('fechar-modal-despesas')]
+    public function fecharModalDespesas(): void
+    {
+        $this->openModalDespesas = false;
     }
 
     protected function relatorioIdValido(string $relatorioId): bool
