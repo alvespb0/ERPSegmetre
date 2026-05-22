@@ -13,9 +13,18 @@
         <div class="flex flex-wrap gap-2">
             <button
                 type="button"
-                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors"
+                wire:click="exportar"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
-                Exportar
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                </svg>
+                Exportar 
+                @if(count($selecionados ?? []) > 0)
+                    <span class="bg-gray-100 text-gray-700 py-0.5 px-2 rounded-full text-xs font-bold">
+                        {{ count($selecionados) }}
+                    </span>
+                @endif
             </button>
             <button
                 type="button"
@@ -323,6 +332,7 @@
             <table class="min-w-full text-sm">
                 <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
                     <tr>
+                        <th class="px-4 py-3 text-left w-10"></th>
                         <th class="px-4 py-3 text-left">Data</th>
                         <th class="px-4 py-3 text-left w-1/3">Título</th>
                         <th class="px-4 py-3 text-left">Entidade</th>
@@ -339,7 +349,15 @@
                             $statusColor = $statusColors[$parcela->status_calculado] ?? 'bg-gray-50 text-gray-600 border-gray-200';
                             $tipoLabel = $parcela->titulo->tipo === 'receber' ? 'Receita' : 'Despesa';
                         @endphp
-                        <tr class="hover:bg-gray-50 transition-colors">
+                        <tr class="hover:bg-gray-50 transition-colors {{ in_array($parcela->id, $selecionados ?? []) ? 'bg-blue-50/50' : '' }}">
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                <input 
+                                    type="checkbox" 
+                                    value="{{ $parcela->id }}" 
+                                    wire:model.live="selecionados"
+                                    class="rounded border-gray-300 text-[#313e50] shadow-sm focus:ring-[#313e50] focus:ring-opacity-50"
+                                >
+                            </td>
                             <td class="px-4 py-3 whitespace-nowrap">
                                 <span class="text-gray-900 font-medium">{{ \Carbon\Carbon::parse($parcela->data_vencimento)->format('d/m/Y')}}</span>
                             </td>

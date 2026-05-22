@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Titulo\ContasReceber;
 
+use Maatwebsite\Excel\Facades\Excel;
+
 use Livewire\Component;
 use Livewire\Attributes\On;
 
@@ -9,6 +11,8 @@ use Carbon\Carbon;
 
 use App\Models\Parcela;
 use App\Models\TituloFinanceiro;
+
+use App\Exports\TitulosExport;
 
 use App\Services\ContaService;
 use App\Services\CategoriaFinanceiraService;
@@ -31,6 +35,8 @@ use Illuminate\Support\Facades\Crypt;
 class ListTitulo extends Component
 {
     use WithPagination, WithoutUrlPagination;
+
+    public $selecionados = [];
 
     public $openModalDetalhesParcela = false;
     public ?Parcela $parcelaSelecionada = null;
@@ -326,6 +332,10 @@ class ListTitulo extends Component
         $this->openModalReceberParcela = true;
     }
     
+    /**
+     * Evento acionado para fechar o modal de recebimento e limpar os dados.
+     * * @return void
+     */
     #[On('fechar-modal-recebimento')]
     public function fecharModalRecebimento(){
         $this->openModalReceberParcela = false;
@@ -333,6 +343,11 @@ class ListTitulo extends Component
         $this->parcelaAReceber = null;
     }
 
+    /**
+     * Abre o modal para edição de uma parcela específica.
+     * * @param Parcela $parcela
+     * @return void
+     */
     public function editarParcela(Parcela $parcela){
         $parcela->load('titulo.entidade');
         $this->parcelaParaEditar = $parcela;
@@ -340,19 +355,32 @@ class ListTitulo extends Component
         $this->openModalEditarParcela = true;
     }
 
+    /**
+     * Evento acionado para fechar o modal de edição e limpar os dados.
+     * * @return void
+     */
     #[On('fechar-modal-edicao')]
     public function fecharModalEdicao(){
         $this->openModalEditarParcela = false;
 
         $this->parcelaParaEditar = null;
     }
-
+    
+    /**
+     * Abre o modal para alteração rápida de status de uma parcela.
+     * * @param Parcela $parcela
+     * @return void
+     */
     public function editarStatus(Parcela $parcela){
         $parcela->load('titulo.entidade');
         $this->parcelaParaEditarStatus = $parcela;
         $this->openModalEditarStatus = true;
     }
 
+    /**
+     * Evento acionado para fechar o modal de status e limpar os dados.
+     * * @return void
+     */
     #[On('fechar-modal-status')]
     public function fecharModalStatus(){
         $this->openModalEditarStatus = false;
@@ -360,6 +388,11 @@ class ListTitulo extends Component
         $this->parcelaParaEditarStatus = null;
     }
 
+    /**
+     * Abre o modal de anexos de uma parcela, carregando relacionamentos necessários.
+     * * @param Parcela $parcela
+     * @return void
+     */
     public function anexosParcela(Parcela $parcela){
         $parcela->load([
                 'titulo', 
@@ -372,11 +405,40 @@ class ListTitulo extends Component
         $this->openModalAnexos = true;
     }
 
+    /**
+     * Evento acionado para fechar o modal de anexos e limpar os dados.
+     * * @return void
+     */
     #[On('fechar-modal-anexos')]
     public function fecharModalAnexos(){
         $this->openModalAnexos = false;
 
         $this->parcelaParaAnexos = null;
+    }
+
+    private function getQuery(){
+        $query = $this->aplicarFiltros(Parcela::query());
+
+        return $query->whereHas('titulo', function ($q) {
+            $q->where('tipo', 'receber');
+        });
+    }
+
+    public function exportar(){
+        if(!empty($this->selecionados)){
+            return Excel::download(new TitulosExport($this->selecionados), 'relatorio_lancamentos.xlsx');
+        }else{
+            $query = $this->getQuery();
+            
+            $query->with([
+                'titulo.entidade',
+                'titulo.centroCusto',
+                'titulo.categoriaFinanceira',
+                'movimentacoes'
+            ]);
+
+            return Excel::download(new TitulosExport($this->selecionados, $query), 'relatorio_lancamentos.xlsx');
+        }
     }
 
     /**
@@ -385,15 +447,13 @@ class ListTitulo extends Component
      * @return \Illuminate\View\View
      */
     public function render(){
-        $query = $this->aplicarFiltros(Parcela::query());
+        $query = $this->getQuery();
 
         $queryBase = clone $query;
 
         $vencidos = (clone $queryBase)->where('status', '!=', 'cancelado')
-                                ->whereHas('titulo', function ($q) {
-                                    $q->where('tipo', 'receber');
-                                })
                                 ->whereDate('data_vencimento', '<', now())
+                                ->with('movimentacoes')
                                 ->get()
                                 ->filter(function ($parcela) {
                                     return $parcela->valor_pago < $parcela->valor;
@@ -403,10 +463,8 @@ class ListTitulo extends Component
                                 });
 
         $abertos = (clone $queryBase)->where('status', '!=', 'cancelado')
-                                ->whereHas('titulo', function ($q) {
-                                    $q->where('tipo', 'receber');
-                                })
                                 ->whereDate('data_vencimento', '>=', now())
+                                ->with('movimentacoes')
                                 ->get()
                                 ->filter(function ($parcela) {
                                     return $parcela->valor_pago < $parcela->valor;
@@ -416,20 +474,13 @@ class ListTitulo extends Component
                                 });
 
         $venceHoje = (clone $queryBase)->where('status', '!=', 'cancelado')
-                                ->whereHas('titulo', function ($q) {
-                                    $q->where('tipo', 'receber');
-                                })
                                 ->whereDate('data_vencimento', now())
                                 ->sum('valor');
 
-        $pagos = (clone $queryBase)->whereHas('titulo', function ($q) {
-                                    $q->where('tipo', 'receber');
-                                })->get()->sum('valor_pago');
+        $pagos = (clone $queryBase)->with('movimentacoes')
+                                ->get()->sum('valor_pago');
 
         $parcelas = $query->with(['titulo' => function ($q) { $q->withCount('parcelas'); }])
-                            ->whereHas('titulo', function ($q) {
-                                $q->where('tipo', 'receber');
-                            })
                             ->orderBy('data_vencimento', 'asc')->paginate(10);
 
         return view('livewire.titulo.contas-receber.list-titulo', [

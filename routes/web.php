@@ -55,6 +55,10 @@ Route::middleware(['auth', 'verified'])->controller(CategoriaFinanceiraControlle
     Route::get('erp/fluxo-caixa', function(){ return view('erp.fluxo-caixa.index'); })->name('erp.fluxo-caixa');
 });
 
+Route::middleware(['auth', 'verified'])->get('erp/relatorios', function () {
+    return view('erp.relatorio.index');
+})->name('erp.relatorios.index');
+
 Route::middleware(['auth', 'verified'])->controller(BancoController::class)->group(function(){
     Route::get('erp/banco/nova', 'showCreateView')->name('erp.banco.create');
     Route::get('erp/banco', 'showListView')->name('erp.banco.index');
