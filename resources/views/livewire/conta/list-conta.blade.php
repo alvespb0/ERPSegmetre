@@ -96,6 +96,7 @@
                             <th class="px-4 py-3 text-left w-1/3">Conta</th>
                             <th class="px-4 py-3 text-left">Instituição Bancária</th>
                             <th class="px-4 py-3 text-center">Modalidade</th>
+                            <th class="px-4 py-3 text-center">Config. Cobrança</th>
                             <th class="px-4 py-3 text-left">Status</th>
                             <th class="px-4 py-3 text-right">Ações</th>
                         </tr>
@@ -128,6 +129,27 @@
                                         {{ $conta->modalidade }}
                                     </span>
                                 </td>
+                                
+                                <td class="px-4 py-3 text-center whitespace-nowrap">
+                                    @if($conta->configuracaoCobranca)
+                                        <button 
+                                            type="button" 
+                                            wire:click="abrirConfigCobranca({{ $conta->id }})"
+                                            class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors"
+                                        >
+                                            Configuração Existente
+                                        </button>
+                                    @else
+                                        <button 
+                                            type="button" 
+                                            wire:click="abrirConfigCobranca({{ $conta->id }})"
+                                            class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-medium bg-gray-50 text-gray-600 border border-gray-200 hover:bg-gray-100 transition-colors"
+                                        >
+                                            Sem Configuração
+                                        </button>
+                                    @endif
+                                </td>
+
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] border">
                                         {{ $conta->deleted_at != null ? 'Inativa' : 'Ativa' }}
@@ -193,7 +215,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500">
+                                <td colspan="7" class="px-4 py-8 text-center text-sm text-gray-500">
                                     Nenhuma conta cadastrada ou encontrada na busca.
                                 </td>
                             </tr>
@@ -226,4 +248,11 @@
             </div>
         </div>
     </div>
+    @if($openModalConfigCobranca && $contaSelecionada)
+        <livewire:Modais.Conta.ConfiguracaoCobranca 
+            :conta-id="$contaSelecionada->id" 
+            wire:key="modal-configuracao-cobranca-{{ $contaSelecionada->id }}" 
+            @fechar-modal.camel="$set('openModalConfigCobranca', false)" 
+        />
+    @endif
 </div>

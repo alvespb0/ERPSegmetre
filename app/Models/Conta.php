@@ -32,4 +32,7 @@ class Conta extends Model
         return $this->hasMany(Movimentacao::class);
     }
 
+    public function configuracaoCobranca(){
+        return $this->hasOne(ConfiguracaoCobranca::class);
+    }
 }

@@ -17,6 +17,9 @@ class ListConta extends Component
     public $modalidade = 'todas';
     public $status = 'todos';
 
+    public ?Conta $contaSelecionada = null;
+    public $openModalConfigCobranca = false;
+
     public function updatingSearch(){
         $this->resetPage();
     }
@@ -43,6 +46,11 @@ class ListConta extends Component
         redirect()->route('erp.conta.update', $idEnc);
     }
 
+    public function abrirConfigCobranca(Conta $conta){
+        $this->contaSelecionada = $conta;
+        $this->openModalConfigCobranca = true;
+    }
+    
     public function render()
     {
         $query = Conta::query();
