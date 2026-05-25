@@ -85,7 +85,9 @@ Route::middleware(['auth', 'verified'])->controller(ContaController::class)->gro
 });
 
 Route::middleware(['auth', 'verified'])->controller(EmpresaParametroController::class)->group(function(){
+    Route::get('erp/dev/empresa-parametro', 'showIndexView')->name('erp.dev.empresa-parametro.index');
     Route::get('erp/empresa-parametro/nova', 'showCreateView')->name('erp.empresa-parametro.create');
+    Route::get('erp/empresa-parametro/editar/{idEnc}', 'showEditView')->name('erp.empresa-parametro.update');
 });
 
 Route::middleware(['auth', 'verified'])->controller(TituloController::class)->group(function(){

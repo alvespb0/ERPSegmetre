@@ -9,9 +9,13 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
-class Create extends Component
+class Edit extends Component
 {
     use WithFileUploads;
+
+    public $id;
+    public $empresa;
+    public $logoPathAtual;
 
     public $razaoSocial;
     public $nomeFantasia;
@@ -29,6 +33,29 @@ class Create extends Component
     public $telefone;
     public $emailFinanceiro;
     public $logo;
+
+    public function mount($id): void
+    {
+        $this->id = $id;
+        $this->empresa = EmpresaParametro::findOrFail($id);
+        $this->logoPathAtual = $this->empresa->logo_path;
+
+        $this->razaoSocial = $this->empresa->razao_social;
+        $this->nomeFantasia = $this->empresa->nome_fantasia;
+        $this->cnpj = $this->formatarCnpj($this->empresa->cnpj);
+        $this->inscricaoEstadual = $this->empresa->inscricao_estadual;
+        $this->inscricaoMunicipal = $this->empresa->inscricao_municipal;
+        $this->cnaePrincipal = $this->empresa->cnae_principal;
+        $this->cep = $this->empresa->cep;
+        $this->logradouro = $this->empresa->logradouro;
+        $this->bairro = $this->empresa->bairro;
+        $this->numero = $this->empresa->numero;
+        $this->complemento = $this->empresa->complemento;
+        $this->cidade = $this->empresa->cidade;
+        $this->uf = $this->empresa->uf;
+        $this->telefone = $this->formatarTelefone($this->empresa->telefone);
+        $this->emailFinanceiro = $this->empresa->email_financeiro;
+    }
 
     public function messages(): array
     {
@@ -87,7 +114,7 @@ class Create extends Component
             ? preg_replace('/\D/', '', $data['telefone'])
             : null;
 
-        if (EmpresaParametro::where('cnpj', $cnpjCru)->exists()) {
+        if (EmpresaParametro::where('cnpj', $cnpjCru)->where('id', '!=', $this->id)->exists()) {
             $this->addError('cnpj', 'Este CNPJ já está cadastrado.');
 
             return;
@@ -109,17 +136,17 @@ class Create extends Component
             'uf' => strtoupper($data['uf']),
             'telefone' => $telefoneCru,
             'email_financeiro' => $data['emailFinanceiro'],
-            'logo_path' => null,
         ];
 
         if ($this->logo) {
             $fileName = Str::uuid() . '.' . $this->logo->getClientOriginalExtension();
             $empresaData['logo_path'] = $this->logo->storeAs('empresa/logos', $fileName, 'public');
+            $this->logoPathAtual = $empresaData['logo_path'];
         }
 
-        (new EmpresaParametroService())->store($empresaData);
+        (new EmpresaParametroService())->update($empresaData, $this->id);
 
-        $this->dispatch('toast-message', 'Parametrização da empresa salva com sucesso!');
+        $this->dispatch('toast-message', 'Parametrização da empresa atualizada com sucesso!');
         $this->redirect(route('erp.dev.empresa-parametro.index'), navigate: true);
     }
 
@@ -150,8 +177,42 @@ class Create extends Component
         }
     }
 
+    private function formatarCnpj(?string $cnpj): string
+    {
+        if (! $cnpj) {
+            return '';
+        }
+
+        $v = preg_replace('/\D/', '', $cnpj);
+
+        if (strlen($v) === 14) {
+            return preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $v);
+        }
+
+        return $cnpj;
+    }
+
+    private function formatarTelefone(?string $telefone): ?string
+    {
+        if (! $telefone) {
+            return null;
+        }
+
+        $v = preg_replace('/\D/', '', $telefone);
+
+        if (strlen($v) === 11) {
+            return preg_replace('/(\d{2})(\d{5})(\d{4})/', '($1) $2-$3', $v);
+        }
+
+        if (strlen($v) === 10) {
+            return preg_replace('/(\d{2})(\d{4})(\d{4})/', '($1) $2-$3', $v);
+        }
+
+        return $telefone;
+    }
+
     public function render()
     {
-        return view('livewire.empresa-parametro.create');
+        return view('livewire.empresa-parametro.edit');
     }
 }

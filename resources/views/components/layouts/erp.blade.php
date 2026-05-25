@@ -313,6 +313,16 @@
                             </div>
                             
                             <ul class="mt-1 space-y-1">
+                                {{-- DEV: restringir acesso por user type quando implementar permissões --}}
+                                <li>
+                                    <a href="{{ route('erp.dev.empresa-parametro.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.dev.empresa-parametro.*', 'erp.empresa-parametro.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
+                                        <span class="inline-flex h-5 w-5 items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" /></svg>
+                                        </span>
+                                        <span>Empresa Base</span>
+                                        <span class="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 uppercase tracking-wide" title="Ajustar permissão por user type">DEV</span>
+                                    </a>
+                                </li>
                                 <li>
                                     <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.integracoes.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
                                         <span class="inline-flex h-5 w-5 items-center justify-center">
