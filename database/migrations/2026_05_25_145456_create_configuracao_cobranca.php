@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('conta_id');
             $table->unsignedBigInteger('empresa_parametro_id');
-            $table->string('codigo_cendente');
+            $table->string('codigo_cedente');
             $table->string('carteira')->nullable();
             $table->string('layout_cnab')->default('240');
             $table->enum('ambiente', ['homologacao', 'producao']);

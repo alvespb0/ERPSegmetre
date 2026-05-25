@@ -59,7 +59,7 @@
                     </button>
                 </div> 
 
-                <form wire:submit.prevent="salvar">
+                <form wire:submit.prevent="submit">
                     <div class="p-6 space-y-6">
                         
                         <div class="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
@@ -86,7 +86,7 @@
                                     <label class="block text-xs font-medium text-gray-700 mb-1">Código do Cedente</label>
                                     <input 
                                         type="text" 
-                                        wire:model="codigo_cendente"
+                                        wire:model="codigo_cedente"
                                         placeholder="Ex: 1234567-8"
                                         class="w-full rounded-lg border-gray-300 focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors"
                                     >

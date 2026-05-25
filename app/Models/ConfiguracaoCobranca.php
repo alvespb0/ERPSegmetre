@@ -14,7 +14,7 @@ class ConfiguracaoCobranca extends Model
     protected $fillable = [
         'conta_id',
         'empresa_parametro_id',
-        'codigo_cendente',
+        'codigo_cedente',
         'carteira',
         'layout_cnab',
         'ambiente',
