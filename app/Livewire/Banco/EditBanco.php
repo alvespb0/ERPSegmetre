@@ -9,7 +9,7 @@ use Illuminate\Validation\Rule;
 
 class EditBanco extends Component
 {
-    public $banco, $id, $nome, $cnpj;
+    public $banco, $id, $nome, $cnpj, $numero_banco;
 
     public function rules(){
         return [
@@ -19,7 +19,8 @@ class EditBanco extends Component
                 'string',
                 'max:18',
                 Rule::unique('banco', 'cnpj')->ignore($this->id)
-            ]
+            ],
+            'numero_banco' => 'nullable|string'
         ];
     }
 
@@ -42,6 +43,7 @@ class EditBanco extends Component
         $this->banco = Banco::withTrashed()->findOrFail($id); 
         $this->nome = $this->banco->nome;
         $this->cnpj = $this->banco->cnpj;
+        $this->numero_banco = $this->banco->numero_banco;
     }
 
     public function submit(){
@@ -49,7 +51,8 @@ class EditBanco extends Component
 
         $dataBanco = [
             'nome' => $data['nome'],
-            'cnpj' => $data['cnpj']
+            'cnpj' => $data['cnpj'],
+            'numero_banco' => $data['numero_banco']
         ];
 
         $service = new BancoService();

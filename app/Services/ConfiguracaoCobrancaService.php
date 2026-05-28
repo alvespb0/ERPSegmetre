@@ -20,8 +20,7 @@ class ConfiguracaoCobrancaService
                 'carteira' => $dados['carteira'],
                 'layout_cnab' => $dados['layout_cnab'],
                 'ambiente' => $dados['ambiente'],
-                'ultimo_numero_remessa' => $dados['ultimo_numero_remessa'],
-                'nosso_numero' => $dados['nosso_numero']
+                'numero_inicial_cobranca' => $dados['numero_inicial_cobranca'],
             ]
         );
     }

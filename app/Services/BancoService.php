@@ -10,6 +10,7 @@ class BancoService
         return Banco::create([
             'nome' => $dados['nome'],
             'cnpj' => $dados['cnpj'],
+            'numero_banco' => $dados['numero_banco']
         ]);
     }
 
@@ -19,6 +20,7 @@ class BancoService
         return $banco->update([
             'nome' => $dados['nome'],
             'cnpj' => $dados['cnpj'],
+            'numero_banco' => $dados['numero_banco']
         ]);
     }
 

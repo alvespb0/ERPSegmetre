@@ -122,7 +122,7 @@
                             <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
                                 <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Controle CNAB e Numeração</h4>
                             </div>
-                            <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-xs font-medium text-gray-700 mb-1">Layout CNAB</label>
                                     <select 
@@ -136,21 +136,11 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Último Nº Remessa</label>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Número Inicial de Cobrança</label>
                                     <input 
                                         type="number" 
-                                        wire:model="ultimo_numero_remessa"
+                                        wire:model="numero_inicial_cobranca"
                                         placeholder="Ex: 0"
-                                        class="w-full rounded-lg border-gray-300 focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors"
-                                    >
-                                </div>
-
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Próximo Nosso Número</label>
-                                    <input 
-                                        type="number" 
-                                        wire:model="nosso_numero"
-                                        placeholder="Ex: 1"
                                         class="w-full rounded-lg border-gray-300 focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors"
                                     >
                                 </div>

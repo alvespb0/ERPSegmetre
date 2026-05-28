@@ -18,8 +18,7 @@ class ConfiguracaoCobranca extends Model
         'carteira',
         'layout_cnab',
         'ambiente',
-        'ultimo_numero_remessa',
-        'nosso_numero',
+        'numero_inicial_cobranca'
     ];
 
     public function conta(){

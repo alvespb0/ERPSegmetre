@@ -21,8 +21,7 @@ class ConfiguracaoCobranca extends Component
     public $carteira;
     public $ambiente;
     public $layout_cnab;
-    public $ultimo_numero_remessa;
-    public $nosso_numero;
+    public $numero_inicial_cobranca;
 
     public function mount($contaId){
         $this->conta = Conta::findOrFail($contaId);
@@ -33,7 +32,7 @@ class ConfiguracaoCobranca extends Component
         $this->carteira = $this->configCobranca->carteira ?? null;
         $this->ambiente = $this->configCobranca->ambiente ?? null;
         $this->layout_cnab = $this->configCobranca->layout_cnab ?? null;
-        $this->ultimo_numero_remessa = $this->configCobranca->ultimo_numero_remessa ?? null;
+        $this->numero_inicial_cobranca = $this->configCobranca->numero_inicial_cobranca ?? null;
         $this->nosso_numero = $this->configCobranca->nosso_numero ?? null;
     }
 
@@ -44,8 +43,7 @@ class ConfiguracaoCobranca extends Component
             'carteira' => $this->carteira,
             'layout_cnab' => $this->layout_cnab,
             'ambiente' => $this->ambiente,
-            'ultimo_numero_remessa' => $this->ultimo_numero_remessa,
-            'nosso_numero' => $this->nosso_numero
+            'numero_inicial_cobranca' => $this->numero_inicial_cobranca,
         ];
 
         $service->updateOrCreate($dados, $this->conta->id);

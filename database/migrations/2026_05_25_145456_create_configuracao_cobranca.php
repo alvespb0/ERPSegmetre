@@ -19,8 +19,7 @@ return new class extends Migration
             $table->string('carteira')->nullable();
             $table->string('layout_cnab')->default('240');
             $table->enum('ambiente', ['homologacao', 'producao']);
-            $table->integer('ultimo_numero_remessa')->default(0);
-            $table->integer('nosso_numero')->default(0);
+            $table->integer('numero_inicial_cobranca')->default(1);
             $table->foreign('conta_id')->references('id')->on('conta')->onDelete('cascade');
             $table->foreign('empresa_parametro_id')->references('id')->on('empresa_parametro')->onDelete('cascade');
             $table->softDeletes();
