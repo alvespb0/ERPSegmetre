@@ -68,10 +68,10 @@
                             </div>
                             <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="col-span-1 md:col-span-2">
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Empresa Vinculada (Parâmetro)</label>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Empresa Vinculada (Parâmetro) *</label>
                                     <select 
                                         wire:model="empresa_parametro_id"
-                                        class="w-full rounded-lg border-gray-300 focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors"
+                                        class="w-full rounded-lg focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors @error('empresa_parametro_id') border-red-500 ring-red-500 @else border-gray-300 @enderror"
                                     >
                                         <option value="">Selecione uma empresa...</option>
                                         @if(isset($empresasParametro) && count($empresasParametro) > 0)
@@ -80,16 +80,18 @@
                                             @endforeach
                                         @endif
                                     </select>
+                                    @error('empresa_parametro_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Código do Cedente</label>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Código do Cedente *</label>
                                     <input 
                                         type="text" 
                                         wire:model="codigo_cedente"
                                         placeholder="Ex: 1234567-8"
-                                        class="w-full rounded-lg border-gray-300 focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors"
+                                        class="w-full rounded-lg focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors @error('codigo_cedente') border-red-500 ring-red-500 @else border-gray-300 @enderror"
                                     >
+                                    @error('codigo_cedente') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div>
@@ -98,22 +100,24 @@
                                         type="text" 
                                         wire:model="carteira"
                                         placeholder="Ex: 109"
-                                        class="w-full rounded-lg border-gray-300 focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors"
+                                        class="w-full rounded-lg focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors @error('carteira') border-red-500 ring-red-500 @else border-gray-300 @enderror"
                                     >
+                                    @error('carteira') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 </div>
                                 
                                 <div class="col-span-1 md:col-span-2">
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Ambiente de Emissão</label>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Ambiente de Emissão *</label>
                                     <div class="flex gap-4 mt-2">
                                         <label class="inline-flex items-center">
-                                            <input type="radio" wire:model="ambiente" value="homologacao" name="ambiente" class="text-[#313e50] focus:ring-[#313e50]">
+                                            <input type="radio" wire:model="ambiente" value="homologacao" name="ambiente" class="text-[#313e50] focus:ring-[#313e50] @error('ambiente') border-red-500 @enderror">
                                             <span class="ml-2 text-sm text-gray-700">Homologação</span>
                                         </label>
                                         <label class="inline-flex items-center">
-                                            <input type="radio" wire:model="ambiente" value="producao" name="ambiente" class="text-[#313e50] focus:ring-[#313e50]">
+                                            <input type="radio" wire:model="ambiente" value="producao" name="ambiente" class="text-[#313e50] focus:ring-[#313e50] @error('ambiente') border-red-500 @enderror">
                                             <span class="ml-2 text-sm text-gray-700">Produção</span>
                                         </label>
                                     </div>
+                                    @error('ambiente') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div> 
@@ -124,25 +128,27 @@
                             </div>
                             <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Layout CNAB</label>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Layout CNAB *</label>
                                     <select 
                                         wire:model="layout_cnab"
-                                        class="w-full rounded-lg border-gray-300 focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors"
+                                        class="w-full rounded-lg focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors @error('layout_cnab') border-red-500 ring-red-500 @else border-gray-300 @enderror"
                                     >
                                         <option value="">Selecione...</option>
                                         <option value="240">CNAB 240</option>
                                         <option value="400">CNAB 400</option>
                                     </select>
+                                    @error('layout_cnab') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Número Inicial de Cobrança</label>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Número Inicial de Cobrança *</label>
                                     <input 
                                         type="number" 
                                         wire:model="numero_inicial_cobranca"
                                         placeholder="Ex: 0"
-                                        class="w-full rounded-lg border-gray-300 focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors"
+                                        class="w-full rounded-lg focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors @error('numero_inicial_cobranca') border-red-500 ring-red-500 @else border-gray-300 @enderror"
                                     >
+                                    @error('numero_inicial_cobranca') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 </div>
                             </div>
                         </div> 

@@ -23,6 +23,39 @@ class ConfiguracaoCobranca extends Component
     public $layout_cnab;
     public $numero_inicial_cobranca;
 
+    public function rules(){
+        return [
+            'empresa_parametro_id'    => 'required',
+            'codigo_cedente'          => 'required|string|max:255',
+            'carteira'                => 'nullable|string|max:255',
+            'ambiente'                => 'required|in:homologacao,producao',
+            'layout_cnab'             => 'required|in:240,400',
+            'numero_inicial_cobranca' => 'required|numeric',
+        ];
+    }
+
+    public function messages(){
+        return [
+            'empresa_parametro_id.required'    => 'A empresa vinculada é obrigatória.',
+
+            'codigo_cedente.required'          => 'O código do cedente é obrigatório.',
+            'codigo_cedente.string'            => 'O código do cedente deve ser um texto.',
+            'codigo_cedente.max'               => 'O código do cedente deve ter no máximo :max caracteres.',
+
+            'carteira.string'                  => 'A carteira deve ser um texto.',
+            'carteira.max'                     => 'A carteira deve ter no máximo :max caracteres.',
+
+            'ambiente.required'                => 'O ambiente de emissão é obrigatório.',
+            'ambiente.in'                      => 'O ambiente selecionado é inválido.',
+
+            'layout_cnab.required'             => 'O layout CNAB é obrigatório.',
+            'layout_cnab.in'                   => 'O layout selecionado é inválido.',
+
+            'numero_inicial_cobranca.required' => 'O número inicial de cobrança é obrigatório.',
+            'numero_inicial_cobranca.numeric'  => 'O número inicial deve ser um valor numérico.',
+        ];
+    }
+
     public function mount($contaId){
         $this->conta = Conta::findOrFail($contaId);
         $this->configCobranca = $this->conta->configuracaoCobranca ?? null;
@@ -37,6 +70,8 @@ class ConfiguracaoCobranca extends Component
     }
 
     public function submit(ConfiguracaoCobrancaService $service){
+        $this->validate();
+        
         $dados = [
             'empresa_parametro_id' => $this->empresa_parametro_id,
             'codigo_cedente' => $this->codigo_cedente,
