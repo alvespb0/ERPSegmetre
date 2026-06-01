@@ -28,4 +28,8 @@ class ArquivoRemessa extends Model
     public function boletos(){
         return $this->hasMany(BoletoCobranca::class, 'arquivo_remessa_id');
     }
+
+    public static function gerarProximoNumeroRemessa(): int{
+        return ((int) self::max('numero_remessa')) + 1;
+    }
 }

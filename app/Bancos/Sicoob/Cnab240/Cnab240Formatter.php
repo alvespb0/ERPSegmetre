@@ -48,4 +48,13 @@ class Cnab240Formatter
 
         return Carbon::parse($data)->format('dmY');
     }
+
+    public static function hora($data): string{
+        if (!$data) {
+            return '000000';
+        }
+
+        return Carbon::parse($data)->format('His');
+    }
+
 }
