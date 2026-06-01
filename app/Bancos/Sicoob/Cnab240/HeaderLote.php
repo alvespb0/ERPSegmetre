@@ -9,6 +9,7 @@ class HeaderLote
 {
     public $conta;
     public $numeroRemessa;
+    public $numeroLote;
     public $configuracao;
 
     public function __construct(Conta $conta, $numeroLote, $numeroRemessa){
