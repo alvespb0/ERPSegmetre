@@ -11,13 +11,15 @@ class SegmentoP
     public $numeroRegistroP;
     public $numeroLote;
     public $codigoMovimentacao;
+    public $nossoNumero;
     public $configuracao;
 
-    public function __construct(Conta $conta, $numeroLote, $numeroRegistroP, $codigoMovimentacao){
+    public function __construct(Conta $conta, $numeroLote, $numeroRegistroP, $codigoMovimentacao, $nossoNumero){
         $this->conta = $conta;
         $this->numeroLote = $numeroLote;
         $this->numeroRegistroP = $numeroRegistroP;
         $this->codigoMovimentacao = $codigoMovimentacao;
+        $this->nossoNumero = $nossoNumero;
         $this->configuracao = $conta->configuracaoCobranca;
     }
 
@@ -34,7 +36,10 @@ class SegmentoP
         $pos16_17 = Cnab240Formatter::numerico($this->codigoMovimentacao, 2); # Codigo de movimentação da remessa, é tratado (se realmente existe, etc) em uma camada acima; tipo numerico
         $pos18_22 = Cnab240Formatter::numerico($agencia['num'], 5); # Prefixo da cooperativa; tipo numerico
         $pos23_23 = Cnab240Formatter::alfa($agencia['dv'], 1); # Digito verificador da agencia; tipo alfa
-        $pos24_35 = Cnab240Formatter::numerico($contaBancaria['num'], 12);
+        $pos24_35 = Cnab240Formatter::numerico($contaBancaria['num'], 12); # Conta bancária; tipo numerico
+        $pos36_36 = Cnab240Formatter::numerico($contaBancaria['dv'], 1); # Digito verificador da conta; tipo numerico
+        $pos37_37 = Cnab240Formatter::alfa("", 1); # Digito verificador Ag/Conta, preencher com espaços em branco; tipo alfa
+        
 
 
         if (strlen($linha) !== 240) {

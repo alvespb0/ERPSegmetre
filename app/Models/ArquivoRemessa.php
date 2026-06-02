@@ -29,7 +29,16 @@ class ArquivoRemessa extends Model
         return $this->hasMany(BoletoCobranca::class, 'arquivo_remessa_id');
     }
 
-    public static function gerarProximoNumeroRemessa(): int{
-        return ((int) self::max('numero_remessa')) + 1;
+    public static function gerarProximoNumeroRemessa(int $configuracaoCobrancaId): int {
+
+        $ultimoNumero = self::max('numero_remessa');
+
+        if ($ultimoNumero) {
+            return $ultimoNumero + 1;
+        }
+
+        return ConfiguracaoCobranca::findOrFail(
+            $configuracaoCobrancaId
+        )->numero_inicial_cobranca;
     }
 }

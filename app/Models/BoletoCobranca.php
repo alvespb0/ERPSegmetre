@@ -18,6 +18,8 @@ class BoletoCobranca extends Model
         'arquivo_remessa_id',
         'arquivo_retorno_id',
         'nosso_numero',
+        'modalidade',
+        'sequencial_boleto',
         'numero_documento',
         'linha_digitavel',
         'codigo_barras',
@@ -62,27 +64,4 @@ class BoletoCobranca extends Model
             'rejeitado',
         ]);
     }
-
-    public static function gerarProximoNossoNumero(int $configuracaoCobrancaId): string {
-        $configuracao = ConfiguracaoCobranca::findOrFail(
-            $configuracaoCobrancaId
-        );
-
-        $ultimoBoleto = self::query()
-            ->where(
-                'configuracao_cobranca_id',
-                $configuracaoCobrancaId
-            )
-            ->orderByRaw('CAST(nosso_numero as UNSIGNED) DESC')
-            ->first();
-
-        if (!$ultimoBoleto) {
-            return (string) $configuracao->numero_inicial_cobranca;
-        }
-
-        return (string) (
-            ((int) $ultimoBoleto->nosso_numero) + 1
-        );
-    }
-
 }
