@@ -24,9 +24,11 @@ class BoletoCobranca extends Model
         'linha_digitavel',
         'codigo_barras',
         'status',
+        'codigo_juros', # 0 isento, 1 valor por dia, 2 taxa mensal
+        'codigo_protesto', # 1 protestar dias corridos, 2 valor dias uteis, 3 não protestar, 8 negativação sem protesto, 9 negativação automática
         'valor_multa',
         'valor_juros',
-        'data_remessa',
+        'prazo_protesto', # nullable dias após vencimento
         'data_registro',
         'data_liquidacao',
     ];

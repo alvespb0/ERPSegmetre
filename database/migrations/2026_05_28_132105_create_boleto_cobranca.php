@@ -35,11 +35,23 @@ return new class extends Migration
                 'rejeitado',
                 'cancelado',
             ])->default('pendente');
-
+            $table->enum('codigo_juros', [
+                '0', // isento
+                '1', // valor por dia
+                '2', // taxa mensal
+            ])->default('0');
+            $table->enum('codigo_protesto', [
+                '1', // protestar dias corridos
+                '2', // valor dias uteis
+                '3', // não protestar
+                '8', // negativação sem protesto
+                '9', // negativação automática
+            ])->default('3');
             $table->decimal('valor_multa', 15, 2)->default(0);
             $table->decimal('valor_juros', 15, 2)->default(0);
             $table->timestamp('data_registro')->nullable();
             $table->timestamp('data_liquidacao')->nullable();
+            $table->integer('prazo_protesto')->nullable(); # dias após vencimento
             $table->foreign('parcela_id')->references('id')->on('parcelas')->onDelete('cascade');
             $table->foreign('configuracao_cobranca_id')->references('id')->on('configuracao_cobranca')->nullOnDelete();
             $table->foreign('arquivo_remessa_id')->references('id')->on('arquivo_remessa')->nullOnDelete();

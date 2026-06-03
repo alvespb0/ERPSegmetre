@@ -25,27 +25,12 @@ class NossoNumeroService
     {
         $configuracao = $this->boleto->configuracaoCobranca;
 
-        $arrayCoperativa = $this->separarDv($configuracao->conta->agencia); # array
-        $cooperativa = str_pad(
-            preg_replace('/\D/', '', $arrayCoperativa['num']),
-            4,
-            '0',
-            STR_PAD_LEFT
-        );
+        $arrayCoperativa = $this->separarDv($configuracao->conta->agencia); # array num + dv
+        $cooperativa = str_pad($arrayCoperativa['num'], 4, '0', STR_PAD_LEFT); # SÓ O NÚMERO SEM O DV
 
-        $codigoCliente = str_pad(
-            preg_replace('/\D/', '', $configuracao->codigo_cedente),
-            10,
-            '0',
-            STR_PAD_LEFT
-        );
+        $codigoCliente = str_pad(preg_replace('/\D/', '', $configuracao->codigo_cedente), 10, '0', STR_PAD_LEFT);
 
-        $sequencial = str_pad(
-            $this->boleto->sequencial_boleto,
-            7,
-            '0',
-            STR_PAD_LEFT
-        );
+        $sequencial = str_pad($this->boleto->sequencial_boleto, 7, '0', STR_PAD_LEFT);
 
         $base = $cooperativa . $codigoCliente . $sequencial;
 
@@ -66,11 +51,9 @@ class NossoNumeroService
 
         /*
          * Item 3.13
-         *
          * Nosso Número (7)
          * +
          * DV (1)
-         *
          * = 8 posições
          */
         $numTitulo = $sequencial . $dv;
@@ -78,12 +61,7 @@ class NossoNumeroService
         /*
          * Campo do CNAB possui 10 posições.
          */
-        return str_pad(
-            $numTitulo,
-            10,
-            '0',
-            STR_PAD_LEFT
-        );
+        return str_pad($numTitulo, 10, '0', STR_PAD_LEFT);
     }
 
     /**
