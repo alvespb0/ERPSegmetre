@@ -50,7 +50,7 @@ class SegmentoP
         $pos62_62 = Cnab240Formatter::alfa("2", 1); # Identificação da distribuição do boleto (sicoob ou beneficiário), sempre beneficiário, hardcadado 2; tipo alfa
         $pos63_77 = Cnab240Formatter::alfa($this->boleto->sequencial_boleto, 15); # número de identificação do boleto, controlado pelo cliente; tipo alfa
         $pos78_85 = Cnab240Formatter::data($this->boleto->parcela->data_vencimento); # data de vencimento do boleto, sempre vinculado a parcela; tipo numerico
-        $pos86_100 = Cnab240Formatter::valor($this->boleto->parcela->valor, 13); # valor nominal do titulo; tipo numerico
+        $pos86_100 = Cnab240Formatter::valor($this->boleto->parcela->valor); # valor nominal do titulo; tipo numerico
         $pos101_105 = Cnab240Formatter::numerico("00000", 5); # Agencia da cobrança, hardcodado 00000 conforme documentação; tipo numerico
         $pos106_106 = Cnab240Formatter::alfa("", 1); # DV da agencia, preencher com espaços em branco conforme documentação; tipo alfa
         $pos107_108 = Cnab240Formatter::numerico($this->numEspecie, 2); # Espécie do titulo, geralmente vai ser DM, entretanto, vou deixar o controller/gerador decidir o que fazer com o titulo; tipo numerico
@@ -58,12 +58,12 @@ class SegmentoP
         $pos110_117 = Cnab240Formatter::data($this->boleto->data_registro); # Data de emissão do titulo; tipo numerico
         $pos118_118 = Cnab240Formatter::numerico($this->boleto->codigo_juros, 1); # Codigo de juros MORA, 0 isento, 1 valor por dia, 2 taxa mensal; tipo numerico
         $pos119_126 = Cnab240Formatter::data(Carbon::parse($this->boleto->parcela->data_vencimento)->addDay()); # Data de inicio de cobrança de juro, (1 dia após o vencimento); tipo numerico
-        $pos127_141 = Cnab240Formatter::valor($this->boleto->valor_juros, 13); # Valor de juros; tipo numerico
+        $pos127_141 = Cnab240Formatter::valor($this->boleto->valor_juros); # Valor de juros; tipo numerico
         $pos142_142 = Cnab240Formatter::numerico('0', 1); # Caso o beneficiário seja optante por desconto, 0 é não conceder desconto; tipo numerico
         $pos143_150 = Cnab240Formatter::numerico(0, 8); # Data limite do desconto, documentação não fala o que colocar caso seja optante por não desconto; tipo numerico
-        $pos151_165 = Cnab240Formatter::valor('0', 13); # Valor do desconto; tipo numerico
-        $pos166_180 = Cnab240Formatter::numerico('0', 13); # Valor do IOF a ser recolhido, zerado por documentação; tipo numerico
-        $pos181_195 = Cnab240Formatter::numerico('0', 13); # Valor do abatimento, zerado conforme alinhamento interno; tipo numerico
+        $pos151_165 = Cnab240Formatter::valor('0'); # Valor do desconto; tipo numerico
+        $pos166_180 = Cnab240Formatter::valor('0'); # Valor do IOF a ser recolhido, zerado por documentação; tipo numerico
+        $pos181_195 = Cnab240Formatter::valor('0'); # Valor do abatimento, zerado conforme alinhamento interno; tipo numerico
         $pos196_220 = Cnab240Formatter::alfa($this->boleto->numero_documento, 25); # Identificação do titulo na empresa, campo destinado para o uso do beneficiário identificar o titulo; tipo alfa
         $pos221_221 = Cnab240Formatter::numerico($this->boleto->codigo_protesto, 1); # Codigo de protesto, 1 protestar dias corridos, 2 valor dias uteis, 3 não protestar, 8 negativação sem protesto, 9 negativação automática, responsabilidade do usuario decidir; tipo numerico
         $pos222_223 = Cnab240Formatter::numerico($this->boleto->codigo_protesto !== '3' && $this->boleto->prazo_protesto ? $this->boleto->prazo_protesto : 0, 2); # prazo em dias para protesto; tipo numerico
