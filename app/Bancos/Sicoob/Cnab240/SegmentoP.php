@@ -14,7 +14,6 @@ class SegmentoP
     public $numeroLote;
     public $codigoMovimentacao;
     public $numEspecie;
-    public $configuracao;
 
     public function __construct(Conta $conta, BoletoCobranca $boleto, $numeroLote, $numeroRegistroP, $codigoMovimentacao, $numEspecie){
         $this->conta = $conta;
@@ -23,7 +22,6 @@ class SegmentoP
         $this->numeroRegistroP = $numeroRegistroP;
         $this->codigoMovimentacao = $codigoMovimentacao;
         $this->numEspecie = $numEspecie;
-        $this->configuracao = $conta->configuracaoCobranca;
     }
 
     public function montar(): string {
@@ -123,7 +121,7 @@ class SegmentoP
             );
         }
 
-        \Log::debug('Debug de header do lote cnab', ['length' => strlen($linha), 'linha' => $linha]);
+        \Log::debug('Debug de segmento P cnab', ['length' => strlen($linha), 'linha' => $linha]);
 
         return $linha;
     }
