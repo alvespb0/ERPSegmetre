@@ -6,14 +6,12 @@ use App\Models\Conta;
 class TraillerArquivo
 {
     public Conta $conta;
-    public $numeroLote;
     public $qtdLotesArquivo;
     public $qtdRegistrosArquivo;
 
 
     public function __construct(Conta $conta, $qtdLotesArquivo, $qtdRegistrosArquivo){
         $this->conta = $conta;
-        $this->numeroLote = $numeroLote;
         $this->qtdLotesArquivo = $qtdLotesArquivo;
         $this->qtdRegistrosArquivo = $qtdRegistrosArquivo;
     }

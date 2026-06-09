@@ -40,7 +40,7 @@ class SegmentoP
         $pos24_35 = Cnab240Formatter::numerico($contaBancaria['num'], 12); # Conta bancária; tipo numerico
         $pos36_36 = Cnab240Formatter::numerico($contaBancaria['dv'], 1); # Digito verificador da conta; tipo numerico
         $pos37_37 = Cnab240Formatter::alfa("", 1); # Digito verificador Ag/Conta, preencher com espaços em branco; tipo alfa
-        $pos38_57 = Cnab240Formatter::alfa($this->boleto->nossoNumero, 20); # Nosso número, gerado devido ao boleto ser gerado pelo beneficiário, numero gerado na classe NossoNumeroService e armazenado na tabela de boleto; tipo alfa
+        $pos38_57 = Cnab240Formatter::alfa($this->boleto->nosso_numero, 20); # Nosso número, gerado devido ao boleto ser gerado pelo beneficiário, numero gerado na classe NossoNumeroService e armazenado na tabela de boleto; tipo alfa
         $pos58_58 = Cnab240Formatter::numerico($this->boleto->modalidade, 1); # Modalidade de cobrança; tipo numerico
         $pos59_59 = Cnab240Formatter::numerico("0", 1); # Forma de cadastro do titulo no banco, sempre 0; tipo numerico
         $pos60_60 = Cnab240Formatter::alfa("", 1); # Tipo de documento, preencher com espaços em branco; tipo alfa
