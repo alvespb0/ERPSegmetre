@@ -3,6 +3,7 @@
 namespace App\Livewire\EmpresaParametro;
 
 use App\Models\EmpresaParametro;
+use App\Services\CertificadoDigitalService;
 use App\Services\EmpresaParametroService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -30,6 +31,10 @@ class Create extends Component
     public $emailFinanceiro;
     public $logo;
 
+    public $nomeCertificado;
+    public $certificado;
+    public $senhaCertificado;
+
     public function messages(): array
     {
         return [
@@ -53,6 +58,11 @@ class Create extends Component
             'emailFinanceiro.max' => 'O e-mail não pode ter mais que 255 caracteres.',
             'logo.image' => 'O arquivo deve ser uma imagem.',
             'logo.max' => 'A logo não pode ter mais que 2MB.',
+            'nomeCertificado.required_with' => 'O nome do certificado é obrigatório quando um arquivo é enviado.',
+            'nomeCertificado.max' => 'O nome do certificado não pode ter mais que 255 caracteres.',
+            'certificado.file' => 'O certificado deve ser um arquivo válido.',
+            'certificado.max' => 'O certificado não pode ter mais que 5MB.',
+            'senhaCertificado.required_with' => 'A senha do certificado é obrigatória quando um arquivo é enviado.',
         ];
     }
 
@@ -75,6 +85,9 @@ class Create extends Component
             'telefone' => 'nullable|string|max:20',
             'emailFinanceiro' => 'nullable|email|max:255',
             'logo' => 'nullable|image|max:2048',
+            'nomeCertificado' => 'nullable|required_with:certificado|string|max:255',
+            'certificado' => 'nullable|file|max:5120',
+            'senhaCertificado' => 'nullable|required_with:certificado|string',
         ];
     }
 
@@ -117,7 +130,31 @@ class Create extends Component
             $empresaData['logo_path'] = $this->logo->storeAs('empresa/logos', $fileName, 'public');
         }
 
-        (new EmpresaParametroService())->store($empresaData);
+        if ($this->certificado) {
+            $extensao = strtolower($this->certificado->getClientOriginalExtension());
+            if (! in_array($extensao, ['pfx', 'p12'])) {
+                $this->addError('certificado', 'O certificado deve estar no formato .pfx ou .p12.');
+
+                return;
+            }
+
+            $service = new CertificadoDigitalService();
+            if (! $service->validarCertificado($this->certificado->getRealPath(), $this->senhaCertificado)) {
+                $this->addError('senhaCertificado', 'Senha do certificado inválida ou arquivo corrompido.');
+
+                return;
+            }
+        }
+
+        $certificadoDados = null;
+        if ($this->certificado || $this->nomeCertificado) {
+            $certificadoDados = [
+                'nome_certificado' => $this->nomeCertificado,
+                'senha' => $this->senhaCertificado,
+            ];
+        }
+
+        (new EmpresaParametroService())->store($empresaData, $certificadoDados, $this->certificado);
 
         $this->dispatch('toast-message', 'Parametrização da empresa salva com sucesso!');
         $this->redirect(route('erp.dev.empresa-parametro.index'), navigate: true);

@@ -286,6 +286,83 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="mb-4">
+                        <h2 class="text-sm font-semibold text-gray-900">Certificado Digital</h2>
+                        <p class="text-xs text-gray-500 mt-1">
+                            Certificado A1 (.pfx ou .p12) utilizado para emissão de documentos fiscais.
+                        </p>
+                    </div>
+
+                    @if ($certificadoAtual)
+                        <div class="mb-4 p-4 border border-emerald-100 rounded-lg bg-emerald-50/50">
+                            <p class="text-xs font-semibold text-emerald-800 mb-2">Certificado atual</p>
+                            <dl class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                <div>
+                                    <dt class="text-xs font-medium text-gray-500 uppercase">Nome</dt>
+                                    <dd class="mt-0.5 text-gray-900">{{ $certificadoAtual->nome_certificado }}</dd>
+                                </div>
+                                @if ($certificadoAtual->titular)
+                                    <div>
+                                        <dt class="text-xs font-medium text-gray-500 uppercase">Titular</dt>
+                                        <dd class="mt-0.5 text-gray-900">{{ $certificadoAtual->titular }}</dd>
+                                    </div>
+                                @endif
+                                @if ($certificadoAtual->vence_em)
+                                    <div>
+                                        <dt class="text-xs font-medium text-gray-500 uppercase">Validade</dt>
+                                        <dd class="mt-0.5 text-gray-900">{{ $certificadoAtual->vence_em->format('d/m/Y H:i') }}</dd>
+                                    </div>
+                                @endif
+                            </dl>
+                        </div>
+                    @endif
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Nome do Certificado</label>
+                            <input
+                                type="text"
+                                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]"
+                                placeholder="Ex.: Certificado NF-e 2026"
+                                wire:model="nomeCertificado"
+                            >
+                            @error('nomeCertificado')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Arquivo do Certificado (.pfx / .p12)</label>
+                            <input
+                                type="file"
+                                accept=".pfx,.p12"
+                                wire:model="certificado"
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 border border-gray-200 rounded-md bg-white cursor-pointer focus:ring-[#313e50] focus:border-[#313e50]"
+                            >
+                            <p class="mt-1 text-xs text-gray-400">Deixe em branco para manter o certificado atual.</p>
+                            @error('certificado')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                            <div wire:loading wire:target="certificado" class="mt-1 text-xs text-gray-500">Enviando arquivo...</div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Senha do Certificado</label>
+                            <input
+                                type="password"
+                                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]"
+                                placeholder="{{ $certificadoAtual ? 'Informe apenas se for alterar o certificado ou a senha' : 'Senha do arquivo .pfx' }}"
+                                wire:model="senhaCertificado"
+                                autocomplete="new-password"
+                            >
+                            @error('senhaCertificado')
+                                <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-6 self-start">
@@ -297,11 +374,11 @@
                     <button
                         type="submit"
                         wire:loading.attr="disabled"
-                        wire:target="submit,logo"
+                        wire:target="submit,logo,certificado"
                         class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 disabled:opacity-75 disabled:cursor-wait transition-colors"
                     >
-                        <span wire:loading.remove wire:target="submit,logo">Salvar alterações</span>
-                        <span wire:loading wire:target="submit,logo">Salvando...</span>
+                        <span wire:loading.remove wire:target="submit,logo,certificado">Salvar alterações</span>
+                        <span wire:loading wire:target="submit,logo,certificado">Salvando...</span>
                     </button>
 
                     <a

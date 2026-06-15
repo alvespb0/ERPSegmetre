@@ -30,4 +30,8 @@ class EmpresaParametro extends Model
         'logo_path',
     ];
 
+    public function certificadoDigital()
+    {
+        return $this->hasOne(CertificadoDigital::class, 'empresa_parametro_id');
+    }
 }

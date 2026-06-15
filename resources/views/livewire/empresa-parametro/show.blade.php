@@ -110,6 +110,53 @@
                             </dl>
                         </div>
                     @endif
+
+                    @if ($empresa->certificadoDigital)
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                            <h2 class="text-sm font-semibold text-gray-900 mb-4">Certificado Digital</h2>
+                            <dl class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <dt class="text-xs font-medium text-gray-500 uppercase">Nome</dt>
+                                    <dd class="mt-1 text-gray-900">{{ $empresa->certificadoDigital->nome_certificado }}</dd>
+                                </div>
+                                @if ($empresa->certificadoDigital->titular)
+                                    <div>
+                                        <dt class="text-xs font-medium text-gray-500 uppercase">Titular</dt>
+                                        <dd class="mt-1 text-gray-900">{{ $empresa->certificadoDigital->titular }}</dd>
+                                    </div>
+                                @endif
+                                @if ($empresa->certificadoDigital->cpf_cnpj)
+                                    <div>
+                                        <dt class="text-xs font-medium text-gray-500 uppercase">CPF/CNPJ</dt>
+                                        <dd class="mt-1 text-gray-900">{{ $empresa->certificadoDigital->cpf_cnpj }}</dd>
+                                    </div>
+                                @endif
+                                @if ($empresa->certificadoDigital->numero_serie)
+                                    <div>
+                                        <dt class="text-xs font-medium text-gray-500 uppercase">Número de Série</dt>
+                                        <dd class="mt-1 text-gray-900 font-mono text-xs">{{ $empresa->certificadoDigital->numero_serie }}</dd>
+                                    </div>
+                                @endif
+                                @if ($empresa->certificadoDigital->emitido_em)
+                                    <div>
+                                        <dt class="text-xs font-medium text-gray-500 uppercase">Emitido em</dt>
+                                        <dd class="mt-1 text-gray-900">{{ $empresa->certificadoDigital->emitido_em->format('d/m/Y') }}</dd>
+                                    </div>
+                                @endif
+                                @if ($empresa->certificadoDigital->vence_em)
+                                    <div>
+                                        <dt class="text-xs font-medium text-gray-500 uppercase">Vence em</dt>
+                                        <dd class="mt-1 {{ $empresa->certificadoDigital->vence_em->isPast() ? 'text-red-600 font-medium' : 'text-gray-900' }}">
+                                            {{ $empresa->certificadoDigital->vence_em->format('d/m/Y') }}
+                                            @if ($empresa->certificadoDigital->vence_em->isPast())
+                                                <span class="text-xs">(expirado)</span>
+                                            @endif
+                                        </dd>
+                                    </div>
+                                @endif
+                            </dl>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-6 self-start">

@@ -6,16 +6,26 @@ use App\Models\EmpresaParametro;
 
 class EmpresaParametroService
 {
-    public function store(array $dados): EmpresaParametro
+    public function store(array $dados, ?array $certificadoDados = null, $certificadoArquivo = null): EmpresaParametro
     {
-        return EmpresaParametro::create($dados);
+        $empresa = EmpresaParametro::create($dados);
+
+        if ($certificadoArquivo || ! empty($certificadoDados['nome_certificado'])) {
+            (new CertificadoDigitalService())->storeOrUpdate(
+                $empresa->id,
+                $certificadoDados ?? [],
+                $certificadoArquivo
+            );
+        }
+
+        return $empresa;
     }
 
-    public function update(array $dados, $id): bool
+    public function update(array $dados, $id, ?array $certificadoDados = null, $certificadoArquivo = null): bool
     {
         $empresa = EmpresaParametro::findOrFail($id);
 
-        return $empresa->update([
+        $atualizado = $empresa->update([
             'razao_social' => $dados['razao_social'],
             'nome_fantasia' => $dados['nome_fantasia'],
             'cnpj' => $dados['cnpj'],
@@ -33,10 +43,20 @@ class EmpresaParametroService
             'email_financeiro' => $dados['email_financeiro'],
             'logo_path' => $dados['logo_path'] ?? $empresa->logo_path,
         ]);
+
+        if ($certificadoArquivo || ! empty($certificadoDados)) {
+            (new CertificadoDigitalService())->storeOrUpdate(
+                $empresa->id,
+                $certificadoDados ?? [],
+                $certificadoArquivo
+            );
+        }
+
+        return $atualizado;
     }
 
     public function show(): ?EmpresaParametro
     {
-        return EmpresaParametro::first();
+        return EmpresaParametro::with('certificadoDigital')->first();
     }
 }
