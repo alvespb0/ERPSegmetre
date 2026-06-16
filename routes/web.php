@@ -12,6 +12,7 @@ use App\Http\Controllers\TipoContaController;
 use App\Http\Controllers\ContaController;
 use App\Http\Controllers\TituloController;
 use App\Http\Controllers\EmpresaParametroController;
+use App\Http\Controllers\IntegracaoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -88,6 +89,12 @@ Route::middleware(['auth', 'verified'])->controller(EmpresaParametroController::
     Route::get('erp/dev/empresa-parametro', 'showIndexView')->name('erp.dev.empresa-parametro.index');
     Route::get('erp/empresa-parametro/nova', 'showCreateView')->name('erp.empresa-parametro.create');
     Route::get('erp/empresa-parametro/editar/{idEnc}', 'showEditView')->name('erp.empresa-parametro.update');
+});
+
+Route::middleware(['auth', 'verified'])->controller(IntegracaoController::class)->group(function(){
+    Route::get('erp/dev/integracoes', 'showListView')->name('erp.dev.integracoes.index');
+    Route::get('erp/dev/integracoes/nova', 'showCreateView')->name('erp.dev.integracoes.create');
+    Route::get('erp/dev/integracoes/editar/{idEnc}', 'showEditView')->name('erp.dev.integracoes.update');
 });
 
 Route::middleware(['auth', 'verified'])->controller(TituloController::class)->group(function(){

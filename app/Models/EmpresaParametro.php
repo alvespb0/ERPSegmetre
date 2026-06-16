@@ -34,4 +34,9 @@ class EmpresaParametro extends Model
     {
         return $this->hasOne(CertificadoDigital::class, 'empresa_parametro_id');
     }
+
+    public function integracoes()
+    {
+        return $this->hasMany(Integracao::class, 'empresa_parametro_id');
+    }
 }
