@@ -19,6 +19,7 @@ class BoletoCobranca extends Model
         'arquivo_retorno_id',
         'nosso_numero',
         'modalidade',
+        'especie_documento',
         'sequencial_boleto',
         'numero_documento',
         'linha_digitavel',
