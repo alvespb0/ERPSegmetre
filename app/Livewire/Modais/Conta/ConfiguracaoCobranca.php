@@ -8,6 +8,9 @@ use App\Services\ConfiguracaoCobrancaService;
 
 use App\Models\Conta;
 use App\Models\EmpresaParametro;
+use App\Models\Integracao;
+
+use Illuminate\Validation\Rule;
 
 class ConfiguracaoCobranca extends Component
 {
@@ -15,8 +18,10 @@ class ConfiguracaoCobranca extends Component
     public $conta;
     public $configCobranca;
     public $empresasParametro;
+    public $integracoes;
 
     public $empresa_parametro_id;
+    public $integracao_id;
     public $codigo_cedente;
     public $carteira;
     public $ambiente;
@@ -26,6 +31,7 @@ class ConfiguracaoCobranca extends Component
     public function rules(){
         return [
             'empresa_parametro_id'    => 'required',
+            'integracao_id'           => ['nullable', Rule::exists('integracoes', 'id')->where('escopo', 'banco')],
             'codigo_cedente'          => 'required|string|max:255',
             'carteira'                => 'nullable|string|max:255',
             'ambiente'                => 'required|in:homologacao,producao',
@@ -37,6 +43,8 @@ class ConfiguracaoCobranca extends Component
     public function messages(){
         return [
             'empresa_parametro_id.required'    => 'A empresa vinculada é obrigatória.',
+
+            'integracao_id.exists'             => 'A integração selecionada é inválida ou não pertence ao escopo banco.',
 
             'codigo_cedente.required'          => 'O código do cedente é obrigatório.',
             'codigo_cedente.string'            => 'O código do cedente deve ser um texto.',
@@ -60,7 +68,9 @@ class ConfiguracaoCobranca extends Component
         $this->conta = Conta::findOrFail($contaId);
         $this->configCobranca = $this->conta->configuracaoCobranca ?? null;
         $this->empresasParametro = EmpresaParametro::orderBy('razao_social', 'asc')->get();
+        $this->integracoes = $this->carregarIntegracoes();
         $this->empresa_parametro_id = $this->configCobranca->empresa_parametro_id ?? null;
+        $this->integracao_id = $this->configCobranca->integracao_id ?? null;
         $this->codigo_cedente = $this->configCobranca->codigo_cedente ?? null;
         $this->carteira = $this->configCobranca->carteira ?? null;
         $this->ambiente = $this->configCobranca->ambiente ?? null;
@@ -74,6 +84,7 @@ class ConfiguracaoCobranca extends Component
         
         $dados = [
             'empresa_parametro_id' => $this->empresa_parametro_id,
+            'integracao_id' => $this->integracao_id ?: null,
             'codigo_cedente' => $this->codigo_cedente,
             'carteira' => $this->carteira,
             'layout_cnab' => $this->layout_cnab,
@@ -90,6 +101,15 @@ class ConfiguracaoCobranca extends Component
 
     public function fechar(){
         $this->dispatch('fechar-modal');
+    }
+
+    private function carregarIntegracoes()
+    {
+        return Integracao::query()
+            ->where('escopo', 'banco')
+            ->with('empresaParametro')
+            ->orderBy('nome')
+            ->get();
     }
 
     public function render()

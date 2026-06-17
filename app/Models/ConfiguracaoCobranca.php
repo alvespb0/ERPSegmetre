@@ -14,6 +14,7 @@ class ConfiguracaoCobranca extends Model
     protected $fillable = [
         'conta_id',
         'empresa_parametro_id',
+        'integracao_id',
         'codigo_cedente',
         'carteira',
         'layout_cnab',
@@ -27,6 +28,10 @@ class ConfiguracaoCobranca extends Model
 
     public function empresaParametro(){
         return $this->belongsTo(EmpresaParametro::class, 'empresa_parametro_id');
+    }
+
+    public function integracao(){
+        return $this->belongsTo(Integracao::class, 'integracao_id');
     }
 
 }

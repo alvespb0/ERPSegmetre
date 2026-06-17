@@ -17,6 +17,7 @@ class EditIntegracao extends Component
     public $empresaParametroId;
     public $nome;
     public $slug;
+    public $provider;
     public $descricao;
     public $escopo;
     public $tecnologia;
@@ -49,6 +50,7 @@ class EditIntegracao extends Component
         $this->empresaParametroId = $this->integracao->empresa_parametro_id;
         $this->nome = $this->integracao->nome;
         $this->slug = $this->integracao->slug;
+        $this->provider = $this->integracao->provider;
         $this->descricao = $this->integracao->descricao;
         $this->escopo = $this->integracao->escopo;
         $this->tecnologia = $this->integracao->tecnologia;
@@ -80,6 +82,8 @@ class EditIntegracao extends Component
             'nome.required' => 'O nome da integração é obrigatório.',
             'nome.max' => 'O nome não pode ter mais que 255 caracteres.',
             'slug.max' => 'O slug não pode ter mais que 255 caracteres.',
+            'provider.max' => 'O provider não pode ter mais que 255 caracteres.',
+            'provider.class' => 'A classe informada no provider não existe.',
             'escopo.required' => 'O escopo é obrigatório.',
             'escopo.in' => 'O escopo selecionado é inválido.',
             'tecnologia.required' => 'A tecnologia é obrigatória.',
@@ -108,6 +112,7 @@ class EditIntegracao extends Component
             'empresa_parametro_id' => $data['empresaParametroId'],
             'nome' => $data['nome'],
             'slug' => $data['slug'] ?? null,
+            'provider' => $data['provider'] ?? null,
             'descricao' => $data['descricao'] ?? null,
             'escopo' => $data['escopo'],
             'tecnologia' => $data['tecnologia'],
@@ -137,6 +142,7 @@ class EditIntegracao extends Component
             'empresaParametroId' => 'required|exists:empresa_parametro,id',
             'nome' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255',
+            'provider' => ['nullable', 'string', 'max:255', $this->regraProviderExistente()],
             'descricao' => 'nullable|string',
             'escopo' => 'required|in:sistema,banco,fiscal,externo',
             'tecnologia' => 'required|in:rest,soap',
@@ -192,5 +198,14 @@ class EditIntegracao extends Component
         return CertificadoDigital::where('empresa_parametro_id', $this->empresaParametroId)
             ->orderBy('nome_certificado')
             ->get();
+    }
+
+    private function regraProviderExistente(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail): void {
+            if ($value && ! class_exists($value)) {
+                $fail('A classe informada no provider não existe.');
+            }
+        };
     }
 }

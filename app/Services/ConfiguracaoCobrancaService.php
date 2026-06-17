@@ -16,6 +16,7 @@ class ConfiguracaoCobrancaService
             ['conta_id' => $contaId],
             [
                 'empresa_parametro_id' => $dados['empresa_parametro_id'],
+                'integracao_id' => $dados['integracao_id'] ?? null,
                 'codigo_cedente' => $dados['codigo_cedente'],
                 'carteira' => $dados['carteira'],
                 'layout_cnab' => $dados['layout_cnab'],

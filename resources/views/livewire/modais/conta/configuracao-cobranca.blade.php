@@ -83,6 +83,27 @@
                                     @error('empresa_parametro_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 </div>
 
+                                <div class="col-span-1 md:col-span-2">
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Integração Bancária</label>
+                                    <select
+                                        wire:model="integracao_id"
+                                        class="w-full rounded-lg focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors @error('integracao_id') border-red-500 ring-red-500 @else border-gray-300 @enderror"
+                                    >
+                                        <option value="">Selecione uma integração...</option>
+                                        @if(isset($integracoes) && count($integracoes) > 0)
+                                            @foreach($integracoes as $integracao)
+                                                <option value="{{ $integracao->id }}">
+                                                    {{ $integracao->nome }}
+                                                    @if($integracao->empresaParametro)
+                                                        &middot; {{ $integracao->empresaParametro->razao_social }}
+                                                    @endif
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    @error('integracao_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+
                                 <div>
                                     <label class="block text-xs font-medium text-gray-700 mb-1">Código do Cedente *</label>
                                     <input 

@@ -54,6 +54,7 @@ class ListIntegracao extends Component
             $query->where(function ($q) {
                 $q->where('nome', 'like', '%' . $this->search . '%')
                     ->orWhere('slug', 'like', '%' . $this->search . '%')
+                    ->orWhere('provider', 'like', '%' . $this->search . '%')
                     ->orWhere('endpoint', 'like', '%' . $this->search . '%');
             });
         }

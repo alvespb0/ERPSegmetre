@@ -72,6 +72,17 @@
                         </div>
 
                         <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Provider</label>
+                            <input
+                                type="text"
+                                class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]"
+                                placeholder="Ex.: App\Bancos\Sicoob\Services\CobrancaService"
+                                wire:model="provider"
+                            >
+                            <p class="text-[11px] text-gray-500 mt-1">Classe responsável por executar esta integração.</p>
+                        </div>
+
+                        <div>
                             <label class="block text-xs font-medium text-gray-700 mb-1">Escopo <span class="text-red-500">*</span></label>
                             <select
                                 class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]"

@@ -42,7 +42,7 @@
                 <input
                     type="text"
                     wire:model.live.debounce.500ms="search"
-                    placeholder="Buscar por nome, slug ou endpoint..."
+                    placeholder="Buscar por nome, slug, provider ou endpoint..."
                     class="w-full pl-10 pr-4 py-2 text-sm bg-transparent border-transparent focus:border-transparent focus:ring-0 outline-none text-gray-700 placeholder-gray-400"
                 >
             </div>
@@ -77,6 +77,7 @@
                         <tr>
                             <th class="px-4 py-3 text-left">Nome</th>
                             <th class="px-4 py-3 text-left">Slug</th>
+                            <th class="px-4 py-3 text-left">Provider</th>
                             <th class="px-4 py-3 text-left">Escopo</th>
                             <th class="px-4 py-3 text-left">Tecnologia</th>
                             <th class="px-4 py-3 text-left">Autenticação</th>
@@ -94,6 +95,7 @@
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 text-gray-600 font-mono text-xs">{{ $integracao->slug }}</td>
+                                <td class="px-4 py-3 text-gray-600 font-mono text-xs">{{ $integracao->provider ?? '—' }}</td>
                                 <td class="px-4 py-3 text-gray-700">{{ $escopos[$integracao->escopo] ?? $integracao->escopo }}</td>
                                 <td class="px-4 py-3 uppercase text-xs text-gray-600">{{ $integracao->tecnologia }}</td>
                                 <td class="px-4 py-3 text-gray-700">{{ $autenticacoes[$integracao->autenticacao] ?? $integracao->autenticacao }}</td>
@@ -153,7 +155,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-4 py-8 text-center text-sm text-gray-500">
+                                <td colspan="8" class="px-4 py-8 text-center text-sm text-gray-500">
                                     Nenhuma integração encontrada.
                                 </td>
                             </tr>

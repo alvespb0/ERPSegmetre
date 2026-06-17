@@ -15,6 +15,7 @@ class Integracao extends Model
         'empresa_parametro_id',
         'nome',
         'slug',
+        'provider', # classe responsável por essa integracao
         'descricao',
         'escopo',
         'tecnologia',
