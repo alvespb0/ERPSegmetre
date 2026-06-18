@@ -18,22 +18,24 @@ class BoletoCobranca extends Model
         'arquivo_remessa_id',
         'arquivo_retorno_id',
         'nosso_numero',
-        'modalidade',
-        'especie_documento',
         'sequencial_boleto',
         'numero_documento',
+        'modalidade',          # 01=simples, 03=caucionada, 04=vinculada, 05=carnê
+        'especie_documento',   # DM=duplicata mercantil, DS=serviço, NP=promissória, etc.
         'linha_digitavel',
         'codigo_barras',
-        'status',
-        'codigo_juros', # 0 isento, 1 valor por dia, 2 taxa mensal
-        'codigo_protesto', # 1 protestar dias corridos, 2 valor dias uteis, 3 não protestar, 8 negativação sem protesto, 9 negativação automática
+        'status',             # pendente, remetido, registrado, liquidado, baixado, rejeitado, cancelado
+        'codigo_multa',       # 0=isento, 1=valor fixo, 2=percentual
+        'codigo_juros',       # 0=isento, 1=valor por dia, 2=taxa mensal
+        'codigo_protesto',    # 1=dias corridos, 2=dias úteis, 3=não protestar, 8=negativação, 9=automática
         'valor_multa',
         'valor_juros',
-        'prazo_protesto', # nullable dias após vencimento
         'data_registro',
+        'data_multa',
         'data_liquidacao',
+        'prazo_protesto',
     ];
-
+    
     public function parcela(){
         return $this->belongsTo(Parcela::class, 'parcela_id');
     }

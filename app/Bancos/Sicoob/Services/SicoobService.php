@@ -1,4 +1,5 @@
 <?php
+namespace App\Bancos\Sicoob\Services;
 
 class SicoobService
 {
