@@ -145,6 +145,104 @@
 
                         <div class="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
                             <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
+                                <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Parâmetros de Juros e Multa</h4>
+                                <p class="text-[11px] text-gray-500 mt-0.5">Campos opcionais aplicados na geração de boletos.</p>
+                            </div>
+                            <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Código de Juros</label>
+                                    <select
+                                        wire:model.live="codigo_juros"
+                                        class="w-full rounded-lg focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors @error('codigo_juros') border-red-500 ring-red-500 @else border-gray-300 @enderror"
+                                    >
+                                        <option value="">Selecione...</option>
+                                        <option value="0">0 — Isento</option>
+                                        <option value="1">1 — Valor por dia</option>
+                                        <option value="2">2 — Taxa mensal</option>
+                                    </select>
+                                    @error('codigo_juros') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+
+                                @if(in_array($codigo_juros, ['1', '2']))
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Valor de Juros</label>
+                                        <input
+                                            type="number"
+                                            step="0.0001"
+                                            wire:model="valor_juros"
+                                            placeholder="Ex: 0.0333"
+                                            class="w-full rounded-lg focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors @error('valor_juros') border-red-500 ring-red-500 @else border-gray-300 @enderror"
+                                        >
+                                        @error('valor_juros') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                    </div>
+                                @endif
+
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Dias após vencimento (juros)</label>
+                                    <input
+                                        type="number"
+                                        wire:model="dias_inicio_juros"
+                                        placeholder="Ex: 1"
+                                        class="w-full rounded-lg focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors @error('dias_inicio_juros') border-red-500 ring-red-500 @else border-gray-300 @enderror"
+                                    >
+                                    @error('dias_inicio_juros') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Código de Multa</label>
+                                    <select
+                                        wire:model.live="codigo_multa"
+                                        class="w-full rounded-lg focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors @error('codigo_multa') border-red-500 ring-red-500 @else border-gray-300 @enderror"
+                                    >
+                                        <option value="">Selecione...</option>
+                                        <option value="0">0 — Isento</option>
+                                        <option value="1">1 — Valor fixo</option>
+                                        <option value="2">2 — Percentual</option>
+                                    </select>
+                                    @error('codigo_multa') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+
+                                @if(in_array($codigo_multa, ['1', '2']))
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Valor da Multa</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            wire:model="valor_multa"
+                                            placeholder="Ex: 2.00"
+                                            class="w-full rounded-lg focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors @error('valor_multa') border-red-500 ring-red-500 @else border-gray-300 @enderror"
+                                        >
+                                        @error('valor_multa') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                    </div>
+                                @endif
+
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Dias após vencimento (multa)</label>
+                                    <input
+                                        type="number"
+                                        wire:model="dias_inicio_multa"
+                                        placeholder="Ex: 1"
+                                        class="w-full rounded-lg focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors @error('dias_inicio_multa') border-red-500 ring-red-500 @else border-gray-300 @enderror"
+                                    >
+                                    @error('dias_inicio_multa') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Dias limite para pagamento</label>
+                                    <input
+                                        type="number"
+                                        wire:model="dias_limite_pagamento"
+                                        placeholder="Ex: 30"
+                                        class="w-full rounded-lg focus:border-[#313e50] focus:ring-[#313e50] sm:text-sm transition-colors @error('dias_limite_pagamento') border-red-500 ring-red-500 @else border-gray-300 @enderror"
+                                    >
+                                    <p class="text-[11px] text-gray-500 mt-1">Dias para baixa automática após o vencimento.</p>
+                                    @error('dias_limite_pagamento') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+                            <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
                                 <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Controle CNAB e Numeração</h4>
                             </div>
                             <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">

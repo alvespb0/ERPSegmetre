@@ -20,7 +20,8 @@ return new class extends Migration
             $table->string('nosso_numero', 20)->nullable()->unique(); # identificador bancário do boleto
             $table->bigInteger('sequencial_boleto');
             $table->string('numero_documento'); # identificador interno ERP
-            $table->string('modalidade'); # 01 Cobrança simples ; 04 Cobrança vinculada ; 03 Cobrança Caucionada ; 05 Carnê de Pagamentos 
+            $table->enum('modalidade', ['1', '2', '3', '4', '5', 'outro']); # 01 Cobrança simples ; 04 Cobrança vinculada ; 03 Cobrança Caucionada ; 05 Carnê de Pagamentos
+            $table->text('info_complementares')->nullable(); 
             $table->enum('especie_documento', [
                 'CH',  // Cheque
                 'DM',  // Duplicata Mercantil

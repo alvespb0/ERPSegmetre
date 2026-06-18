@@ -16,10 +16,22 @@ class ConfiguracaoCobranca extends Model
         'empresa_parametro_id',
         'integracao_id',
         'codigo_cedente',
+        'codigo_juros',
+        'valor_juros',
+        'dias_inicio_juros',
+        'codigo_multa',
+        'valor_multa',
+        'dias_inicio_multa',
+        'dias_limite_pagamento',
         'carteira',
         'layout_cnab',
         'ambiente',
         'numero_inicial_cobranca'
+    ];
+
+    protected $casts = [
+        'valor_juros' => 'decimal:4',
+        'valor_multa' => 'decimal:2',
     ];
 
     public function conta(){

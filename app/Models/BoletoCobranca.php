@@ -21,6 +21,7 @@ class BoletoCobranca extends Model
         'sequencial_boleto',
         'numero_documento',
         'modalidade',          # 01=simples, 03=caucionada, 04=vinculada, 05=carnê
+        'info_complementares',
         'especie_documento',   # DM=duplicata mercantil, DS=serviço, NP=promissória, etc.
         'linha_digitavel',
         'codigo_barras',
