@@ -1,6 +1,8 @@
 <?php
 namespace App\Bancos\Sicoob\Services;
 
+use App\Models\Integracao;
+
 class SicoobService
 {
     public function resolver(string $operacao, Integracao $integracao) {
