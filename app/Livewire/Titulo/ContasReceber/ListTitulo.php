@@ -56,6 +56,9 @@ class ListTitulo extends Component
     public bool $openModalAnexos = false;
     public ?Parcela $parcelaParaAnexos = null;
 
+    public bool $openModalCobranca = false;
+    public ?Parcela $parcelaParaCobranca = null;
+
     public $search = '';
     public $filtroCompetencia;
     public $filtroCard;
@@ -386,6 +389,32 @@ class ListTitulo extends Component
         $this->openModalEditarStatus = false;
 
         $this->parcelaParaEditarStatus = null;
+    }
+
+    /**
+     * Abre o modal de anexos de uma parcela, carregando relacionamentos necessários.
+     * * @param Parcela $parcela
+     * @return void
+     */
+    public function gerarCobrancaParcela(Parcela $parcela){
+        $parcela->load([
+                'titulo.entidade', 
+            ]);
+            
+        $this->parcelaParaCobranca = $parcela;
+
+        $this->openModalCobranca = true;
+    }
+
+    /**
+     * Evento acionado para fechar o modal de anexos e limpar os dados.
+     * * @return void
+     */
+    #[On('fechar-modal-cobranca')]
+    public function fecharModalCobranca(){
+        $this->openModalCobranca = false;
+
+        $this->parcelaParaCobranca = null;
     }
 
     /**

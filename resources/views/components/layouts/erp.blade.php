@@ -353,7 +353,7 @@
 
             <div class="flex min-h-screen flex-col lg:pl-64">
                 
-                <header class="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-gray-200/80 bg-white/80 px-4 backdrop-blur-md sm:px-6 lg:px-8">
+                <header class="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-gray-200/80 bg-white/80 px-4 sm:px-6 lg:px-8">
                     <div class="flex items-center gap-3">
                         <button
                             type="button"

@@ -441,6 +441,12 @@
                                                 </button>
                                                 <button
                                                     class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                    wire:click="gerarCobrancaParcela({{ $parcela->id }})"
+                                                >
+                                                    Gerar Cobranca
+                                                </button>
+                                                <button
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
                                                     wire:click="anexosParcela({{ $parcela->id }})"
                                                 >
                                                     Anexos
@@ -524,4 +530,11 @@
             wire:key="modal-receber-{{ $parcelaParaAnexos->id }}" 
         />
     @endif
+    @if($parcelaParaCobranca && $openModalCobranca)
+        <livewire:Modais.ContasReceber.GerarCobranca
+            :parcela-id="$parcelaParaCobranca->id" 
+            wire:key="modal-receber-{{ $parcelaParaCobranca->id }}" 
+        />
+    @endif
+
 </div>
