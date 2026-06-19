@@ -15,7 +15,7 @@ class BoletoCobrancaService
     {
         $boleto = BoletoCobranca::findOrFail($id);
 
-        return $boleto->update($this->mapearDados($dados));
+        return $boleto->update($this->mapearDadosUpdate($dados));
     }
 
     public function find(int $id): BoletoCobranca
@@ -77,6 +77,40 @@ class BoletoCobrancaService
             'data_liquidacao' => $dados['data_liquidacao'] ?? null,
             'prazo_protesto' => $dados['prazo_protesto'] ?? null,
         ];
+    }
+
+    private function mapearDadosUpdate(array $dados): array{
+        $permitidos = [
+            'parcela_id',
+            'configuracao_cobranca_id',
+            'arquivo_remessa_id',
+            'arquivo_retorno_id',
+            'nosso_numero',
+            'sequencial_boleto',
+            'pdf_path',
+            'numero_documento',
+            'modalidade',
+            'info_complementares',
+            'especie_documento',
+            'linha_digitavel',
+            'codigo_barras',
+            'status',
+            'codigo_multa',
+            'codigo_juros',
+            'codigo_protesto',
+            'valor_multa',
+            'valor_juros',
+            'data_registro',
+            'data_multa',
+            'data_juro',
+            'data_liquidacao',
+            'prazo_protesto',
+        ];
+
+        return array_intersect_key(
+            $dados,
+            array_flip($permitidos)
+        );
     }
 
     private function relacionamentos(): array

@@ -54,7 +54,7 @@ class SicoobCobrancaService
                 $payload
             );
         
-        return $response->json();
+        return $response;
     }
 
 }

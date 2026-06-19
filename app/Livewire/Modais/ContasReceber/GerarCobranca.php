@@ -4,6 +4,9 @@ namespace App\Livewire\Modais\ContasReceber;
 
 use Livewire\Component;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+
 use Carbon\Carbon;
 
 use App\Services\BoletoCobrancaService;
@@ -32,6 +35,12 @@ class GerarCobranca extends Component
     public $dias_limite_pagamento;
     public $info_complementares;
 
+    /**
+     * Inicializa o componente carregando os dados da parcela, do pagador e das contas disponíveis.
+     *
+     * @param int|string $parcelaId O ID da parcela que será cobrada.
+     * @return void
+     */
     public function mount($parcelaId){
         $this->parcela = Parcela::with(['titulo.entidade'])->findOrFail($parcelaId);
         $this->parcela->titulo->loadCount('parcelas');
@@ -39,10 +48,21 @@ class GerarCobranca extends Component
         $this->contas = Conta::orderBy('nome', 'asc')->get();
     }
 
+    /**
+     * Dispara um evento para o front-end indicando o fechamento do modal de cobrança.
+     *
+     * @return void
+     */
     public function fecharModal(){
         $this->dispatch('fechar-modal-cobranca');
     }
 
+    /**
+     * Seleciona uma conta para cobrança e preenche automaticamente as configurações atreladas a ela.
+     *
+     * @param Conta $conta A instância da conta bancária selecionada.
+     * @return void
+     */
     public function selectContaCobranca(Conta $conta){
         $conta->load([
             'banco',
@@ -65,11 +85,21 @@ class GerarCobranca extends Component
             : 'remessa';
     }
 
+    /**
+     * Limpa as informações da conta de cobrança previamente selecionada.
+     *
+     * @return void
+     */
     public function limparContaCobranca(){
         $this->selectedConta = null;
         $this->configuracao = null;
     }  
 
+    /**
+     * Define as regras de validação para as propriedades do componente.
+     *
+     * @return array<string, string> Retorna o array contendo as regras.
+     */
     public function rules(){
         return [
             'especie_documento' => 'required|in:CH,DM,DMI,DS,DSI,DR,LC,NCC,NCE,NCI,NCR,NP,NPR,TM,TS,NS,RC,FAT,ND,AP,ME,PC,NF,DD,BDP,OU',
@@ -85,6 +115,11 @@ class GerarCobranca extends Component
         ];
     }
 
+    /**
+     * Define as mensagens customizadas para os erros de validação das regras.
+     *
+     * @return array<string, string> Retorna o array de mensagens de erro.
+     */
     public function messages(){
         return [
             'especie_documento.required' => 'A espécie do documento é obrigatória.',
@@ -124,6 +159,13 @@ class GerarCobranca extends Component
         ];
     }
 
+    /**
+     * Realiza verificações de regra de negócio para a emissão do boleto.
+     * Valida vencimento, status da parcela, existência da conta e chama a validação do pagador.
+     *
+     * @throws ValidationException Caso alguma das condições não seja atendida.
+     * @return void
+     */
     private function validarEmissaoBoleto(): void{
         if (Carbon::parse($this->parcela->data_vencimento)->isPast()) {
             throw ValidationException::withMessages([
@@ -148,10 +190,16 @@ class GerarCobranca extends Component
                 'geral' => 'Não é possível emitir boleto para parcela cancelada.'
             ]);
         }
-        
+
         $this->validarPagador();
     }
 
+    /**
+     * Verifica se o pagador possui todas as informações essenciais cadastradas (Documento e Endereço).
+     *
+     * @throws ValidationException Caso faltem dados obrigatórios no cadastro do pagador.
+     * @return void
+     */
     public function validarPagador(){
         $endereco = $this->pagador?->enderecos()?->first();
         $errosCadastro = array_filter([
@@ -216,8 +264,31 @@ class GerarCobranca extends Component
                 $boletoGerado = $serviceProvider->gerarBoletoProducao($boleto);
             }
 
-            dd($boletoGerado);
+            if($boletoGerado->ok()){
+                $boletoGerado->json();
+                $pdfPath = null;
 
+                if (!empty($boletoGerado['resultado']['pdfBoleto'])) {
+                    $pdfContent = base64_decode($boletoGerado['resultado']['pdfBoleto']);
+                    $nomeArquivo = "boleto_{$boleto->numero_documento}.pdf";
+                    Storage::disk('public')->put(
+                        "boletos/{$nomeArquivo}",
+                        $pdfContent
+                    );
+                    $pdfPath = "boletos/{$nomeArquivo}";
+                }
+
+                $retorno = $boletoCrud->update([
+                    'status' => 'registrado',
+                    'nosso_numero' => $boletoGerado['resultado']['nossoNumero'] ?? null,
+                    'codigo_barras' => $boletoGerado['resultado']['codigoBarras'] ?? null,
+                    'linha_digitavel' => $boletoGerado['resultado']['linhaDigitavel'] ?? null,
+                    'pdf_path' => $pdfPath,
+                ], $boleto->id);
+
+                $this->dispatch('fechar-modal-cobranca');
+                $this->dispatch('toast-message', 'Boleto registrado com sucesso!');
+            }
         } catch (ValidationException $e) {
             throw $e; 
         } catch(\Exception $e){
