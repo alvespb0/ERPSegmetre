@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('arquivo_remessa_id')->nullable();
             $table->unsignedBigInteger('arquivo_retorno_id')->nullable();
             $table->string('nosso_numero', 20)->nullable()->unique(); # identificador bancário do boleto
+            $table->string('pdf_path')->nullable();
             $table->bigInteger('sequencial_boleto');
             $table->string('numero_documento'); # identificador interno ERP
             $table->enum('modalidade', ['1', '2', '3', '4', '5', 'outro']); # 01 Cobrança simples ; 04 Cobrança vinculada ; 03 Cobrança Caucionada ; 05 Carnê de Pagamentos
@@ -85,11 +86,10 @@ return new class extends Migration
             $table->decimal('valor_juros', 15, 2)->default(0);
             
             $table->timestamp('data_registro')->nullable();
-            $table->timestamp('data_multa')->nullable(); # deve ser menor que data limite de pagamento da duplicata e maior que a data de vencimento da parcela
+            $table->date('data_multa')->nullable(); # deve ser menor que data limite de pagamento da duplicata e maior que a data de vencimento da parcela
+            $table->date('data_juro')->nullable(); # deve ser menor que data limite de pagamento da duplicata e maior que a data de vencimento da parcela
             $table->timestamp('data_liquidacao')->nullable();
             $table->integer('prazo_protesto')->nullable(); # dias após vencimento
-
-
 
             $table->foreign('parcela_id')->references('id')->on('parcelas')->onDelete('cascade');
             $table->foreign('configuracao_cobranca_id')->references('id')->on('configuracao_cobranca')->nullOnDelete();

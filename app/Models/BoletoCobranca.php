@@ -18,6 +18,7 @@ class BoletoCobranca extends Model
         'arquivo_remessa_id',
         'arquivo_retorno_id',
         'nosso_numero',
+        'pdf_path',
         'sequencial_boleto',
         'numero_documento',
         'modalidade',          # 01=simples, 03=caucionada, 04=vinculada, 05=carnê
@@ -33,6 +34,7 @@ class BoletoCobranca extends Model
         'valor_juros',
         'data_registro',
         'data_multa',
+        'data_juro',
         'data_liquidacao',
         'prazo_protesto',
     ];
@@ -69,5 +71,31 @@ class BoletoCobranca extends Model
             'pendente',
             'rejeitado',
         ]);
+    }
+
+    /**
+     * Retorna o próximo sequencial interno do sistema.
+     * Considera registros excluídos (soft delete) para evitar reutilização.
+     */
+    public static function proximoSequencial(): int
+    {
+        $ultimoSequencial = static::withTrashed()->max('sequencial_boleto');
+
+        return $ultimoSequencial !== null
+            ? (int) $ultimoSequencial + 1
+            : 1;
+    }
+
+    /**
+     * Gera o número do documento interno do ERP.
+     * Padrão: RRRR-SEQUENCIAL-YYYYMMDD (ex.: 4829-12-20260618)
+     */
+    public static function gerarNumeroDocumento(int $sequencial, ?Carbon $data = null): string
+    {
+        $data ??= now();
+
+        $aleatorio = str_pad((string) random_int(0, 9999), 4, '0', STR_PAD_LEFT);
+
+        return sprintf('%s-%d-%s', $aleatorio, $sequencial, $data->format('Ymd'));
     }
 }
