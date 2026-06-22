@@ -55,6 +55,20 @@ class BoletoCobranca extends Model
         return $this->belongsTo(ArquivoRetorno::class,'arquivo_retorno_id');
     }
 
+    /**
+     * Classe auxiliar somente para background color do SVG de listagem de titulo
+     */
+    public function getClassesStatusAttribute(): string{
+        return match ($this->status) {
+            'pendente'   => 'bg-amber-50 text-amber-600 border-amber-100 group-hover:bg-amber-100',
+            'remetido'   => 'bg-blue-50 text-blue-600 border-blue-100 group-hover:bg-blue-100',
+            'registrado' => 'bg-emerald-50 text-emerald-600 border-emerald-100 group-hover:bg-emerald-100',
+            /* 'liquidado'  => 'bg-green-50 text-green-600 border-green-100 group-hover:bg-green-100', */
+            /* 'rejeitado'  => 'bg-red-50 text-red-600 border-red-100 group-hover:bg-red-100', */
+            default      => 'bg-gray-50 text-gray-600 border-gray-100 group-hover:bg-gray-100',
+        };
+    }    
+    
     public function getEstaLiquidadoAttribute(): bool{
         return $this->status === 'liquidado';
     }
@@ -65,7 +79,7 @@ class BoletoCobranca extends Model
             'liquidado',
         ]);
     }
-
+    
     public function getPodeGerarRemessaAttribute(): bool{
         return in_array($this->status, [
             'pendente',

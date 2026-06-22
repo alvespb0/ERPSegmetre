@@ -29,6 +29,23 @@ class Parcela extends Model
         return $this->morphMany(Anexo::class, 'anexavel');
     }
     
+    public function boletos(){
+        return $this->hasMany(BoletoCobranca::class, 'parcela_id');
+    }
+
+    public function getBoletoAtivoAttribute(): ?BoletoCobranca{
+        return $this->boletos
+            ->first(fn ($boleto) => in_array($boleto->status, [
+                'pendente',
+                'remetido',
+                'registrado',
+            ]));
+    }
+    
+    public function getPossuiBoletoAtivoAttribute(): bool{
+        return $this->boleto_ativo !== null;
+    }
+    
     public function getStatusCalculadoAttribute(){
         if ($this->status === 'cancelado') {
             return 'cancelado';

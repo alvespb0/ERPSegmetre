@@ -192,6 +192,12 @@ class GerarCobranca extends Component
             ]);
         }
 
+        if($this->parcela->possui_boleto_ativo){
+            throw ValidationException::withMessages([
+                'geral' => 'Não é possível emitir boleto. Já possui um boleto ativo para esse titulo.'
+            ]);
+        }
+
         $this->validarPagador();
     }
 

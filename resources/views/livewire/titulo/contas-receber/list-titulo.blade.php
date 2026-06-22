@@ -289,6 +289,7 @@
                             <th class="px-4 py-3 text-left">Cliente / Pagador</th>
                             <th class="px-4 py-3 text-right">Valor (R$)</th>
                             <th class="px-4 py-3 text-center">Status</th>
+                            <th class="px-4 py-3 text-center">Cobrança</th>
                             <th class="px-4 py-3 text-right">Ações</th>
                         </tr>
                     </thead>
@@ -373,7 +374,49 @@
                                         {{ ucfirst($displayStatus) }}
                                     </span>
                                 </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center justify-center">
+                                        @if($parcela->possui_boleto_ativo)
+                                            <!-- Com Boleto -->
+                                            <div class="relative flex items-center justify-center group">
+                                                <span class="inline-flex items-center justify-center p-1.5 rounded-md border shadow-sm transition-colors cursor-help {{ $parcela->boleto_ativo->classes_status }}">
+                                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                        <rect x="3" y="5" width="18" height="14" rx="2" stroke-width="1.8"/>
+                                                        <path stroke-linecap="round" stroke-width="1.5" d="M7 10h10"/>
+                                                        <path stroke-linecap="round" stroke-width="1.5" d="M7 14h2"/>
+                                                        <path stroke-linecap="round" stroke-width="1.5" d="M11 14h1"/>
+                                                        <path stroke-linecap="round" stroke-width="1.5" d="M14 14h3"/>
+                                                    </svg>                                    
+                                                </span>
+                                                
+                                                <!-- Tooltip Customizado Tailwind -->
+                                                <div class="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 transition-all duration-200 group-hover:opacity-100 pointer-events-none shadow-lg">
+                                                    Boleto {{ $parcela->boleto_ativo->status }} 
+                                                    <br>
+                                                    Banco: {{ $parcela->boleto_ativo->configuracaoCobranca->conta->banco->numero_banco }} - {{ $parcela->boleto_ativo->configuracaoCobranca->conta->banco->nome }} | Cooperativa: {{ $parcela->boleto_ativo->configuracaoCobranca->conta->agencia }}
+                                                    <!-- Setinha do Tooltip (Triângulo apontando pra baixo) -->
+                                                    <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <!-- Sem Boleto -->
+                                            <div class="relative flex items-center justify-center group">
+                                                <span class="inline-flex items-center justify-center p-1.5 text-gray-300 cursor-help transition-colors group-hover:text-gray-400">
+                                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
+                                                    </svg>
+                                                </span>
 
+                                                <!-- Tooltip Customizado Tailwind -->
+                                                <div class="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 transition-all duration-200 group-hover:opacity-100 pointer-events-none shadow-lg">
+                                                    Nenhum boleto vinculado
+                                                    <!-- Setinha do Tooltip (Triângulo apontando pra baixo) -->
+                                                    <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </td>
                                 <td class="px-4 py-3 text-right" x-data="{ open: false }">
                                     <button
                                         @click="open = !open"
@@ -439,12 +482,22 @@
                                                 >
                                                     Ver Título Completo
                                                 </button>
-                                                <button
-                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
-                                                    wire:click="gerarCobrancaParcela({{ $parcela->id }})"
-                                                >
-                                                    Gerar Cobranca
-                                                </button>
+                                                @if(!$parcela->possui_boleto_ativo)
+                                                    <button
+                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                        wire:click="gerarCobrancaParcela({{ $parcela->id }})"
+                                                    >
+                                                        Gerar Cobranca
+                                                    </button>
+                                                @else
+                                                    <button
+                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                        wire:click=""
+                                                    >
+                                                        Cancelar Cobranca (DESENVOLVENDO)
+                                                    </button>
+                                                @endif
+                                                
                                                 <button
                                                     class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
                                                     wire:click="anexosParcela({{ $parcela->id }})"
