@@ -6,6 +6,7 @@ use Livewire\Component;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 use Carbon\Carbon;
 
@@ -213,18 +214,31 @@ class GerarCobranca extends Component
         ]);
 
         if (!empty($errosCadastro)) {
-            throw ValidationException::withMessages(
-                [
-                    'geral' => implode(' ', $erros)
-                ]
-            );
+            $camposFaltantes = implode(', ', array_keys($errosCadastro));
+            
+            throw ValidationException::withMessages([
+                'geral' => "Para gerar o boleto, preencha os seguintes dados do cliente: {$camposFaltantes}."
+            ]);
         }
     }
 
+    /**
+     * Processa a geração da cobrança ou preparação de remessa.
+     *
+     * Valida as regras de negócio e informações do formulário, cria o registro do 
+     * boleto no banco de dados e, dependendo do tipo de integração (API ou Remessa), 
+     * envia a requisição ao provedor bancário ou deixa pendente para o arquivo de remessa.
+     *
+     * @throws ValidationException Se as validações falharem ou a comunicação com o banco retornar erro.
+     * @throws \Exception Para erros internos e não previstos, acionando o Rollback da transação.
+     * @return void
+     */
     public function gerar(){
         try{
-            $data = $this->validate();
+            $this->validate();
             $this->validarEmissaoBoleto();
+
+            DB::beginTransaction();
 
             $boletoCrud = new BoletoCobrancaService;
             
@@ -255,47 +269,68 @@ class GerarCobranca extends Component
                 $factory = new \App\Factories\IntegracaoFactory;
                 $serviceProvider = $factory->make($this->configuracoes->integracao, 'cobranca');
             }else{
-                $serviceProvider = '\Bancos\Gerador\Remessa240Generica'; # por enquanto hardcodado eu vou fazer algo pra quando não tem integração vinculada
+                $boleto->update([
+                    'status' => 'pendente_remessa'
+                ]);
+
+                DB::commit();
+                $this->dispatch('toast-message', 'Boleto preparado para geração de remessa!');
+                $this->dispatch('fechar-modal-cobranca');
+                return;
             }
 
             if($this->configuracoes->ambiente == 'homologacao'){
-                $boletoGerado = $serviceProvider->gerarBoletoSandbox($boleto);
+                $response = $serviceProvider->gerarBoletoSandbox($boleto);
             }else{
-                $boletoGerado = $serviceProvider->gerarBoletoProducao($boleto);
+                $response = $serviceProvider->gerarBoletoProducao($boleto);
             }
 
-            if($boletoGerado->ok()){
-                $boletoGerado->json();
-                $pdfPath = null;
+            if(!$response->successful()){
+                \Log::error([
+                    'Erro integração cobrança' => [
+                        'status' => $response->status(),
+                        'body' => $response->body(),
+                    ]
+                ]);
 
-                if (!empty($boletoGerado['resultado']['pdfBoleto'])) {
-                    $pdfContent = base64_decode($boletoGerado['resultado']['pdfBoleto']);
-                    $nomeArquivo = "boleto_{$boleto->numero_documento}.pdf";
-                    Storage::disk('public')->put(
-                        "boletos/{$nomeArquivo}",
-                        $pdfContent
-                    );
-                    $pdfPath = "boletos/{$nomeArquivo}";
-                }
-
-                $retorno = $boletoCrud->update([
-                    'status' => 'registrado',
-                    'nosso_numero' => $boletoGerado['resultado']['nossoNumero'] ?? null,
-                    'codigo_barras' => $boletoGerado['resultado']['codigoBarras'] ?? null,
-                    'linha_digitavel' => $boletoGerado['resultado']['linhaDigitavel'] ?? null,
-                    'pdf_path' => $pdfPath,
-                ], $boleto->id);
-
-                $this->dispatch('fechar-modal-cobranca');
-                $this->dispatch('toast-message', 'Boleto registrado com sucesso!');
+                throw ValidationException::withMessages([
+                    'geral' => 'Falha ao registrar boleto junto ao banco.'
+                ]);
             }
+
+            $resultado = $response->json('resultado');
+            $pdfPath = null;
+
+            if (!empty($resultado['pdfBoleto'])) {
+                $pdf = base64_decode($resultado['pdfBoleto']);
+                $fileName = $boleto->numero_documento . '.pdf';
+                Storage::disk('public')->put("boletos/{$fileName}", $pdf);
+
+                $pdfPath = "boletos/{$fileName}";
+            }
+
+            $boleto->update([
+                'status' => 'registrado',
+                'nosso_numero' => $resultado['nossoNumero'] ?? null,
+                'linha_digitavel' => $resultado['linhaDigitavel'] ?? null,
+                'codigo_barras' => $resultado['codigoBarras'] ?? null,
+                'pdf_path' => $pdfPath,
+            ]);
+
+            DB::commit();
+
+            $this->dispatch('toast-message', 'Boleto registrado com sucesso.');
+            $this->dispatch('fechar-modal-cobranca');
         } catch (ValidationException $e) {
+            DB::rollBack();
             throw $e; 
         } catch(\Exception $e){
+            DB::rollBack();
             \Log::error([
                     'Erro ao gerar boleto' => $e->getMessage(),
                 ]);
-            return $this->dispatch('toast-error', 'Erro ao gerar boleto.');
+            $this->dispatch('toast-error', 'Erro ao gerar boleto.');
+            $this->dispatch('fechar-modal-cobranca');
         }
     }
 
