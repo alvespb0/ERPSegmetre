@@ -32,4 +32,12 @@ class IntegracaoCredencialService
 
         return $credencial;
     }
+
+    public function update($credencialId, $dados){
+        $credenciais = IntegracaoCredencial::findOrFail($credencialId);
+
+        $credenciais->update($dados);
+
+        return $credenciais;
+    }
 }

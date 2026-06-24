@@ -24,6 +24,7 @@ class IntegracaoCredencial extends Model
         'access_token',
         'refresh_token',
         'token_expires_at',
+        'scope',
         'certificado_digital_id',
     ];
 
@@ -39,5 +40,10 @@ class IntegracaoCredencial extends Model
     public function certificadoDigital()
     {
         return $this->belongsTo(CertificadoDigital::class, 'certificado_digital_id');
+    }
+
+    public function getTokenValidoAttribute(): bool{
+        return $this->token_expires_at !== null
+            && $this->token_expires_at->isFuture();
     }
 }
