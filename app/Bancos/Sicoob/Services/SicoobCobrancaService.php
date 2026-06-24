@@ -4,6 +4,7 @@ namespace App\Bancos\Sicoob\Services;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 use App\Models\BoletoCobranca;
 use App\Models\Integracao;
@@ -57,4 +58,32 @@ class SicoobCobrancaService
         return $response;
     }
 
+    public function gerarBoletoProducao(BoletoCobranca $boleto){
+        $authService = new AuthService;
+        $access_token = $authService->auth($this->integracao, 'boletos_inclusao');
+        $client_id = $this->integracao->credenciais->client_id;
+        $cert = $this->integracao->empresaParametro->certificadoDigital;
+
+        $payLoadMounter = new BoletoPayload;
+
+        $payload = $payLoadMounter->payloadMount($boleto);
+
+        \Log::debug(['Payload de geração de boleto produção' => $payload]);
+
+        /* BLOCO QUERY */
+        $response = Http::withToken($access_token)
+            ->withOptions([
+                'cert' => Storage::disk('local')->path($cert->cert_path)
+            ])
+            ->withHeaders([
+                'client_id' => $client_id,
+            ])
+            ->post(
+                $this->integracao->endpoint . 'cobranca-bancaria/v3/boletos',
+                $payload
+            );
+        
+        return $response;
+
+    }
 }

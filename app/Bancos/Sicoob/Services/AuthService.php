@@ -9,8 +9,38 @@ use Illuminate\Support\Facades\Storage;
 
 use App\Models\Integracao;
 
+/**
+ * Responsável por autenticar e obter tokens OAuth2 da API do Sicoob.
+ *
+ * O serviço reutiliza tokens válidos previamente armazenados
+ * na integração, evitando chamadas desnecessárias ao endpoint
+ * de autenticação.
+ *
+ * Caso não exista token válido para o escopo solicitado,
+ * uma nova autenticação é realizada utilizando certificado
+ * digital e fluxo Client Credentials.
+ */
 class AuthService
 {
+    /**
+     * Obtém um access token válido para o escopo informado.
+     *
+     * Fluxo:
+     * - Valida se a integração possui credenciais cadastradas;
+     * - Verifica se existe token ainda válido para o mesmo escopo;
+     * - Valida existência de certificado digital;
+     * - Solicita novo token ao Sicoob caso necessário;
+     * - Atualiza as credenciais armazenadas;
+     * - Retorna o access token.
+     *
+     * @param Integracao $integracao Integração Sicoob.
+     * @param string $scope Escopo solicitado pela API.
+     *
+     * @return string Access token válido.
+     *
+     * @throws \Exception Quando não existirem credenciais,
+     * certificado digital ou ocorrer falha na autenticação.
+     */
     public function auth(Integracao $integracao, $scope){
         $empresaParametro = $integracao->empresaParametro; # objeto
 
@@ -59,6 +89,24 @@ class AuthService
         return $response['access_token'];
     }
 
+    /**
+     * Solicita um novo access token ao endpoint OAuth2 do Sicoob.
+     *
+     * A autenticação é realizada através do fluxo
+     * Client Credentials utilizando certificado digital.
+     *
+     * O certificado PEM deve conter tanto o certificado
+     * público quanto a chave privada.
+     *
+     * Endpoint:
+     * https://auth.sicoob.com.br/auth/realms/cooperado/protocol/openid-connect/token
+     *
+     * @param mixed $credenciais Credenciais da integração.
+     * @param mixed $cert Certificado digital vinculado à empresa.
+     * @param string $scope Escopo solicitado.
+     *
+     * @return \Illuminate\Http\Client\Response
+     */
     public function getAccessToken($credenciais, $cert, $scope){
         $response = Http::asForm()
         ->withOptions([

@@ -20,6 +20,7 @@ class BoletoPayload{
         return array_merge(
             $this->mountDadosTitulo($boleto),
             $this->mountMulta($boleto),
+            $this->mountMensagensInstrucao($boleto),
             $this->mountJuros($boleto),
             $this->mountPagador($boleto)
         );
@@ -41,15 +42,13 @@ class BoletoPayload{
         $configuracao = $boleto->configuracaoCobranca;
         $conta = $configuracao->conta;
         $parcela = $boleto->parcela;
-
-        $contaCorrente = $this->separarDv(
-            $conta->conta
-        );
+        
+        $numeroConta = preg_replace('/-/', '', $conta->conta);
 
         return [
             'numeroCliente' => (int) $configuracao->codigo_cedente,
             'codigoModalidade' => (int) $boleto->modalidade,
-            'numeroContaCorrente' => (int) $contaCorrente['num'],
+            'numeroContaCorrente' => (int) $numeroConta,
             'codigoEspecieDocumento' => $boleto->especie_documento,
             'dataEmissao' => Carbon::parse(
                 $boleto->data_registro
@@ -63,6 +62,7 @@ class BoletoPayload{
             )->toDateString(),
             'tipoDesconto' => 0,
             'numeroParcela' => (int) $parcela->numero_parcela,
+            'gerarPdf' => true
         ];
     }
 
@@ -92,6 +92,51 @@ class BoletoPayload{
         ];
     }
 
+    /**
+     * Monta as mensagens de instrução do boleto.
+     *
+     * O campo info_complementares é armazenado como texto
+     * livre e convertido para o formato exigido pela API
+     * do Sicoob, onde cada linha representa uma instrução.
+     *
+     * Exemplo:
+     *
+     * Pagável em qualquer banco
+     * Não receber após vencimento
+     * Cobrar multa conforme contrato
+     *
+     * Resultado:
+     *
+     * [
+     *     'mensagensInstrucao' => [
+     *         'Pagável em qualquer banco',
+     *         'Não receber após vencimento',
+     *         'Cobrar multa conforme contrato',
+     *     ]
+     * ]
+     *
+     * @param BoletoCobranca $boleto
+     *
+     * @return array
+     */
+    public function mountMensagensInstrucao(BoletoCobranca $boleto): array
+    {
+        if (blank($boleto->info_complementares)) {
+            return [];
+        }
+
+        $mensagens = collect(
+            preg_split('/\r\n|\r|\n/', $boleto->info_complementares)
+        )
+            ->map(fn ($linha) => trim($linha))
+            ->filter()
+            ->values()
+            ->toArray();
+
+        return [
+            'mensagensInstrucao' => $mensagens
+        ];
+    }
     /**
      * Monta as informações de juros de mora.
      *
@@ -161,7 +206,7 @@ class BoletoPayload{
                     ($endereco->numero ?: 'S/N'),
                 'bairro' => $endereco->bairro,
                 'cidade' => $endereco->cidade,
-                'cep' => $endereco->cep,
+                'cep' => preg_replace('/-/', '', $endereco->cep),
                 'uf' => $endereco->uf,
             ]
         ];
