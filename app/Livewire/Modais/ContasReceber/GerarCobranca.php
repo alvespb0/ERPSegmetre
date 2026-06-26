@@ -105,7 +105,7 @@ class GerarCobranca extends Component
         return [
             'especie_documento' => 'required|in:CH,DM,DMI,DS,DSI,DR,LC,NCC,NCE,NCI,NCR,NP,NPR,TM,TS,NS,RC,FAT,ND,AP,ME,PC,NF,DD,BDP,OU',
             'modalidade' => 'required|in:1,2,3,4,5,outro',
-            'info_complementares' => 'nullable|string|max:100',
+            'info_complementares' => 'nullable|string|max:40',
             'dias_limite_pagamento' => 'required|integer|min:0',
             'codigo_juros' => 'required|in:0,1,2',
             'valor_juros' => 'required_unless:codigo_juros,0|numeric',
@@ -198,7 +198,77 @@ class GerarCobranca extends Component
             ]);
         }
 
+        $this->validarJuros();
+        $this->validarMulta();
         $this->validarPagador();
+    }
+
+    /**
+     * Valida as configurações de multa do boleto.
+     *
+     * Regras Sicoob:
+     *
+     * - Multa percentual não pode resultar em valor superior a R$ 1,00.
+     * - Multa por valor fixo não pode ultrapassar R$ 1,00 considerando
+     *   um período mensal de referência (30 dias).
+     *
+     * @throws ValidationException
+     *
+     * @return void
+     */
+    public function validarMulta(){
+        $valorParcela = $this->parcela->valor;
+        if ($this->codigo_multa == 2) {
+            $valorCalculado = $valorParcela * ($this->valor_multa / 100);
+            if ($valorCalculado > 1) {
+                throw ValidationException::withMessages([
+                    'geral' => 'Não é possível emitir boleto. O valor mensal de multa não pode ultrapassar R$ 1,00.'
+                ]);
+            }
+        }
+
+        if ($this->codigo_multa == 1) {
+            $valorCalculado = $this->valor_multa * 30;
+            if ($valorCalculado > 1) {
+                throw ValidationException::withMessages([
+                    'geral' => 'Não é possível emitir boleto. O valor mensal de multa não pode ultrapassar R$ 1,00.'
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Valida as configurações de juros do boleto.
+     *
+     * Regras Sicoob:
+     *
+     * - Juros percentual não pode resultar em valor superior a R$ 1,00.
+     * - Juros por valor fixo não pode ultrapassar R$ 1,00 considerando
+     *   um período mensal de referência (30 dias).
+     *
+     * @throws ValidationException
+     *
+     * @return void
+     */
+    public function validarJuros(){
+        $valorParcela = $this->parcela->valor;
+        if ($this->codigo_juros == 2) {
+            $valorCalculado = $valorParcela * ($this->valor_juros / 100);
+            if ($valorCalculado > 1) {
+                throw ValidationException::withMessages([
+                    'geral' => 'Não é possível emitir boleto. O valor mensal de juros não pode ultrapassar R$ 1,00.'
+                ]);
+            }
+        }
+
+        if ($this->codigo_juros == 1) {
+            $valorCalculado = $this->valor_juros * 30;
+            if ($valorCalculado > 1) {
+                throw ValidationException::withMessages([
+                    'geral' => 'Não é possível emitir boleto. O valor mensal de juros não pode ultrapassar R$ 1,00.'
+                ]);
+            }
+        }
     }
 
     /**

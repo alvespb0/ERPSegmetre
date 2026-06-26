@@ -120,6 +120,39 @@ class SicoobCobrancaService
             ])
             ->get($this->integracao->endpoint . 'cobranca-bancaria/v3/boletos', $payload);
 
-        return $response;
+        if(!$response->successful()){ # Erro silencioso pra não quebrar o loop
+            throw new SicoobException(
+                'Erro ao consultar boleto',
+                $response->status(),
+                $response->body()
+            );
+        }
+        
+        $dataPagamento = null;
+
+        foreach ($response->json('resultado.listaHistorico', []) as $historico) {
+            if ($historico['tipoHistorico'] === '6') { 
+                $dataPagamento = $historico['dataHistorico']; 
+                break;
+            }
+        }
+
+        return [
+            'status' => $this->mapearStatus($response->json('resultado.situacaoBoleto')),
+            'valor' => $response->json('resultado.valor'),
+            'data_pagamento' => $dataPagamento,
+        ];
+    }
+
+    private function mapearStatus($status){
+        return match($status){
+            'Em Aberto' => 'registrado',
+            'Registrado' => 'registrado',
+            'Liquidado' => 'liquidado',
+            'Pago' => 'liquidado',
+            'Baixado' => 'baixado',
+            'Rejeitado' => 'rejeitado',
+            'Cancelado' => 'cancelado',
+        };
     }
 }
