@@ -97,9 +97,61 @@ class SicoobCobrancaService
                 $payload
             );
         
-        return $response;
+        if (!$response->successful()) {
+            \Log::error([
+                'Erro ao registrar boleto' => [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]
+            ]);
+            throw new \Exception('Falha ao registrar boleto junto ao banco.');
+            return;
+        }
+
+        $resultado = $response->json('resultado');
+
+        $pdfPath = null;
+
+        if (!empty($resultado['pdfBoleto'])) {
+            $pdf = base64_decode($resultado['pdfBoleto']);
+            $fileName = $boleto->numero_documento . '.pdf';
+            Storage::disk('public')->put("boletos/{$fileName}", $pdf);
+            $pdfPath = "boletos/{$fileName}";
+        }
+
+        return [
+            'status' => 'registrado',
+            'nosso_numero' => $resultado['nossoNumero'],
+            'linha_digitavel' => $resultado['linhaDigitavel'],
+            'codigo_barras' => $resultado['codigoBarras'],
+            'pdf_path' => $pdfPath,
+        ];
     }
 
+    /**
+     * Consulta um boleto de cobrança no ambiente de produção da API do Sicoob.
+     *
+     * Realiza a autenticação, envia a requisição de consulta do boleto e retorna
+     * as principais informações, incluindo status, valor e data de pagamento
+     * (quando disponível).
+     *
+     * A data de pagamento é obtida a partir do histórico do boleto, considerando
+     * o registro cujo tipo de histórico seja igual a "6".
+     *
+     * @param BoletoCobranca $boleto Instância do boleto a ser consultado.
+     *
+     * @return array{
+     *     status: string,
+     *     valor: float|int|string|null,
+     *     data_pagamento: string|null
+     * }
+     * Retorna um array contendo:
+     * - status: Status do boleto mapeado pela aplicação.
+     * - valor: Valor do boleto retornado pela API.
+     * - data_pagamento: Data do pagamento, ou null caso o boleto não tenha sido pago.
+     *
+     * @throws SicoobException Quando a API retornar uma resposta de erro.
+     */
     public function consultarBoletoProducao(BoletoCobranca $boleto){
         $authService = new AuthService;
         $access_token = $authService->auth($this->integracao, 'boletos_consulta');

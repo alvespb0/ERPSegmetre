@@ -356,41 +356,17 @@ class GerarCobranca extends Component
             }
 
             if($this->configuracoes->ambiente == 'homologacao'){
-                $response = $serviceProvider->gerarBoletoSandbox($boleto);
+                $resultado = $serviceProvider->gerarBoletoSandbox($boleto);
             }else{
-                $response = $serviceProvider->gerarBoletoProducao($boleto);
-            }
-
-            if(!$response->successful()){
-                \Log::error([
-                    'Erro integração cobrança' => [
-                        'status' => $response->status(),
-                        'body' => $response->body(),
-                    ]
-                ]);
-
-                throw ValidationException::withMessages([
-                    'geral' => 'Falha ao registrar boleto junto ao banco.'
-                ]);
-            }
-
-            $resultado = $response->json('resultado');
-            $pdfPath = null;
-
-            if (!empty($resultado['pdfBoleto'])) {
-                $pdf = base64_decode($resultado['pdfBoleto']);
-                $fileName = $boleto->numero_documento . '.pdf';
-                Storage::disk('public')->put("boletos/{$fileName}", $pdf);
-
-                $pdfPath = "boletos/{$fileName}";
+                $resultado = $serviceProvider->gerarBoletoProducao($boleto);
             }
 
             $boleto->update([
-                'status' => 'registrado',
-                'nosso_numero' => $resultado['nossoNumero'] ?? null,
-                'linha_digitavel' => $resultado['linhaDigitavel'] ?? null,
-                'codigo_barras' => $resultado['codigoBarras'] ?? null,
-                'pdf_path' => $pdfPath,
+                'status' => $resultado['status'],
+                'nosso_numero' => $resultado['nosso_numero'],
+                'linha_digitavel' => $resultado['linha_digitavel'],
+                'codigo_barras' => $resultado['codigo_barras'],
+                'pdf_path' => $resultado['pdf_path'],
             ]);
 
             DB::commit();
