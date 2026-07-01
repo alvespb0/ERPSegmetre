@@ -10,6 +10,7 @@ use App\Models\BoletoCobranca;
 use App\Models\Integracao;
 
 use App\Bancos\Sicoob\Payloads\BoletoPayload;
+use App\Bancos\Sicoob\Payloads\CancelaBoletoPayload;
 use App\Bancos\Sicoob\Payloads\ConsultaBoletoPayload;
 
 class SicoobCobrancaService
@@ -110,6 +111,8 @@ class SicoobCobrancaService
 
         $resultado = $response->json('resultado');
 
+        \Log::debug($resultado);
+
         $pdfPath = null;
 
         if (!empty($resultado['pdfBoleto'])) {
@@ -161,7 +164,7 @@ class SicoobCobrancaService
         $payloadMounter = new ConsultaBoletoPayload;
         $payload = $payloadMounter->payloadMount($boleto);
 
-        \Log::debug(['Payload de consta de boleto produção' => $payload]);
+        \Log::debug(['Payload de consulta de boleto produção' => $payload]);
 
         $response = Http::withToken($access_token)
             ->withOptions([
@@ -196,6 +199,10 @@ class SicoobCobrancaService
         ];
     }
 
+    /**
+     * Aplica um match em cima do retorno de status da sicoob
+     * Para ficar correspondente com o que temos no campo 'status' de boletoCobranca
+     */
     private function mapearStatus($status){
         return match($status){
             'Em Aberto' => 'registrado',
@@ -207,4 +214,45 @@ class SicoobCobrancaService
             'Cancelado' => 'cancelado',
         };
     }
+
+    public function cancelarBoletoProducao(BoletoCobranca $boleto){
+        $authService = new AuthService;
+        $access_token = $authService->auth($this->integracao, 'boletos_alteracao');
+        $client_id = $this->integracao->credenciais->client_id;
+        $cert = $this->integracao->empresaParametro->certificadoDigital;
+
+        $payloadMounter = new CancelaBoletoPayload;
+        $payload = $payloadMounter->payloadMount($boleto);
+
+        $response = Http::withToken($access_token)
+            ->withOptions([
+                'cert' => Storage::disk('local')->path($cert->cert_path)
+            ])
+            ->withHeaders([
+                'client_id' => $client_id,
+            ])
+            ->post($this->integracao->endpoint . "cobranca-bancaria/v3/boletos/{$boleto->nosso_numero}/baixar", $payload);
+
+        if(!$response->successful()){
+            \Log::error([
+                'Erro ao cancelar boleto' => [
+                    'boleto_id' => $boleto->id,
+                    'nosso_numero' => $boleto->nosso_numero,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]
+            ]);
+
+            throw new SicoobException(
+                'Erro ao cancelar boleto',
+                $response->status(),
+                $response->body()
+            );
+        }
+
+        return [
+            'status' => 'cancelado',
+        ];
+    }
+
 }

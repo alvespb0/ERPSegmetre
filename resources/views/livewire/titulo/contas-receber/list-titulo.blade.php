@@ -492,9 +492,9 @@
                                                 @else
                                                     <button
                                                         class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
-                                                        wire:click=""
+                                                        wire:click="cancelarCobrancaParcela({{ $parcela->id }})"
                                                     >
-                                                        Cancelar Cobranca (DESENVOLVENDO)
+                                                        Cancelar Cobranca
                                                     </button>
                                                 @endif
                                                 
@@ -587,6 +587,13 @@
         <livewire:Modais.ContasReceber.GerarCobranca
             :parcela-id="$parcelaParaCobranca->id" 
             wire:key="modal-receber-{{ $parcelaParaCobranca->id }}" 
+        />
+    @endif
+
+    @if($parcelaParaCancelaCobranca && $openModalCancelaCobranca)
+        <livewire:Modais.ContasReceber.CancelarCobranca
+            :parcela-id="$parcelaParaCancelaCobranca->id" 
+            wire:key="modal-receber-{{ $parcelaParaCancelaCobranca->id }}" 
         />
     @endif
 

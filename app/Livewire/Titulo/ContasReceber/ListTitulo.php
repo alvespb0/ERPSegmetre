@@ -59,6 +59,9 @@ class ListTitulo extends Component
     public bool $openModalCobranca = false;
     public ?Parcela $parcelaParaCobranca = null;
 
+    public bool $openModalCancelaCobranca = false;
+    public ?Parcela $parcelaParaCancelaCobranca = null;
+
     public $search = '';
     public $filtroCompetencia;
     public $filtroCard;
@@ -415,6 +418,38 @@ class ListTitulo extends Component
         $this->openModalCobranca = false;
 
         $this->parcelaParaCobranca = null;
+    }
+
+    /**
+     * Abre o modal de cancelar cobranca da parcela, carregando relacionamentos necessários.
+     * * @param Parcela $parcela
+     * @return void
+     */
+    public function cancelarCobrancaParcela(Parcela $parcela){
+        if(!$parcela->possui_boleto_ativo){
+            $this->dispatch('toast-error', 'Parcela não possui um boleto ativo.');
+            return;
+        }
+
+        $parcela->load([
+                'titulo.entidade',
+                'boletos',
+            ]);
+            
+        $this->parcelaParaCancelaCobranca = $parcela;
+
+        $this->openModalCancelaCobranca = true;
+    }
+
+    /**
+     * Evento acionado para fechar o modal de anexos e limpar os dados.
+     * * @return void
+     */
+    #[On('fechar-modal-cancela-cobranca')]
+    public function fecharModalCancelaCobranca(){
+        $this->openModalCancelaCobranca = false;
+
+        $this->parcelaParaCancelaCobranca = null;
     }
 
     /**
