@@ -376,7 +376,7 @@ class GerarCobranca extends Component
         } catch (ValidationException $e) {
             DB::rollBack();
             throw $e; 
-        } catch(\Exception $e){
+        } catch(\Throwable $e){
             DB::rollBack();
             \Log::error([
                     'Erro ao gerar boleto' => $e->getMessage(),

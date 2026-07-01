@@ -2,6 +2,8 @@
 
 namespace App\Bancos\Sicoob\Services;
 
+use App\Exceptions\SicoobException;
+
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -105,7 +107,7 @@ class SicoobCobrancaService
                     'body' => $response->body(),
                 ]
             ]);
-            throw new \Exception('Falha ao registrar boleto junto ao banco.');
+            throw new SicoobException('Falha ao registrar boleto junto ao banco.', $response->status(), $response->body());
             return;
         }
 
@@ -235,7 +237,7 @@ class SicoobCobrancaService
 
         if(!$response->successful()){
             \Log::error([
-                'Erro ao cancelar boleto' => [
+                'Erro ao cancelar boleto no sicoob.' => [
                     'boleto_id' => $boleto->id,
                     'nosso_numero' => $boleto->nosso_numero,
                     'status' => $response->status(),
@@ -244,7 +246,7 @@ class SicoobCobrancaService
             ]);
 
             throw new SicoobException(
-                'Erro ao cancelar boleto',
+                'Erro ao cancelar boleto no sicoob',
                 $response->status(),
                 $response->body()
             );

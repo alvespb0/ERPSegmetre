@@ -482,14 +482,14 @@
                                                 >
                                                     Ver Título Completo
                                                 </button>
-                                                @if(!$parcela->possui_boleto_ativo)
+                                                @if(!$parcela->possui_boleto_ativo && $parcela->status_calculado != 'pago')
                                                     <button
                                                         class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
                                                         wire:click="gerarCobrancaParcela({{ $parcela->id }})"
                                                     >
                                                         Gerar Cobranca
                                                     </button>
-                                                @else
+                                                @elseif($parcela->possui_boleto_ativo)
                                                     <button
                                                         class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
                                                         wire:click="cancelarCobrancaParcela({{ $parcela->id }})"
