@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\BoletoCobranca;
+use Illuminate\Support\Facades\Storage;
 
 class BoletoCobrancaService
 {
@@ -34,6 +35,15 @@ class BoletoCobrancaService
     public function destroy(int $id): bool
     {
         return BoletoCobranca::findOrFail($id)->delete();
+    }
+
+    public function download($boletoId){
+        $boleto = BoletoCobranca::findOrFail($boletoId);
+
+        if(!$boleto->pdf_path){
+            throw new \Exception('PDF não salvo no banco');
+        }
+        return Storage::disk('public')->download($boleto->pdf_path);
     }
 
     public function showTrashed()

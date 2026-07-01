@@ -21,6 +21,7 @@ use App\Services\FormaPagamentoService;
 use App\Services\ParcelaService;
 use App\Services\TituloFinanceiroService;
 use App\Services\MovimentacaoService;
+use App\Services\BoletoCobrancaService;
 
 use Livewire\WithPagination;
 use Livewire\WithoutUrlPagination;
@@ -478,6 +479,24 @@ class ListTitulo extends Component
         $this->openModalAnexos = false;
 
         $this->parcelaParaAnexos = null;
+    }
+
+    /**
+     * Acessa boleto cobranca service e retorna o download do boleto em PDF
+     */
+    public function downloadCobranca($boletoId){
+        try{
+            $service = new BoletoCobrancaService();
+                
+            return $service->download($boletoId);
+        }catch(\Exception $e){
+            \Log::error([
+                'Erro ao fazer download do boleto',
+                'Boleto' => $boletoId,
+                'Erro' => $e->getMessage()
+            ]);
+            $this->dispatch('toast-error', 'Erro ao fazer download do boleto.');
+        }
     }
 
     private function getQuery(){
