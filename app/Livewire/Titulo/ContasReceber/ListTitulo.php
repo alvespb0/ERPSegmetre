@@ -421,7 +421,7 @@ class ListTitulo extends Component
     }
 
     /**
-     * Evento acionado para fechar o modal de anexos e limpar os dados.
+     * Evento acionado para fechar o modal de cobranca e limpar os dados.
      * * @return void
      */
     #[On('fechar-modal-cobranca')]
@@ -441,6 +441,18 @@ class ListTitulo extends Component
 
         $this->openModalCobrancaLote = true;
     }
+
+    /**
+     * Evento acionado para fechar o modal de cobranca em lote e limpar os dados.
+     * * @return void
+     */
+    #[On('fechar-modal-cobranca-lote')]
+    public function fecharModalCobrancaLote(){
+        $this->openModalCobrancaLote = false;
+
+        $this->parcelasCobrancaLote = [];
+    }
+
 
     /**
      * Abre o modal de cancelar cobranca da parcela, carregando relacionamentos necessários.
