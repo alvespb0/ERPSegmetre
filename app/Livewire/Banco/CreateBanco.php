@@ -7,12 +7,13 @@ use App\Services\BancoService;
 
 class CreateBanco extends Component
 {
-    public $nome, $cnpj;
+    public $nome, $cnpj, $numero_banco;
     
     public function rules(){
         return [
             'nome' => 'required|string|min:3|max:255',
             'cnpj' => 'required|string|max:18|unique:banco,cnpj',
+            'numero_banco' => 'nullable|string'
         ];
     }
 
@@ -35,7 +36,8 @@ class CreateBanco extends Component
 
         $bancoData = [
             'nome' => $data['nome'],
-            'cnpj' => $data['cnpj']
+            'cnpj' => $data['cnpj'],
+            'numero_banco' => $data['numero_banco']
         ];
 
         $service = new BancoService();

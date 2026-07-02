@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nome');
             $table->string('cnpj')->unique();
+            $table->string('numero_banco')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

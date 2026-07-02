@@ -289,6 +289,7 @@
                             <th class="px-4 py-3 text-left">Cliente / Pagador</th>
                             <th class="px-4 py-3 text-right">Valor (R$)</th>
                             <th class="px-4 py-3 text-center">Status</th>
+                            <th class="px-4 py-3 text-center">Cobrança</th>
                             <th class="px-4 py-3 text-right">Ações</th>
                         </tr>
                     </thead>
@@ -373,7 +374,94 @@
                                         {{ ucfirst($displayStatus) }}
                                     </span>
                                 </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center justify-center">
+                                        @if($parcela->possui_boleto_ativo)
+                                            <!-- Com Boleto -->
+                                            <div class="relative flex items-center justify-center group">
+                                                <button
+                                                    type="button"
+                                                    wire:click="downloadCobranca({{ $parcela->boleto_ativo->id }})"
+                                                    class="inline-flex items-center justify-center p-1.5 rounded-md border shadow-sm transition-all duration-200 cursor-pointer hover:scale-105 active:scale-95 {{ $parcela->boleto_ativo->classes_status }}"
+                                                >
+                                                    {{-- Ícone normal --}}
+                                                    <svg
+                                                        wire:loading.remove
+                                                        wire:target="downloadCobranca({{ $parcela->boleto_ativo->id }})"
+                                                        class="w-4 h-4"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                    >
+                                                        <rect x="3" y="5" width="18" height="14" rx="2" stroke-width="1.8"/>
+                                                        <path stroke-linecap="round" stroke-width="1.5" d="M7 10h10"/>
+                                                        <path stroke-linecap="round" stroke-width="1.5" d="M7 14h2"/>
+                                                        <path stroke-linecap="round" stroke-width="1.5" d="M11 14h1"/>
+                                                        <path stroke-linecap="round" stroke-width="1.5" d="M14 14h3"/>
+                                                    </svg>
 
+                                                    {{-- Spinner --}}
+                                                    <svg
+                                                        wire:loading
+                                                        wire:target="downloadCobranca({{ $parcela->boleto_ativo->id }})"
+                                                        class="w-4 h-4 animate-spin"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <circle
+                                                            class="opacity-25"
+                                                            cx="12"
+                                                            cy="12"
+                                                            r="10"
+                                                            stroke="currentColor"
+                                                            stroke-width="3"
+                                                        ></circle>
+                                                        <path
+                                                            class="opacity-75"
+                                                            fill="currentColor"
+                                                            d="M4 12a8 8 0 018-8V1C5.925 1 1 5.925 1 12h3z"
+                                                        ></path>
+                                                    </svg>
+                                                </button>
+
+                                                <div class="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 transition-all duration-200 group-hover:opacity-100 pointer-events-none shadow-lg">
+                                                    <span class="font-semibold">Boleto {{ ucfirst($parcela->boleto_ativo->status) }}</span><br>
+
+                                                    Banco:
+                                                    {{ $parcela->boleto_ativo->configuracaoCobranca->conta->banco->numero_banco }}
+                                                    -
+                                                    {{ $parcela->boleto_ativo->configuracaoCobranca->conta->banco->nome }}
+                                                    |
+                                                    Cooperativa:
+                                                    {{ $parcela->boleto_ativo->configuracaoCobranca->conta->agencia }}
+
+                                                    <div class="mt-1 border-t border-gray-600 pt-1 text-center text-[11px] text-gray-300">
+                                                        Clique para baixar o PDF do boleto
+                                                    </div>
+
+                                                    <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <!-- Sem Boleto -->
+                                            <div class="relative flex items-center justify-center group">
+                                                <span class="inline-flex items-center justify-center p-1.5 text-gray-300 cursor-help transition-colors group-hover:text-gray-400">
+                                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
+                                                    </svg>
+                                                </span>
+
+                                                <!-- Tooltip Customizado Tailwind -->
+                                                <div class="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 transition-all duration-200 group-hover:opacity-100 pointer-events-none shadow-lg">
+                                                    Nenhum boleto vinculado
+                                                    <!-- Setinha do Tooltip (Triângulo apontando pra baixo) -->
+                                                    <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </td>
                                 <td class="px-4 py-3 text-right" x-data="{ open: false }">
                                     <button
                                         @click="open = !open"
@@ -439,6 +527,22 @@
                                                 >
                                                     Ver Título Completo
                                                 </button>
+                                                @if(!$parcela->possui_boleto_ativo && $parcela->status_calculado != 'pago')
+                                                    <button
+                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                        wire:click="gerarCobrancaParcela({{ $parcela->id }})"
+                                                    >
+                                                        Gerar Cobranca
+                                                    </button>
+                                                @elseif($parcela->possui_boleto_ativo)
+                                                    <button
+                                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                        wire:click="cancelarCobrancaParcela({{ $parcela->id }})"
+                                                    >
+                                                        Cancelar Cobranca
+                                                    </button>
+                                                @endif
+                                                
                                                 <button
                                                     class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
                                                     wire:click="anexosParcela({{ $parcela->id }})"
@@ -509,19 +613,38 @@
     @if($openModalEditarParcela && $parcelaParaEditar)
         <livewire:Modais.ContasReceber.EditarParcela 
             :parcela-id="$parcelaParaEditar->id" 
-            wire:key="modal-receber-{{ $parcelaParaEditar->id }}" 
+            wire:key="modal-editar-{{ $parcelaParaEditar->id }}" 
         />
     @endif
     @if($parcelaParaEditarStatus && $openModalEditarStatus)
         <livewire:Modais.ContasReceber.EditarStatus
             :parcela-id="$parcelaParaEditarStatus->id" 
-            wire:key="modal-receber-{{ $parcelaParaEditarStatus->id }}" 
+            wire:key="modal-editar-status-{{ $parcelaParaEditarStatus->id }}" 
         />
     @endif
     @if($parcelaParaAnexos && $openModalAnexos)
         <livewire:Modais.ContasReceber.Anexos
             :parcela-id="$parcelaParaAnexos->id" 
-            wire:key="modal-receber-{{ $parcelaParaAnexos->id }}" 
+            wire:key="modal-anexos-{{ $parcelaParaAnexos->id }}" 
         />
     @endif
+    @if($parcelaParaCobranca && $openModalCobranca)
+        <livewire:Modais.ContasReceber.GerarCobranca
+            :parcela-id="$parcelaParaCobranca->id" 
+            wire:key="modal-cobranca-{{ $parcelaParaCobranca->id }}" 
+        />
+    @endif
+    @if($parcelasCobrancaLote && $openModalCobrancaLote)
+        <livewire:Modais.ContasReceber.GerarCobrancaLote
+            :parcelasIds="$parcelasCobrancaLote"
+            wire:key="modal-cobranca-lote" 
+        />
+    @endif
+    @if($parcelaParaCancelaCobranca && $openModalCancelaCobranca)
+        <livewire:Modais.ContasReceber.CancelarCobranca
+            :parcela-id="$parcelaParaCancelaCobranca->id" 
+            wire:key="modal-cancela-{{ $parcelaParaCancelaCobranca->id }}" 
+        />
+    @endif
+
 </div>

@@ -3,6 +3,8 @@
 namespace App\Livewire\Conta;
 
 use Livewire\Component;
+use Livewire\Attributes\On;
+
 use App\Models\Conta;
 use App\Services\ContaService;
 use Livewire\WithPagination;
@@ -16,6 +18,9 @@ class ListConta extends Component
     public $search = '';
     public $modalidade = 'todas';
     public $status = 'todos';
+
+    public ?Conta $contaSelecionada = null;
+    public $openModalConfigCobranca = false;
 
     public function updatingSearch(){
         $this->resetPage();
@@ -41,6 +46,18 @@ class ListConta extends Component
         $idEnc = Crypt::encrypt($id);
 
         redirect()->route('erp.conta.update', $idEnc);
+    }
+
+    public function abrirConfigCobranca(Conta $conta){
+        $this->contaSelecionada = $conta;
+        $this->openModalConfigCobranca = true;
+    }
+    
+    #[On('fechar-modal-configuracao-bancaria')]
+    public function fecharModalAnexos(){
+        $this->openModalConfigCobranca = false;
+
+        $this->contaSelecionada = null;
     }
 
     public function render()
@@ -75,7 +92,11 @@ class ListConta extends Component
             $query->where('modalidade', $this->modalidade);
         }
 
-        $contas = $query->orderBy('nome', 'asc')->paginate(10);
+        $contas = $query->with([
+                'banco',
+                'tipoConta',
+                'configuracaoCobranca',
+                ])->orderBy('nome', 'asc')->paginate(10);
 
         return view('livewire.conta.list-conta', ['contas' => $contas]);
     }

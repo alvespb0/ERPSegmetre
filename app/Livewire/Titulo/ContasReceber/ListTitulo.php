@@ -21,6 +21,7 @@ use App\Services\FormaPagamentoService;
 use App\Services\ParcelaService;
 use App\Services\TituloFinanceiroService;
 use App\Services\MovimentacaoService;
+use App\Services\BoletoCobrancaService;
 
 use Livewire\WithPagination;
 use Livewire\WithoutUrlPagination;
@@ -55,6 +56,15 @@ class ListTitulo extends Component
 
     public bool $openModalAnexos = false;
     public ?Parcela $parcelaParaAnexos = null;
+
+    public bool $openModalCobranca = false;
+    public ?Parcela $parcelaParaCobranca = null;
+
+    public bool $openModalCobrancaLote = false;
+    public array $parcelasCobrancaLote = [];
+
+    public bool $openModalCancelaCobranca = false;
+    public ?Parcela $parcelaParaCancelaCobranca = null;
 
     public $search = '';
     public $filtroCompetencia;
@@ -309,6 +319,17 @@ class ListTitulo extends Component
     }
 
     /**
+     * Evento acionado para fechar o modal de detalhe de titulos e limpar os dados.
+     * * @return void
+     */
+    #[On('fechar-modal-titulo')]
+    public function fecharModalTitulo(){
+        $this->openModalDetalhesTitulo = false;
+
+        $this->tituloSelecionado = null;
+    }
+
+    /**
      * Abre o modal com detalhes de uma parcela.
      *
      * @param Parcela $parcela
@@ -393,6 +414,83 @@ class ListTitulo extends Component
      * * @param Parcela $parcela
      * @return void
      */
+    public function gerarCobrancaParcela(Parcela $parcela){
+        $this->parcelaParaCobranca = $parcela;
+
+        $this->openModalCobranca = true;
+    }
+
+    /**
+     * Evento acionado para fechar o modal de cobranca e limpar os dados.
+     * * @return void
+     */
+    #[On('fechar-modal-cobranca')]
+    public function fecharModalCobranca(){
+        $this->openModalCobranca = false;
+
+        $this->parcelaParaCobranca = null;
+    }
+
+    /**
+     * Evento acionado para fechar o modal de anexos e limpar os dados.
+     * * @return void
+     */
+    #[On('abrir-modal-cobranca-lote')]
+    public function openModalCobrancaLote(array $parcelas){
+        $this->parcelasCobrancaLote = $parcelas;
+
+        $this->openModalCobrancaLote = true;
+    }
+
+    /**
+     * Evento acionado para fechar o modal de cobranca em lote e limpar os dados.
+     * * @return void
+     */
+    #[On('fechar-modal-cobranca-lote')]
+    public function fecharModalCobrancaLote(){
+        $this->openModalCobrancaLote = false;
+
+        $this->parcelasCobrancaLote = [];
+    }
+
+
+    /**
+     * Abre o modal de cancelar cobranca da parcela, carregando relacionamentos necessários.
+     * * @param Parcela $parcela
+     * @return void
+     */
+    public function cancelarCobrancaParcela(Parcela $parcela){
+        if(!$parcela->possui_boleto_ativo){
+            $this->dispatch('toast-error', 'Parcela não possui um boleto ativo.');
+            return;
+        }
+
+        $parcela->load([
+                'titulo.entidade',
+                'boletos',
+            ]);
+            
+        $this->parcelaParaCancelaCobranca = $parcela;
+
+        $this->openModalCancelaCobranca = true;
+    }
+
+    /**
+     * Evento acionado para fechar o modal de anexos e limpar os dados.
+     * * @return void
+     */
+    #[On('fechar-modal-cancela-cobranca')]
+    public function fecharModalCancelaCobranca(){
+        $this->openModalCancelaCobranca = false;
+
+        $this->parcelaParaCancelaCobranca = null;
+    }
+
+    /**
+     * Abre o modal de anexos de uma parcela, carregando relacionamentos necessários.
+     * * @param Parcela $parcela
+     * @return void
+     */
     public function anexosParcela(Parcela $parcela){
         $parcela->load([
                 'titulo', 
@@ -414,6 +512,24 @@ class ListTitulo extends Component
         $this->openModalAnexos = false;
 
         $this->parcelaParaAnexos = null;
+    }
+
+    /**
+     * Acessa boleto cobranca service e retorna o download do boleto em PDF
+     */
+    public function downloadCobranca($boletoId){
+        try{
+            $service = new BoletoCobrancaService();
+                
+            return $service->download($boletoId);
+        }catch(\Exception $e){
+            \Log::error([
+                'Erro ao fazer download do boleto',
+                'Boleto' => $boletoId,
+                'Erro' => $e->getMessage()
+            ]);
+            $this->dispatch('toast-error', 'Erro ao fazer download do boleto.');
+        }
     }
 
     private function getQuery(){

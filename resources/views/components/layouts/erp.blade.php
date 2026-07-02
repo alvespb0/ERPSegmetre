@@ -313,12 +313,24 @@
                             </div>
                             
                             <ul class="mt-1 space-y-1">
+                                {{-- DEV: restringir acesso por user type quando implementar permissões --}}
                                 <li>
-                                    <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.integracoes.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
+                                    <a href="{{ route('erp.dev.empresa-parametro.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.dev.empresa-parametro.*', 'erp.empresa-parametro.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
+                                        <span class="inline-flex h-5 w-5 items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" /></svg>
+                                        </span>
+                                        <span>Empresa Base</span>
+                                        <span class="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 uppercase tracking-wide" title="Ajustar permissão por user type">DEV</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    {{-- DEV: restringir acesso por user type quando implementar permissões --}}
+                                    <a href="{{ route('erp.dev.integracoes.index') }}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.dev.integracoes.*') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
                                         <span class="inline-flex h-5 w-5 items-center justify-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 9.75L16.5 12l-2.25 2.25m-4.5 0L7.5 12l2.25-2.25M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z" /></svg>
                                         </span>
                                         <span>Integrações</span>
+                                        <span class="ml-auto text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 uppercase tracking-wide" title="Ajustar permissão por user type">DEV</span>
                                     </a>
                                 </li>
                             </ul>
@@ -341,7 +353,7 @@
 
             <div class="flex min-h-screen flex-col lg:pl-64">
                 
-                <header class="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-gray-200/80 bg-white/80 px-4 backdrop-blur-md sm:px-6 lg:px-8">
+                <header class="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-gray-200/80 bg-white/80 px-4 sm:px-6 lg:px-8">
                     <div class="flex items-center gap-3">
                         <button
                             type="button"

@@ -38,7 +38,6 @@
                         'parcial' => 'bg-yellow-50 text-yellow-700 border-yellow-200',
                         'cancelado' => 'bg-gray-100 text-gray-700 border-gray-200',
                     ];
-                    // Alterado de $tituloSelecionado para $titulo (assumindo a variável do componente)
                     $corStatusTitulo = $statusColorsTitulo[$titulo->status] ?? 'bg-gray-50 text-gray-500 border-gray-200';
                 @endphp
 
@@ -120,23 +119,63 @@
                     </div>
 
                     <div class="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
-                        <div class="px-4 py-3 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
-                            <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Composição de Parcelas</h4>
-                            <span class="text-xs font-medium bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full">
-                                {{ $titulo->parcelas->count() }}
-                            </span>
+                        <div class="px-4 py-3 bg-gray-50 border-b border-gray-100 flex justify-between items-center min-h-[52px]">
+                            <div class="flex items-center gap-2">
+                                <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Composição de Parcelas</h4>
+                                <span class="text-xs font-medium bg-gray-200 text-gray-700 px-2 py-0.5 rounded-full">
+                                    {{ $titulo->parcelas->count() }}
+                                </span>
+                            </div>
+                            
+                            @if(count($parcelasSelecionadas) > 0)
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xs font-medium text-gray-500">
+                                        [ {{ count($parcelasSelecionadas) }} selecionada(s) ]
+                                    </span>
+                                    <div x-data="{ menuOpen: false }" class="relative">
+                                        <button 
+                                            @click="menuOpen = !menuOpen" 
+                                            @click.away="menuOpen = false" 
+                                            class="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+                                        >
+                                            Ações
+                                            <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                        </button>
+                                        
+                                        <div 
+                                            x-show="menuOpen" 
+                                            x-transition:enter="transition ease-out duration-100"
+                                            x-transition:enter-start="transform opacity-0 scale-95"
+                                            x-transition:enter-end="transform opacity-100 scale-100"
+                                            x-transition:leave="transition ease-in duration-75"
+                                            x-transition:leave-start="transform opacity-100 scale-100"
+                                            x-transition:leave-end="transform opacity-0 scale-95"
+                                            class="absolute right-0 mt-1.5 w-48 bg-white border border-gray-100 rounded-lg shadow-lg py-1 z-10" 
+                                            x-cloak
+                                        >
+                                            <button 
+                                                type="button" 
+                                                wire:click="gerarCobrancasLote" 
+                                                class="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                            >
+                                                Gerar Cobranças Bancárias
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                         
                         <div class="overflow-x-auto">
                             <table class="min-w-full text-sm text-left">
                                 <thead class="bg-white border-b border-gray-50 text-xs text-gray-400">
                                     <tr>
-                                        <th class="px-4 py-3 font-medium">Nº</th>
+                                        <th class="px-4 py-3 w-10"></th> <th class="px-4 py-3 font-medium">Nº</th>
                                         <th class="px-4 py-3 font-medium">Vencimento</th>
                                         <th class="px-4 py-3 font-medium text-right">Valor Original</th>
                                         <th class="px-4 py-3 font-medium text-right">Valor Pago</th>
                                         <th class="px-4 py-3 font-medium text-center">Status</th>
-                                        <th class="px-4 py-3 font-medium text-right">Ação</th>
+                                        <th class="px-4 py-3 font-medium text-center">Cobrança</th> <th class="px-4 py-3 font-medium text-right">Ação</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-50">
@@ -150,8 +189,20 @@
                                                 'cancelado' => 'bg-gray-100 text-gray-700 border-gray-200',
                                             ];
                                             $corParcStatus = $parcStatusColors[$parc->status_calculado] ?? $parcStatusColors['aberto'];
+                                            
+                                            // Lógica para desabilitar o checkbox
+                                            $desabilitarSelecao = in_array($parc->status_calculado, ['cancelado', 'pago']) || $parc->possui_boleto_ativo;
                                         @endphp
                                         <tr class="hover:bg-gray-50 transition-colors">
+                                            <td class="px-4 py-3 text-center">
+                                                <input 
+                                                    type="checkbox" 
+                                                    wire:model.live="parcelasSelecionadas" 
+                                                    value="{{ $parc->id }}"
+                                                    @disabled($desabilitarSelecao)
+                                                    class="rounded border-gray-300 text-[#313e50] focus:ring-[#313e50] disabled:opacity-40 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors"
+                                                >
+                                            </td>
                                             <td class="px-4 py-3 text-gray-600 font-medium">
                                                 {{ $parc->numero_parcela }}
                                             </td>
@@ -169,6 +220,17 @@
                                                     {{ ucfirst($parc->status_calculado) }}
                                                 </span>
                                             </td>
+                                            <td class="px-4 py-3 text-center">
+                                                @if($parc->possui_boleto_ativo)
+                                                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-50 text-blue-600 border border-blue-100" title="Cobrança Bancária Ativa">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                    </span>
+                                                @else
+                                                    <span class="text-gray-300" title="Sem cobrança">
+                                                        -
+                                                    </span>
+                                                @endif
+                                            </td>
                                             <td class="px-4 py-3 text-right">
                                                 <button 
                                                     type="button"
@@ -181,7 +243,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="6" class="px-4 py-6 text-center text-gray-400">
+                                            <td colspan="8" class="px-4 py-6 text-center text-gray-400">
                                                 Nenhuma parcela encontrada para este título.
                                             </td>
                                         </tr>
