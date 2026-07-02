@@ -1,0 +1,258 @@
+<?php
+
+namespace App\Livewire\EmpresaParametro;
+
+use App\Models\EmpresaParametro;
+use App\Services\CertificadoDigitalService;
+use App\Services\EmpresaParametroService;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+
+class Edit extends Component
+{
+    use WithFileUploads;
+
+    public $id;
+    public $empresa;
+    public $logoPathAtual;
+
+    public $razaoSocial;
+    public $nomeFantasia;
+    public $cnpj;
+    public $inscricaoEstadual;
+    public $inscricaoMunicipal;
+    public $cnaePrincipal;
+    public $cep;
+    public $logradouro;
+    public $bairro;
+    public $numero;
+    public $complemento;
+    public $cidade;
+    public $uf;
+    public $telefone;
+    public $emailFinanceiro;
+    public $logo;
+
+    public $nomeCertificado;
+    public $certificado;
+    public $senhaCertificado;
+    public $certificadoAtual;
+
+    public function mount($id): void
+    {
+        $this->id = $id;
+        $this->empresa = EmpresaParametro::with('certificadoDigital')->findOrFail($id);
+        $this->logoPathAtual = $this->empresa->logo_path;
+        $this->certificadoAtual = $this->empresa->certificadoDigital;
+
+        $this->razaoSocial = $this->empresa->razao_social;
+        $this->nomeFantasia = $this->empresa->nome_fantasia;
+        $this->cnpj = $this->formatarCnpj($this->empresa->cnpj);
+        $this->inscricaoEstadual = $this->empresa->inscricao_estadual;
+        $this->inscricaoMunicipal = $this->empresa->inscricao_municipal;
+        $this->cnaePrincipal = $this->empresa->cnae_principal;
+        $this->cep = $this->empresa->cep;
+        $this->logradouro = $this->empresa->logradouro;
+        $this->bairro = $this->empresa->bairro;
+        $this->numero = $this->empresa->numero;
+        $this->complemento = $this->empresa->complemento;
+        $this->cidade = $this->empresa->cidade;
+        $this->uf = $this->empresa->uf;
+        $this->telefone = $this->formatarTelefone($this->empresa->telefone);
+        $this->emailFinanceiro = $this->empresa->email_financeiro;
+        $this->nomeCertificado = $this->certificadoAtual?->nome_certificado;
+    }
+
+    public function messages(): array
+    {
+        return [
+            'razaoSocial.required' => 'O campo Razão Social é obrigatório.',
+            'razaoSocial.max' => 'A Razão Social não pode ter mais que 255 caracteres.',
+            'nomeFantasia.max' => 'O Nome Fantasia não pode ter mais que 255 caracteres.',
+            'cnpj.required' => 'O campo CNPJ é obrigatório.',
+            'cnpj.max' => 'O CNPJ não pode ter mais que 18 caracteres.',
+            'cep.required' => 'O campo CEP é obrigatório.',
+            'cep.max' => 'O CEP não pode ter mais que 10 caracteres.',
+            'logradouro.required' => 'O campo Logradouro é obrigatório.',
+            'logradouro.max' => 'O Logradouro não pode ter mais que 255 caracteres.',
+            'bairro.required' => 'O campo Bairro é obrigatório.',
+            'bairro.max' => 'O Bairro não pode ter mais que 255 caracteres.',
+            'cidade.required' => 'O campo Cidade é obrigatório.',
+            'cidade.max' => 'A Cidade não pode ter mais que 255 caracteres.',
+            'uf.required' => 'O campo UF é obrigatório.',
+            'uf.size' => 'A UF deve conter exatamente 2 letras (ex: SP).',
+            'telefone.max' => 'O telefone não pode ter mais que 20 caracteres.',
+            'emailFinanceiro.email' => 'Informe um e-mail válido.',
+            'emailFinanceiro.max' => 'O e-mail não pode ter mais que 255 caracteres.',
+            'logo.image' => 'O arquivo deve ser uma imagem.',
+            'logo.max' => 'A logo não pode ter mais que 2MB.',
+            'nomeCertificado.required_with' => 'O nome do certificado é obrigatório quando um arquivo é enviado.',
+            'nomeCertificado.max' => 'O nome do certificado não pode ter mais que 255 caracteres.',
+            'certificado.file' => 'O certificado deve ser um arquivo válido.',
+            'certificado.max' => 'O certificado não pode ter mais que 5MB.',
+            'senhaCertificado.required_with' => 'A senha do certificado é obrigatória quando um arquivo é enviado.',
+        ];
+    }
+
+    public function rules(): array
+    {
+        return [
+            'razaoSocial' => 'required|string|max:255',
+            'nomeFantasia' => 'nullable|string|max:255',
+            'cnpj' => 'required|string|max:18',
+            'inscricaoEstadual' => 'nullable|string|max:255',
+            'inscricaoMunicipal' => 'nullable|string|max:255',
+            'cnaePrincipal' => 'nullable|string|max:255',
+            'cep' => 'required|string|max:10',
+            'logradouro' => 'required|string|max:255',
+            'bairro' => 'required|string|max:255',
+            'numero' => 'nullable|string|max:20',
+            'complemento' => 'nullable|string|max:255',
+            'cidade' => 'required|string|max:255',
+            'uf' => 'required|string|size:2',
+            'telefone' => 'nullable|string|max:20',
+            'emailFinanceiro' => 'nullable|email|max:255',
+            'logo' => 'nullable|image|max:2048',
+            'nomeCertificado' => 'nullable|required_with:certificado|string|max:255',
+            'certificado' => 'nullable|file|max:5120',
+            'senhaCertificado' => 'nullable|required_with:certificado|string',
+        ];
+    }
+
+    public function submit(): void
+    {
+        $data = $this->validate();
+
+        $cnpjCru = preg_replace('/\D/', '', $data['cnpj']);
+        $telefoneCru = ! empty($data['telefone'])
+            ? preg_replace('/\D/', '', $data['telefone'])
+            : null;
+
+        if (EmpresaParametro::where('cnpj', $cnpjCru)->where('id', '!=', $this->id)->exists()) {
+            $this->addError('cnpj', 'Este CNPJ já está cadastrado.');
+
+            return;
+        }
+
+        $empresaData = [
+            'razao_social' => $data['razaoSocial'],
+            'nome_fantasia' => $data['nomeFantasia'],
+            'cnpj' => $cnpjCru,
+            'inscricao_estadual' => $data['inscricaoEstadual'],
+            'inscricao_municipal' => $data['inscricaoMunicipal'],
+            'cnae_principal' => $data['cnaePrincipal'],
+            'cep' => $data['cep'],
+            'logradouro' => $data['logradouro'],
+            'bairro' => $data['bairro'],
+            'numero' => $data['numero'],
+            'complemento' => $data['complemento'],
+            'cidade' => $data['cidade'],
+            'uf' => strtoupper($data['uf']),
+            'telefone' => $telefoneCru,
+            'email_financeiro' => $data['emailFinanceiro'],
+        ];
+
+        if ($this->logo) {
+            $fileName = Str::uuid() . '.' . $this->logo->getClientOriginalExtension();
+            $empresaData['logo_path'] = $this->logo->storeAs('empresa/logos', $fileName, 'public');
+            $this->logoPathAtual = $empresaData['logo_path'];
+        }
+
+        if ($this->certificado) {
+            $extensao = strtolower($this->certificado->getClientOriginalExtension());
+            if (! in_array($extensao, ['pfx', 'p12'])) {
+                $this->addError('certificado', 'O certificado deve estar no formato .pfx ou .p12.');
+
+                return;
+            }
+
+            $service = new CertificadoDigitalService();
+            if (! $service->validarCertificado($this->certificado->getRealPath(), $this->senhaCertificado)) {
+                $this->addError('senhaCertificado', 'Senha do certificado inválida ou arquivo corrompido.');
+
+                return;
+            }
+        }
+
+        $certificadoDados = null;
+        if ($this->certificado || $this->nomeCertificado || $this->senhaCertificado) {
+            $certificadoDados = [
+                'nome_certificado' => $this->nomeCertificado ?? $this->certificadoAtual?->nome_certificado,
+                'senha' => $this->senhaCertificado ?: null,
+            ];
+        }
+
+        (new EmpresaParametroService())->update($empresaData, $this->id, $certificadoDados, $this->certificado);
+
+        $this->dispatch('toast-message', 'Parametrização da empresa atualizada com sucesso!');
+        $this->redirect(route('erp.dev.empresa-parametro.index'), navigate: true);
+    }
+
+    public function consultaCnpj(): void
+    {
+        if ($this->cnpj != null && strlen($this->cnpj) == 18) {
+            $response = Http::get('https://api.opencnpj.org/'.$this->cnpj);
+
+            if ($response->ok()) {
+                $data = $response->json();
+                $this->razaoSocial = $data['razao_social'] ?? '';
+                $this->nomeFantasia = $data['nome_fantasia'] ?? '';
+                $this->emailFinanceiro = $data['email'] ?? '';
+                $this->telefone = isset($data['telefones'][0]) ? '('. $data['telefones'][0]['ddd'] . ') ' . $data['telefones'][0]['numero'] : '';
+                $this->logradouro = $data['logradouro'] ?? '';
+                $this->numero = $data['numero'] ?? 'n/a';
+                $this->complemento = $data['complemento'] ?? 'n/a';
+                $this->bairro = $data['bairro'] ?? '';
+                $this->cep = $data['cep'] ?? '';
+                $this->cidade = $data['municipio'] ?? '';
+                $this->uf = $data['uf'] ?? '';
+                $this->cnaePrincipal = $data['cnae_principal'] ?? '';
+
+                $this->dispatch('toast-message', 'CNPJ resgatado com sucesso');
+            } else {
+                $this->dispatch('toast-error', 'Erro ao resgatar CNPJ');
+            }
+        }
+    }
+
+    private function formatarCnpj(?string $cnpj): string
+    {
+        if (! $cnpj) {
+            return '';
+        }
+
+        $v = preg_replace('/\D/', '', $cnpj);
+
+        if (strlen($v) === 14) {
+            return preg_replace('/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/', '$1.$2.$3/$4-$5', $v);
+        }
+
+        return $cnpj;
+    }
+
+    private function formatarTelefone(?string $telefone): ?string
+    {
+        if (! $telefone) {
+            return null;
+        }
+
+        $v = preg_replace('/\D/', '', $telefone);
+
+        if (strlen($v) === 11) {
+            return preg_replace('/(\d{2})(\d{5})(\d{4})/', '($1) $2-$3', $v);
+        }
+
+        if (strlen($v) === 10) {
+            return preg_replace('/(\d{2})(\d{4})(\d{4})/', '($1) $2-$3', $v);
+        }
+
+        return $telefone;
+    }
+
+    public function render()
+    {
+        return view('livewire.empresa-parametro.edit');
+    }
+}
