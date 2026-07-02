@@ -60,6 +60,9 @@ class ListTitulo extends Component
     public bool $openModalCobranca = false;
     public ?Parcela $parcelaParaCobranca = null;
 
+    public bool $openModalCobrancaLote = false;
+    public array $parcelasCobrancaLote = [];
+
     public bool $openModalCancelaCobranca = false;
     public ?Parcela $parcelaParaCancelaCobranca = null;
 
@@ -316,6 +319,17 @@ class ListTitulo extends Component
     }
 
     /**
+     * Evento acionado para fechar o modal de detalhe de titulos e limpar os dados.
+     * * @return void
+     */
+    #[On('fechar-modal-titulo')]
+    public function fecharModalTitulo(){
+        $this->openModalDetalhesTitulo = false;
+
+        $this->tituloSelecionado = null;
+    }
+
+    /**
      * Abre o modal com detalhes de uma parcela.
      *
      * @param Parcela $parcela
@@ -401,10 +415,6 @@ class ListTitulo extends Component
      * @return void
      */
     public function gerarCobrancaParcela(Parcela $parcela){
-        $parcela->load([
-                'titulo.entidade', 
-            ]);
-            
         $this->parcelaParaCobranca = $parcela;
 
         $this->openModalCobranca = true;
@@ -419,6 +429,17 @@ class ListTitulo extends Component
         $this->openModalCobranca = false;
 
         $this->parcelaParaCobranca = null;
+    }
+
+    /**
+     * Evento acionado para fechar o modal de anexos e limpar os dados.
+     * * @return void
+     */
+    #[On('abrir-modal-cobranca-lote')]
+    public function openModalCobrancaLote(array $parcelas){
+        $this->parcelasCobrancaLote = $parcelas;
+
+        $this->openModalCobrancaLote = true;
     }
 
     /**

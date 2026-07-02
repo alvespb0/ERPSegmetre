@@ -613,32 +613,37 @@
     @if($openModalEditarParcela && $parcelaParaEditar)
         <livewire:Modais.ContasReceber.EditarParcela 
             :parcela-id="$parcelaParaEditar->id" 
-            wire:key="modal-receber-{{ $parcelaParaEditar->id }}" 
+            wire:key="modal-editar-{{ $parcelaParaEditar->id }}" 
         />
     @endif
     @if($parcelaParaEditarStatus && $openModalEditarStatus)
         <livewire:Modais.ContasReceber.EditarStatus
             :parcela-id="$parcelaParaEditarStatus->id" 
-            wire:key="modal-receber-{{ $parcelaParaEditarStatus->id }}" 
+            wire:key="modal-editar-status-{{ $parcelaParaEditarStatus->id }}" 
         />
     @endif
     @if($parcelaParaAnexos && $openModalAnexos)
         <livewire:Modais.ContasReceber.Anexos
             :parcela-id="$parcelaParaAnexos->id" 
-            wire:key="modal-receber-{{ $parcelaParaAnexos->id }}" 
+            wire:key="modal-anexos-{{ $parcelaParaAnexos->id }}" 
         />
     @endif
     @if($parcelaParaCobranca && $openModalCobranca)
         <livewire:Modais.ContasReceber.GerarCobranca
             :parcela-id="$parcelaParaCobranca->id" 
-            wire:key="modal-receber-{{ $parcelaParaCobranca->id }}" 
+            wire:key="modal-cobranca-{{ $parcelaParaCobranca->id }}" 
         />
     @endif
-
+    @if($parcelasCobrancaLote && $openModalCobrancaLote)
+        <livewire:Modais.ContasReceber.GerarCobrancaLote
+            :parcelasIds="$parcelasCobrancaLote"
+            wire:key="modal-cobranca-lote" 
+        />
+    @endif
     @if($parcelaParaCancelaCobranca && $openModalCancelaCobranca)
         <livewire:Modais.ContasReceber.CancelarCobranca
             :parcela-id="$parcelaParaCancelaCobranca->id" 
-            wire:key="modal-receber-{{ $parcelaParaCancelaCobranca->id }}" 
+            wire:key="modal-cancela-{{ $parcelaParaCancelaCobranca->id }}" 
         />
     @endif
 
