@@ -46,7 +46,10 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        'two_factor_enabled' => 'boolean',
+        'two_factor_confirmed_at' => 'datetime',
+        'last_login_at' => 'datetime',
+        'locked_until' => 'datetime',
     ];
 
     public function personalAccessTokens(){
@@ -75,5 +78,17 @@ class User extends Authenticatable
 
     public function isCobranca(): bool{
         return $this->tipo === 'cobranca';
+    }
+
+    public function tipoLabel(): string
+    {
+        return match ($this->tipo) {
+            'dev' => 'Desenvolvedor',
+            'admin' => 'Administrador',
+            'visualizador' => 'Visualizador',
+            'pagador' => 'Pagador',
+            'cobranca' => 'Cobrança',
+            default => $this->tipo ?? '—',
+        };
     }
 }

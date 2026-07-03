@@ -214,10 +214,10 @@
                                     </button>
                                     <ul x-show="openSub" x-collapse class="mt-1 space-y-1 pl-11">
                                         <li>
-                                            <a href="#" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.usuarios.create') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Novo Usuário</a>
+                                            <a href="{{ route('erp.usuarios.create') }}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.usuarios.create') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Novo Usuário</a>
                                         </li>
                                         <li>
-                                            <a href="#" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.usuarios.index') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Listar Usuários</a>
+                                            <a href="{{ route('erp.usuarios.index') }}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.usuarios.index') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Listar Usuários</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -384,17 +384,17 @@
                     </div>
                     
                     <div class="flex items-center gap-6">
-                        <div class="hidden md:flex items-center gap-3 text-sm">
+                        <a href="{{ route('perfil') }}" class="hidden md:flex items-center gap-3 text-sm hover:opacity-80 transition-opacity {{ request()->routeIs('perfil') ? 'opacity-100' : '' }}">
                             <div class="leading-tight text-right">
                                 <p class="text-gray-700 font-medium text-xs md:text-sm">
-                                    {{ auth()->user()->name ?? 'Admin User' }}
+                                    {{ auth()->user()->name }}
                                 </p>
-                                <p class="text-gray-400 text-[11px] font-medium tracking-wide uppercase">Administrator</p>
+                                <p class="text-gray-400 text-[11px] font-medium tracking-wide uppercase">{{ auth()->user()->tipoLabel() }}</p>
                             </div>
                             <span class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#2C394B] text-white text-xs font-semibold shadow-sm">
-                                {{ strtoupper(mb_substr(auth()->user()->name ?? 'AU', 0, 2)) }}
+                                {{ strtoupper(mb_substr(auth()->user()->name, 0, 2)) }}
                             </span>
-                        </div>
+                        </a>
 
                         <div class="h-5 w-[1px] bg-gray-200 hidden md:block"></div>
 
