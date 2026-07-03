@@ -58,28 +58,6 @@
                 <x-input-error :messages="$errors->get('password')" class="mt-2" />
             </div>
 
-            <!-- Remember Me -->
-            <div class="flex items-center justify-between pt-1">
-                <label for="remember_me" class="inline-flex items-center gap-2">
-                    <input
-                        id="remember_me"
-                        type="checkbox"
-                        class="rounded border-gray-300 text-[#313e50] shadow-sm focus:ring-[#313e50]"
-                        name="remember"
-                    >
-                    <span class="text-xs text-gray-600">{{ __('Remember me') }}</span>
-                </label>
-
-                @if (Route::has('register'))
-                    <a
-                        href="{{ route('register') }}"
-                        class="text-xs font-medium text-gray-500 hover:text-[#313e50] hover:underline"
-                    >
-                        {{ __('Create account') }}
-                    </a>
-                @endif
-            </div>
-
             <div class="pt-4">
                 <x-primary-button class="w-full justify-center">
                     {{ __('Log in') }}
