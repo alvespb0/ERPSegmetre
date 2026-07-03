@@ -80,6 +80,20 @@ class User extends Authenticatable
         return $this->tipo === 'cobranca';
     }
 
+    public function needsTwoFactorSetup(): bool
+    {
+        return is_null($this->two_factor_secret) || is_null($this->two_factor_confirmed_at);
+    }
+
+    public function twoFactorSecret(): ?string
+    {
+        if (is_null($this->two_factor_secret)) {
+            return null;
+        }
+
+        return \Illuminate\Support\Facades\Crypt::decryptString($this->two_factor_secret);
+    }
+
     public function tipoLabel(): string
     {
         return match ($this->tipo) {

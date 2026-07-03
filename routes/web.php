@@ -16,7 +16,7 @@ use App\Http\Controllers\IntegracaoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'two.factor'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
     Route::get('perfil', [ProfileController::class, 'show'])->name('perfil');
 
@@ -26,74 +26,74 @@ Route::middleware('auth')->group(function () {
     });
 });
 
-Route::middleware('auth')->controller(UserController::class)->group(function () {
+Route::middleware(['auth', 'two.factor'])->controller(UserController::class)->group(function () {
     Route::get('erp/usuarios/nova', 'showCreateView')->name('erp.usuarios.create');
     Route::post('erp/usuarios', 'store')->name('erp.usuarios.store');
     Route::get('erp/usuarios', 'showListView')->name('erp.usuarios.index');
 });
 
-Route::middleware('auth')->controller(EntidadeController::class)->group(function(){
+Route::middleware(['auth', 'two.factor'])->controller(EntidadeController::class)->group(function(){
     Route::get('erp/entidades/nova', 'showCreateView')->name('erp.entidades.create');
     Route::get('erp/entidades', 'showListView')->name('erp.entidades.index');
     Route::get('erp/entidades/editar/{idEnc}', 'showEditView')->name('erp.entidades.update');
 });
 
-Route::middleware('auth')->controller(CentroCustoController::class)->group(function(){
+Route::middleware(['auth', 'two.factor'])->controller(CentroCustoController::class)->group(function(){
     Route::get('erp/centro-custo/nova', 'showCreateView')->name('erp.centro-custo.create');
     Route::get('erp/centro-custo', 'showListView')->name('erp.centro-custo.index');
     Route::get('erp/centro-custo/editar/{idEnc}', 'showEditView')->name('erp.centro-custo.update');
 });
 
-Route::middleware('auth')->controller(CategoriaFinanceiraController::class)->group(function(){
+Route::middleware(['auth', 'two.factor'])->controller(CategoriaFinanceiraController::class)->group(function(){
     Route::get('erp/categoria-financeira/nova', 'showCreateView')->name('erp.categoria-financeira.create');
     Route::get('erp/categoria-financeira', 'showListView')->name('erp.categoria-financeira.index');
     Route::get('erp/categoria-financeira/editar/{idEnc}', 'showEditView')->name('erp.categoria-financeira.update');
 });
-Route::middleware('auth')->controller(CategoriaFinanceiraController::class)->group(function(){
+Route::middleware(['auth', 'two.factor'])->controller(CategoriaFinanceiraController::class)->group(function(){
     Route::get('erp/fluxo-caixa', function(){ return view('erp.fluxo-caixa.index'); })->name('erp.fluxo-caixa');
 });
 
-Route::middleware('auth')->get('erp/relatorios', function () {
+Route::middleware(['auth', 'two.factor'])->get('erp/relatorios', function () {
     return view('erp.relatorio.index');
 })->name('erp.relatorios.index');
 
-Route::middleware('auth')->controller(BancoController::class)->group(function(){
+Route::middleware(['auth', 'two.factor'])->controller(BancoController::class)->group(function(){
     Route::get('erp/banco/nova', 'showCreateView')->name('erp.banco.create');
     Route::get('erp/banco', 'showListView')->name('erp.banco.index');
     Route::get('erp/banco/editar/{idEnc}', 'showEditView')->name('erp.banco.update');
 });
 
-Route::middleware('auth')->controller(FormaPagamentoController::class)->group(function(){
+Route::middleware(['auth', 'two.factor'])->controller(FormaPagamentoController::class)->group(function(){
     Route::get('erp/forma-pagamento/nova', 'showCreateView')->name('erp.forma-pagamento.create');
     Route::get('erp/forma-pagamento', 'showListView')->name('erp.forma-pagamento.index');
     Route::get('erp/forma-pagamento/editar/{idEnc}', 'showEditView')->name('erp.forma-pagamento.update');
 });
 
-Route::middleware('auth')->controller(TipoContaController::class)->group(function(){
+Route::middleware(['auth', 'two.factor'])->controller(TipoContaController::class)->group(function(){
     Route::get('erp/tipo-conta/nova', 'showCreateView')->name('erp.tipo-conta.create');
     Route::get('erp/tipo-conta', 'showListView')->name('erp.tipo-conta.index');
     Route::get('erp/tipo-conta/editar/{idEnc}', 'showEditView')->name('erp.tipo-conta.update');
 });
 
-Route::middleware('auth')->controller(ContaController::class)->group(function(){
+Route::middleware(['auth', 'two.factor'])->controller(ContaController::class)->group(function(){
     Route::get('erp/conta/nova', 'showCreateView')->name('erp.conta.create');
     Route::get('erp/conta', 'showListView')->name('erp.conta.index');
     Route::get('erp/conta/editar/{idEnc}', 'showEditView')->name('erp.conta.update');
 });
 
-Route::middleware('auth')->controller(EmpresaParametroController::class)->group(function(){
+Route::middleware(['auth', 'two.factor'])->controller(EmpresaParametroController::class)->group(function(){
     Route::get('erp/dev/empresa-parametro', 'showIndexView')->name('erp.dev.empresa-parametro.index');
     Route::get('erp/empresa-parametro/nova', 'showCreateView')->name('erp.empresa-parametro.create');
     Route::get('erp/empresa-parametro/editar/{idEnc}', 'showEditView')->name('erp.empresa-parametro.update');
 });
 
-Route::middleware('auth')->controller(IntegracaoController::class)->group(function(){
+Route::middleware(['auth', 'two.factor'])->controller(IntegracaoController::class)->group(function(){
     Route::get('erp/dev/integracoes', 'showListView')->name('erp.dev.integracoes.index');
     Route::get('erp/dev/integracoes/nova', 'showCreateView')->name('erp.dev.integracoes.create');
     Route::get('erp/dev/integracoes/editar/{idEnc}', 'showEditView')->name('erp.dev.integracoes.update');
 });
 
-Route::middleware('auth')->controller(TituloController::class)->group(function(){
+Route::middleware(['auth', 'two.factor'])->controller(TituloController::class)->group(function(){
     Route::get('erp/titulo/receita/nova', 'showCreateViewReceita')->name('erp.receita.create');
     Route::get('erp/titulo/receita', 'showListViewReceita')->name('erp.receita.index');
     Route::get('erp/titulo/despesa/nova', 'showCreateViewDespesa')->name('erp.despesa.create');
