@@ -309,7 +309,7 @@
                     @endif
                 </div>
             </div>
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-6 self-start">
                 <div class="px-4 py-3 border-b border-gray-50 bg-gray-50/50">
                     <h2 class="text-sm font-semibold text-gray-900">Ações</h2>
                 </div>
