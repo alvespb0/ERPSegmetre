@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CentroCusto extends Model
+class CentroCusto extends BaseModel
 {
     protected $table = 'centro_custo';
 

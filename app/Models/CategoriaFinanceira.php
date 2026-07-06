@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CategoriaFinanceira extends Model
+class CategoriaFinanceira extends BaseModel
 {
     protected $table = 'categoria_financeira';
 

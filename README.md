@@ -1,66 +1,85 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# ERP Segmetre
 
-## About Laravel
+Sistema de Gestão de Recursos Empresariais (ERP) desenvolvido em Laravel, com foco na gestão financeira robusta, controle de tesouraria, contas a pagar e receber, emissão de cobranças e faturamento bancário. A interface é construída de forma reativa com o Laravel Livewire, proporcionando uma experiência fluida de SPA (Single Page Application).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tecnologias Utilizadas
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+* Framework: Laravel (PHP)
+* Frontend: Laravel Livewire, Tailwind CSS, Alpine.js, Vite
+* Banco de Dados: MySQL / PostgreSQL (via Eloquent ORM)
+* Autenticação: Laravel Auth integrado a módulo Google Authenticator (MFA)
 
-## Learning Laravel
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Arquitetura e Padrões de Projeto
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+O projeto adota uma separação rigorosa de responsabilidades para garantir que as regras de negócio permaneçam isoladas, testáveis e extensíveis.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 1. Multi-Tenant por Isolamento de Base (Banco Único por Unidade)
+O ERP foi estruturado sob um modelo de negócio Multi-Tenant flexível:
+* Cada cliente possui sua própria infraestrutura de banco de dados isolada.
+* O sistema permite a expansão nativa para múltiplos ambientes ou unidades sob o mesmo cliente, possibilitando que uma única organização gerencie mais de uma base de dados distinta a partir do seu ecossistema.
 
-## Laravel Sponsors
+### 2. Service Pattern (`app/Services/`)
+Toda a lógica de negócios pesada é encapsulada na camada de Serviços, desacoplando os controladores e componentes Livewire.
+* Exemplos: `TituloFinanceiroService`, `ParcelaService`, `MovimentacaoService`, `CertificadoDigitalService`.
+* Vantagem: Centralização de cálculos financeiros e regras de validação, facilitando o reaproveitamento de código em comandos de console (Artisan) ou Jobs assíncronos.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+### 3. Factory Pattern (`app/Factories/`)
+* `IntegracaoFactory.php`: Centraliza a instanciação dinâmica dos drivers de comunicação com APIs externas e instituições financeiras. Segue o princípio Open/Closed (S.O.L.I.D.), permitindo acoplar novos provedores sem modificar a lógica central de chamadas da aplicação.
 
-### Premium Partners
+### 4. Encapsulamento Multibanco e Faturamento Digital
+O sistema isola a complexidade de regras bancárias e emissão de documentos fiscais:
+* Integração Bancária (Sicoob): Implementação modular no diretório `app/Bancos/Sicoob/` contendo geradores de arquivos CNAB240 (Segmentos P, Q, Header e Trailler) via `GeradorRemessa.php`. Na fase atual, o ERP realiza a geração do arquivo de remessa local para download, com escopo preparado para automação via API/FTP.
+* Emissão de Notas Fiscais: A arquitetura mapeia credenciais de integração com suporte a certificados digitais (`CertificadoDigitalService` e `IntegracaoCredencial`), projetada para suportar a emissão e faturamento de notas fiscais eletrônicas.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+## Segurança e Ciclo de Autenticação
+### 1. Autenticação de Dois Fatores (2FA via TOTP)
+Proteção estendida de contas integrada à camada de autenticação base:
+* Validação via aplicativos autenticadores (Google Authenticator) utilizando bibliotecas auxiliares de TOTP.
+* Controle de dispositivos através da tabela `trusted_devices`, que evita solicitações redundantes de token em máquinas previamente autenticadas e autorizadas pelo usuário.
 
-## Contributing
+### 2. Middlewares Customizados (`app/Http/Middleware/`)
+* `EnsureTwoFactorPassed`: Intercepta requisições direcionadas às rotas críticas do ERP, garantindo o bloqueio caso o fluxo de verificação do segundo fator não tenha sido concluído com sucesso.
+* `CheckUserType`: Middleware responsável pelo controle de acessos inicial. Valida o tipo de usuário com base em um array estático de permissões configurado diretamente na assinatura da rota, retornando `403 Forbidden` caso o perfil não seja atendido. O escopo está arquitetado para receber uma ACL (Access Control List) dinâmica em etapas futuras.
+## Módulos do Sistema (Livewire Components e Views)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+A interface se divide em componentes reativos altamente especializados:
 
-## Code of Conduct
+### Cadastros de Base
+* Entidades (Clientes/Fornecedores): Geridos por `CreateEntidade`, `EditEntidade` e `ListEntidade`. Centraliza os dados fiscais vinculando tabelas complementares de contatos e múltiplos endereços.
+* Estrutura Financeira: CRUDs completos para Bancos, Tipos de Conta, Centros de Custo (alocação de despesas) e Categorias Financeiras orientadas para estruturação de relatórios gerenciais.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Contas a Pagar e Receber
+Módulo Core focado no ciclo de vida de `TitulosFinanceiros` e `Parcelas`:
+* Fluxo de Caixa: Listagem dinâmica e filtros analíticos no componente `ListTitulo`.
+* Modais de Ação Rápida: Componentes Livewire acionados em formato de modal para liquidação e conciliação de parcelas (`PagarParcela`, `ReceberParcela`), inserção de arquivos em anexo (`Anexos`), além de faturamento individual ou em lote (`GerarCobranca`, `GerarCobrancaLote`).
 
-## Security Vulnerabilities
+### Relatórios Gerenciais
+Geração visual através de modais sob demanda integrados ao painel principal:
+* Demonstração do Resultado do Exercício (`DREModal`).
+* Análise Financeira, Gráficos de Despesas, Monitoramento de Fluxo de Caixa e Resumos de Vendas.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Configuração do Ambiente de Desenvolvimento
 
-## License
+### Pré-requisitos
+* PHP >= 8.1
+* Composer
+* Node.js & NPM
+* SGBD Relacional (MySQL / PostgreSQL)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Instalação
+
+1. Clone o repositório para o ambiente local.
+2. Instale as dependências do back-end:
+```bash
+    composer install
+    npm install
+    npm run build
+    cp .env.example .env e configure o .env
+    php artisan key:generate
+    php artisan migrate --seed
+    php artisan serve
+```
+

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
-class BoletoCobranca extends Model
+class BoletoCobranca extends BaseModel
 {
     use SoftDeletes;
 

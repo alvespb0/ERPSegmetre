@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
-class ConfiguracaoCobranca extends Model
+class ConfiguracaoCobranca extends BaseModel
 {
     use SoftDeletes;
 

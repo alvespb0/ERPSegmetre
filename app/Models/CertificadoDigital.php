@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
-class CertificadoDigital extends Model
+class CertificadoDigital extends BaseModel
 {
     use SoftDeletes;
 

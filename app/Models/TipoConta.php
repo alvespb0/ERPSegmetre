@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 
-class TipoConta extends Model
+class TipoConta extends BaseModel
 {
     protected $table = 'tipo_conta';
 
