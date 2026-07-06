@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Anexo extends Model
+class Anexo extends BaseModel
 {
     protected $table = 'anexos';
 

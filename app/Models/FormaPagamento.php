@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class FormaPagamento extends Model
+class FormaPagamento extends BaseModel
 {
     protected $table = 'forma_pagamento';
 

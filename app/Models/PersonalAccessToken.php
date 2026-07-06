@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PersonalAccessToken extends Model
+class PersonalAccessToken extends BaseModel
 {
     protected $fillable = [
         'user_id',

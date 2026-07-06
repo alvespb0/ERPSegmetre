@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EnderecoEntidade extends Model
+class EnderecoEntidade extends BaseModel
 {
     protected $table = 'endereco_entidade';
 

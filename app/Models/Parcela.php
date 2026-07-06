@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
-class Parcela extends Model
+class Parcela extends BaseModel
 {
     protected $table = 'parcelas';
 
