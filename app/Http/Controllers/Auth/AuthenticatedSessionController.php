@@ -28,8 +28,15 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        $request->session()->forget('two_factor_passed');
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        $user = $request->user();
+
+        if ($user->needsTwoFactorSetup()) {
+            return redirect()->route('two-factor.setup');
+        }
+
+        return redirect()->route('two-factor.challenge');
     }
 
     /**

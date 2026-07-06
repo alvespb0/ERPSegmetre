@@ -159,7 +159,7 @@
                                         {{$entidade->deleted_at != null ? 'inativo' : 'ativo'}}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 text-right relative overflow-visible" x-data="{ open: false }">
+                                <td class="px-4 py-3 text-right" x-data="{ open: false }">
                                     <!-- Botão -->
                                     <button
                                         @click="open = !open"

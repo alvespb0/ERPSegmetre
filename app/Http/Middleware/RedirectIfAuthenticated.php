@@ -21,6 +21,16 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+                $user = Auth::guard($guard)->user();
+
+                if ($user->needsTwoFactorSetup()) {
+                    return redirect()->route('two-factor.setup');
+                }
+
+                if (! $request->session()->get('two_factor_passed')) {
+                    return redirect()->route('two-factor.challenge');
+                }
+
                 return redirect(RouteServiceProvider::HOME);
             }
         }
