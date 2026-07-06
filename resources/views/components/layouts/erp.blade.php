@@ -56,6 +56,7 @@
                             </a>
                         </li>
 
+                        @if(auth()->user()->isAdmin() || auth()->user()->isDev() || auth()->user()->isCobranca())
                         <li class="pt-4 pb-1" x-data="{ openCat: {{ request()->routeIs('erp.entidades.*') || request()->routeIs('erp.centro-custo.*') || request()->routeIs('erp.categoria-financeira.*') || request()->routeIs('erp.forma-pagamento.*') || request()->routeIs('erp.banco.*') || request()->routeIs('erp.tipo-conta.*') || request()->routeIs('erp.conta.*') || request()->routeIs('erp.usuarios.*') ? 'true' : 'false' }} }">
                             <div class="px-3 mb-2">
                                 <span class="text-[10px] font-semibold tracking-widest text-white/40 uppercase">Cadastros</span>
@@ -202,6 +203,7 @@
                                     </ul>
                                 </li>
 
+                                @if(auth()->user()->isAdmin() || auth()->user()->isDev())
                                 <li x-data="{ openSub: {{ request()->routeIs('erp.usuarios.*') ? 'true' : 'false' }} }">
                                     <button @click="openSub = !openSub" class="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 text-white/60 hover:bg-white/5 hover:text-white">
                                         <div class="flex items-center gap-3">
@@ -221,15 +223,19 @@
                                         </li>
                                     </ul>
                                 </li>
+                                @endif
                             </ul>
                         </li>
+                        @endif
 
+                        @if(auth()->user()->isAdmin() || auth()->user()->isDev() || auth()->user()->isCobranca() || auth()->user()->isVisualizador() || auth()->user()->isPagador())
                         <li class="pt-4 pb-1" x-data="{ openCat: {{ request()->routeIs('erp.financeiro.*') || request()->routeIs('erp.contas-receber.*') || request()->routeIs('erp.contas-pagar.*') || request()->routeIs('erp.titulos.*') ? 'true' : 'false' }} }">
                             <div class="px-3 mb-2">
                                 <span class="text-[10px] font-semibold tracking-widest text-white/40 uppercase">Financeiro</span>
                             </div>
                             
                             <ul class="mt-1 space-y-1">
+                                @if(auth()->user()->isAdmin() || auth()->user()->isDev() || auth()->user()->isCobranca() || auth()->user()->isVisualizador())
                                 <li x-data="{ openSub: {{ request()->routeIs('erp.receita.*') || request()->routeIs('erp.contas-receber.*') ? 'true' : 'false' }} }">
                                     <button type="button" @click="openSub = !openSub" class="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 text-white/60 hover:bg-white/5 hover:text-white">
                                         <div class="flex items-center gap-3">
@@ -249,7 +255,9 @@
                                         </li>
                                     </ul>
                                 </li>
+                                @endif
 
+                                @if(auth()->user()->isAdmin() || auth()->user()->isDev() || auth()->user()->isCobranca() || auth()->user()->isPagador())
                                 <li x-data="{ openSub: {{ request()->routeIs('erp.despesa.*') || request()->routeIs('erp.contas-pagar.*') ? 'true' : 'false' }} }">
                                     <button type="button" @click="openSub = !openSub" class="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 text-white/60 hover:bg-white/5 hover:text-white">
                                         <div class="flex items-center gap-3">
@@ -269,7 +277,9 @@
                                         </li>
                                     </ul>
                                 </li>
+                                @endif
 
+                                @if(auth()->user()->isAdmin() || auth()->user()->isDev() || auth()->user()->isCobranca())
                                 <li>
                                     <a href="{{route('erp.fluxo-caixa')}}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('erp.fluxo-caixa') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
                                         <span class="inline-flex h-5 w-5 items-center justify-center">
@@ -278,9 +288,12 @@
                                         <span>Fluxo de caixa</span>
                                     </a>
                                 </li>
+                                @endif
                             </ul>
                         </li>
+                        @endif
 
+                        @if(auth()->user()->isAdmin() || auth()->user()->isDev() || auth()->user()->isCobranca() || auth()->user()->isVisualizador())
                         <li class="pt-4 pb-1" x-data="{ openCat: {{ request()->routeIs('erp.administracao.*') ? 'true' : 'false' }} }">
                             <div class="px-3 mb-2">
                                 <span class="text-[10px] font-semibold tracking-widest text-white/40 uppercase">Administração</span>
@@ -306,7 +319,9 @@
                                 </li>
                             </ul>
                         </li>
+                        @endif
 
+                        @if(auth()->user()->isDev())
                         <li class="pt-4 pb-1" x-data="{ openCat: {{ request()->routeIs('erp.dev.*') ? 'true' : 'false' }} }">
                             <div class="px-3 mb-2">
                                 <span class="text-[10px] font-semibold tracking-widest text-white/40 uppercase">Dev</span>
@@ -335,6 +350,7 @@
                                 </li>
                             </ul>
                         </li>
+                        @endif
 
                     </ul>
                 </nav>
@@ -367,19 +383,23 @@
                         </button>
 
                         <div class="hidden sm:flex w-full max-w-md items-center gap-3">
+                            @if(auth()->user()->isAdmin() || auth()->user()->isDev() || auth()->user()->isCobranca() || auth()->user()->isVisualizador())
                             <a href="{{ route('erp.receita.create') }}" class="inline-flex items-center gap-1.5 rounded-lg bg-[#2C394B] px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-[#1a2332] transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                 </svg>
                                 Nova Receita
                             </a>
+                            @endif
                             
+                            @if(auth()->user()->isAdmin() || auth()->user()->isDev() || auth()->user()->isCobranca() || auth()->user()->isPagador())
                             <a href="{{ route('erp.despesa.create') }}" class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                 </svg>
                                 Nova Despesa
                             </a>
+                            @endif
                         </div>
                     </div>
                     
