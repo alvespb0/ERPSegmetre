@@ -112,7 +112,7 @@
                                         {{$centro->deleted_at != null ? 'Inativo' : 'Ativo'}}
                                     </span>
                                 </td>
-                                <td class="px-4 py-3 text-right relative overflow-visible" x-data="{ open: false }">
+                                <td class="px-4 py-3 text-right" x-data="{ open: false }">
                                     <button
                                         @click="open = !open"
                                         @keydown.escape.window="open = false"
