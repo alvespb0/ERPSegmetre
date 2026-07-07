@@ -32,6 +32,7 @@ Route::middleware(['checkUserType:admin,dev', 'two.factor'])->controller(UserCon
     Route::get('erp/usuarios/nova', 'showCreateView')->name('erp.usuarios.create');
     Route::post('erp/usuarios', 'store')->name('erp.usuarios.store');
     Route::get('erp/usuarios', 'showListView')->name('erp.usuarios.index');
+    Route::get('erp/usuarios/editar/{idEnc}', 'showEditView')->name('erp.usuarios.update');
 });
 
 Route::middleware(['checkUserType:admin,dev,cobranca,', 'two.factor'])->controller(EntidadeController::class)->group(function(){

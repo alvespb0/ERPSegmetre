@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
@@ -20,6 +21,13 @@ class UserController extends Controller
     public function showCreateView(): View
     {
         return view('erp.usuarios.create');
+    }
+
+    public function showEditView(string $idEnc): View
+    {
+        $id = Crypt::decrypt($idEnc);
+
+        return view('erp.usuarios.edit', ['id' => $id]);
     }
 
     public function store(Request $request): RedirectResponse
