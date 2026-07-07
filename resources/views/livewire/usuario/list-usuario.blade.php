@@ -22,9 +22,18 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <p class="text-sm text-gray-600 mb-2">Total</p>
-                <p class="text-3xl font-semibold text-gray-900">{{ $usuarios->total() }}</p>
-                <p class="text-xs text-gray-500 mt-2">Usuários cadastrados no sistema.</p>
+                <p class="text-sm text-gray-600 mb-2">Ativos</p>
+                <p class="text-3xl font-semibold text-gray-900">
+                    {{ $usuarios->getCollection()->whereNull('deleted_at')->count() }}
+                </p>
+                <p class="text-xs text-gray-500 mt-2">Usuários com acesso habilitado.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <p class="text-sm text-gray-600 mb-2">Inativos</p>
+                <p class="text-3xl font-semibold text-gray-900">
+                    {{ $usuarios->getCollection()->whereNotNull('deleted_at')->count() }}
+                </p>
+                <p class="text-xs text-gray-500 mt-2">Usuários desativados no sistema.</p>
             </div>
             <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                 <p class="text-sm text-gray-600 mb-2">Com 2FA</p>
@@ -32,13 +41,6 @@
                     {{ $usuarios->getCollection()->where('two_factor_enabled', true)->count() }}
                 </p>
                 <p class="text-xs text-gray-500 mt-2">Autenticação em dois fatores ativa.</p>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <p class="text-sm text-gray-600 mb-2">Administradores</p>
-                <p class="text-3xl font-semibold text-[#313e50]">
-                    {{ $usuarios->getCollection()->whereIn('tipo', ['dev', 'admin'])->count() }}
-                </p>
-                <p class="text-xs text-gray-500 mt-2">Perfis com acesso ampliado.</p>
             </div>
         </div>
 
@@ -67,6 +69,16 @@
                     <option value="pagador">Pagador</option>
                     <option value="cobranca">Cobrança</option>
                 </select>
+
+                <select
+                    name="status"
+                    class="flex-1 md:flex-none text-sm bg-transparent border-transparent focus:border-transparent focus:ring-0 outline-none text-gray-600 cursor-pointer py-2 px-30 rounded-lg hover:bg-gray-50 transition-colors"
+                    wire:model.live="status"
+                >
+                    <option value="todos">Todos os status</option>
+                    <option value="ativo">Ativos</option>
+                    <option value="inativo">Inativos</option>
+                </select>
             </div>
         </div>
 
@@ -79,7 +91,9 @@
                             <th class="px-4 py-3 text-left">E-mail</th>
                             <th class="px-4 py-3 text-left">Tipo</th>
                             <th class="px-4 py-3 text-left">2FA</th>
+                            <th class="px-4 py-3 text-left">Status</th>
                             <th class="px-4 py-3 text-left">Cadastro</th>
+                            <th class="px-4 py-3 text-right">Ações</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -97,13 +111,75 @@
                                         {{ $usuario->two_factor_enabled ? 'Ativo' : 'Inativo' }}
                                     </span>
                                 </td>
+                                <td class="px-4 py-3">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] border {{ $usuario->deleted_at ? 'border-red-200 bg-red-50 text-red-700' : 'border-emerald-200 bg-emerald-50 text-emerald-700' }}">
+                                        {{ $usuario->deleted_at ? 'Inativo' : 'Ativo' }}
+                                    </span>
+                                </td>
                                 <td class="px-4 py-3 text-gray-500 whitespace-nowrap">
                                     {{ $usuario->created_at?->format('d/m/Y') }}
+                                </td>
+                                <td class="px-4 py-3 text-right" x-data="{ open: false }">
+                                    <button
+                                        @click="open = !open"
+                                        @keydown.escape.window="open = false"
+                                        :class="open ? 'bg-gray-50 ring-2 ring-[#313e50]' : ''"
+                                        class="inline-flex items-center justify-center px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#313e50] transition-all"
+                                        aria-haspopup="menu"
+                                        :aria-expanded="open"
+                                    >
+                                        Ações
+                                        <svg class="ml-1.5 w-4 h-4 text-gray-500 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </button>
+
+                                    <div x-show="open" @click="open = false" class="fixed inset-0 z-40"></div>
+
+                                    <div
+                                        x-show="open"
+                                        x-transition:enter="transition ease-out duration-100"
+                                        x-transition:enter-start="opacity-0 scale-95"
+                                        x-transition:enter-end="opacity-100 scale-100"
+                                        x-transition:leave="transition ease-in duration-75"
+                                        x-transition:leave-start="opacity-100 scale-100"
+                                        x-transition:leave-end="opacity-0 scale-95"
+                                        class="absolute right-0 z-50 w-44 mt-2 origin-top-right bg-white border border-gray-200 rounded-lg shadow-lg focus:outline-none"
+                                        @click.away="open = false"
+                                        style="display: none;"
+                                    >
+                                        <div class="py-1">
+                                            <button
+                                                class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                wire:click="editarUsuario({{ $usuario->id }})"
+                                            >
+                                                Editar
+                                            </button>
+
+                                            <div class="h-px bg-gray-100 my-1"></div>
+
+                                            @if($usuario->deleted_at)
+                                                <button
+                                                    class="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50"
+                                                    wire:click="ativarUsuario({{ $usuario->id }})"
+                                                >
+                                                    Reativar
+                                                </button>
+                                            @elseif($usuario->id !== auth()->id())
+                                                <button
+                                                    class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                                    wire:click="inativarUsuario({{ $usuario->id }})"
+                                                >
+                                                    Inativar
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-8 text-center text-sm text-gray-500">
+                                <td colspan="7" class="px-4 py-8 text-center text-sm text-gray-500">
                                     Nenhum usuário encontrado.
                                 </td>
                             </tr>
