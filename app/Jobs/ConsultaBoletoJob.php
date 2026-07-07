@@ -8,6 +8,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
+use Carbon\Carbon;
+
 use App\Models\BoletoCobranca;
 use App\Models\Movimentacao;
 
@@ -38,6 +40,11 @@ class ConsultaBoletoJob implements ShouldQueue
                             })
                             ->with('configuracaoCobranca.integracao')
                             ->get();
+
+        \Log::debug([
+            'Iniciado JOB para consulta de boletos',
+            'Boletos em aberto' => $boletosEmAberto->count()
+        ]);
 
         foreach($boletosEmAberto as $boleto){
             try {
