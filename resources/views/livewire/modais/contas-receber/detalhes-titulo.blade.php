@@ -153,13 +153,25 @@
                                             class="absolute right-0 mt-1.5 w-48 bg-white border border-gray-100 rounded-lg shadow-lg py-1 z-10" 
                                             x-cloak
                                         >
-                                            <button 
-                                                type="button" 
-                                                wire:click="gerarCobrancasLote" 
-                                                class="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
-                                            >
-                                                Gerar Cobranças Bancárias
-                                            </button>
+                                            @if($this->podeGerarCobrancasLote())
+                                                <button 
+                                                    type="button" 
+                                                    wire:click="gerarCobrancasLote" 
+                                                    class="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                                >
+                                                    Gerar Cobranças Bancárias
+                                                </button>
+                                            @endif
+
+                                            @if($this->podeBaixarCobrancasLote())
+                                                <button 
+                                                    type="button" 
+                                                    wire:click="baixarCobrancasLote" 
+                                                    class="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
+                                                >
+                                                    Download Cobranças
+                                                </button>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -170,12 +182,14 @@
                             <table class="min-w-full text-sm text-left">
                                 <thead class="bg-white border-b border-gray-50 text-xs text-gray-400">
                                     <tr>
-                                        <th class="px-4 py-3 w-10"></th> <th class="px-4 py-3 font-medium">Nº</th>
+                                        <th class="px-4 py-3 w-10"></th> 
+                                        <th class="px-4 py-3 font-medium">Nº</th>
                                         <th class="px-4 py-3 font-medium">Vencimento</th>
                                         <th class="px-4 py-3 font-medium text-right">Valor Original</th>
                                         <th class="px-4 py-3 font-medium text-right">Valor Pago</th>
                                         <th class="px-4 py-3 font-medium text-center">Status</th>
-                                        <th class="px-4 py-3 font-medium text-center">Cobrança</th> <th class="px-4 py-3 font-medium text-right">Ação</th>
+                                        <th class="px-4 py-3 font-medium text-center">Cobrança</th> 
+                                        <th class="px-4 py-3 font-medium text-right">Ação</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-50">
@@ -190,8 +204,8 @@
                                             ];
                                             $corParcStatus = $parcStatusColors[$parc->status_calculado] ?? $parcStatusColors['aberto'];
                                             
-                                            // Lógica para desabilitar o checkbox
-                                            $desabilitarSelecao = in_array($parc->status_calculado, ['cancelado', 'pago']) || $parc->possui_boleto_ativo;
+                                            // Desabilita o check se cancelado ou pago
+                                            $desabilitarSelecao = in_array($parc->status_calculado, ['cancelado', 'pago']);
                                         @endphp
                                         <tr class="hover:bg-gray-50 transition-colors">
                                             <td class="px-4 py-3 text-center">
