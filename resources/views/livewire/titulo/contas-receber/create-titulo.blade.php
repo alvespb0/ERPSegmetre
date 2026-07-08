@@ -120,36 +120,15 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Parcelas <span class="text-red-500">*</span></label></label>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Parcelas <span class="text-red-500">*</span></label>
                             <select
                                 class="w-full max-h-48 overflow-y-auto rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]"
                                 wire:model.live="quantidade_parcelas"
                             >
                                 <option value="">Selecione...</option>
-                                <option value="1">1x</option>
-                                <option value="2">2x</option>
-                                <option value="3">3x</option>
-                                <option value="4">4x</option>
-                                <option value="5">5x</option>
-                                <option value="6">6x</option>
-                                <option value="7">7x</option>
-                                <option value="8">8x</option>
-                                <option value="9">9x</option>
-                                <option value="10">10x</option>
-                                <option value="11">11x</option>
-                                <option value="12">12x</option>
-                                <option value="13">13x</option>
-                                <option value="14">14x</option>
-                                <option value="15">15x</option>
-                                <option value="16">16x</option>
-                                <option value="17">17x</option>
-                                <option value="18">18x</option>
-                                <option value="19">19x</option>
-                                <option value="20">20x</option>
-                                <option value="21">21x</option>
-                                <option value="22">22x</option>
-                                <option value="23">23x</option>
-                                <option value="24">24x</option>
+                                @for($i = 1; $i <= 24; $i++)
+                                    <option value="{{ $i }}">{{ $i }}x</option>
+                                @endfor
                             </select>
                         </div>
 
@@ -172,6 +151,56 @@
                             </button>
                         </div>
                     </div>
+
+                    <div class="mt-6 border-t border-gray-100 pt-5">
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                wire:model.live="venda_recorrente" 
+                                class="w-4 h-4 rounded border-gray-300 text-[#313e50] focus:ring-[#313e50]"
+                            >
+                            <span class="text-sm font-medium text-gray-800">Esta é uma venda recorrente</span>
+                        </label>
+
+                        @if($venda_recorrente)
+                            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Quantidade de Recorrências <span class="text-red-500">*</span></label>
+                                    <input
+                                        type="number"
+                                        min="2"
+                                        max="60"
+                                        class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]"
+                                        placeholder="Ex.: 12"
+                                        wire:model="quantidade_recorrencias"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Intervalo <span class="text-red-500">*</span></label>
+                                    <select
+                                        class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]"
+                                        wire:model="intervalo_recorrencia"
+                                    >
+                                        <option value="">Selecione o intervalo...</option>
+                                        <option value="7d">Semanal (7 dias)</option>
+                                        <option value="14d">Quinzenal (14 dias)</option>
+                                        <option value="21d">Tri-semanal (21 dias)</option>
+                                        <option value="30d">Mensal (30 dias)</option>
+                                        <option value="45d">A cada 45 dias</option>
+                                        <option value="60d">Bimestral (60 dias)</option>
+                                        <option value="90d">Trimestral (90 dias)</option>
+                                        <option value="1m">1 Mês</option>
+                                        <option value="2m">2 Meses</option>
+                                        <option value="3m">3 Meses</option>
+                                        <option value="6m">Semestral (6 Meses)</option>
+                                        <option value="12m">Anual (12 Meses)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+
                     @if(!empty($parcelas))
                         <div class="mt-6 pt-4 border-t border-gray-100">
                             <div class="flex items-center justify-between mb-3">
