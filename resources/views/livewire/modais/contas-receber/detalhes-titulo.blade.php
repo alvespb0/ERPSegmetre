@@ -169,7 +169,7 @@
                                                     wire:click="baixarCobrancasLote" 
                                                     class="w-full text-left px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors"
                                                 >
-                                                    Baixar Cobranças
+                                                    Download Cobranças
                                                 </button>
                                             @endif
                                         </div>
