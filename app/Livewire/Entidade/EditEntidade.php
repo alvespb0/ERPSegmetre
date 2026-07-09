@@ -20,7 +20,7 @@ class EditEntidade extends Component
 {
     public $id;
     public $entidade;
-    public $razaoSocial, $nomeFantasia, $tipo, $classificacao, $cnpjcpf;
+    public $razaoSocial, $nomeFantasia, $tipo, $classificacao, $cnpjcpf, $diaVencimentoPadrao;
     public $email, $telefone;
     public $rua, $numero, $complemento, $bairro, $cep, $cidade, $uf;
     public $showContato;
@@ -42,7 +42,8 @@ class EditEntidade extends Component
         $this->cnpjcpf = $this->entidade->cpf_cnpj;
         $this->tipo = $this->entidade->tipo;
         $this->classificacao = $this->entidade->classificacao;
-
+        $this->diaVencimentoPadrao = $this->entidade->dia_vencimento_padrao;
+        
         $contatos = $this->entidade->contatos?->first();
         $this->email = $contatos?->email ?? '';
         $this->telefone = $contatos?->telefone ?? '';
@@ -79,6 +80,9 @@ class EditEntidade extends Component
             'classificacao.required' => 'Por favor, selecione a Classificação (Cliente ou Fornecedor).',
             'classificacao.in' => 'A Classificação selecionada é inválida.',
 
+            'diaVencimentoPadrao.integer' => 'O dia de vencimento padrão deve ser um número inteiro.',
+            'diaVencimentoPadrao.max' => 'O dia de vencimento padrão não pode ser maior que 31.',
+
             'email.email' => 'Informe um endereço de e-mail válido.',
             'email.max' => 'O e-mail não pode ter mais que 255 caracteres.',
             'telefone.max' => 'O telefone não pode ter mais que 20 caracteres.',
@@ -110,6 +114,7 @@ class EditEntidade extends Component
             ],
             'tipo' => 'required|in:pf,pj',
             'classificacao' => 'required|in:cliente,fornecedor,ambos',
+            'diaVencimentoPadrao' => 'nullable|integer|max:31',
 
             'email' => 'nullable|email|max:255',
             'telefone' => 'nullable|string|max:20',
@@ -141,7 +146,8 @@ class EditEntidade extends Component
             'nome_fantasia' => $data['nomeFantasia'],
             'cpf_cnpj' => $data['cnpjcpf'],
             'tipo' => $data['tipo'],
-            'classificacao' => $data['classificacao']
+            'classificacao' => $data['classificacao'],
+            'dia_vencimento_padrao' => $data['diaVencimentoPadrao']
         ];
 
         $entidadeService = new EntidadeService();

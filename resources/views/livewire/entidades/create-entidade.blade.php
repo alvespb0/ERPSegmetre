@@ -147,6 +147,22 @@
                             </div>
                         </div>
                     </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 mb-1">
+                            Dia de Vencimento Padrão
+                        </label>
+
+                        <input
+                            type="number"
+                            class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]"
+                            placeholder="Ex.: 10"
+                            wire:model="diaVencimentoPadrao"
+                        >
+
+                        <p class="mt-1 text-xs text-gray-500">
+                            Utilizado como vencimento padrão na geração de títulos quando nenhuma data de vencimento for informada.
+                        </p>
+                    </div>
                 </div>
 
                 <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">

@@ -17,6 +17,7 @@ class Entidade extends BaseModel
         'cpf_cnpj', # unique
         'tipo', # enum [pf, pj]
         'classificacao', #enum [cliente, fornecedor, ambos]
+        'dia_vencimento_padrao'
     ];
 
     public function titulos(){
