@@ -25,7 +25,7 @@ class EditarParcela extends Component
     public $centrosCusto;
 
     public function mount($parcelaId, CategoriaFinanceiraService $categoriaFinanceiraService, CentroCustoService $centroCustoService){
-        $this->categorias = $categoriaFinanceiraService->showDespesas();
+        $this->categorias = $categoriaFinanceiraService->showReceitas();
         $this->centrosCusto = $centroCustoService->show();
 
         $this->parcela = Parcela::with('titulo.entidade', 'movimentacoes')->findOrFail($parcelaId);
