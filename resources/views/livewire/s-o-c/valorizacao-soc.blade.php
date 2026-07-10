@@ -161,7 +161,7 @@
                                         @if(!$item['vinculada'])
                                             <button
                                                 type="button"
-                                                wire:click="vincularEmpresa('{{ $item['CODIGO_EMPRESA'] }}', '{{ $item['CODIGO_UNIDADE'] }}')"
+                                                wire:click="vincularEmpresa('{{ $item['CODIGO_EMPRESA'] }}', {{ !empty($item['CODIGO_UNIDADE']) ? $item['CODIGO_UNIDADE'] : null }})"
                                                 class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium text-[#313e50] bg-white border border-[#313e50]/30 rounded-lg hover:bg-[#313e50] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#313e50] transition-all"
                                             >
                                                 Vincular Empresa

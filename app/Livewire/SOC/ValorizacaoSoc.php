@@ -4,8 +4,12 @@ namespace App\Livewire\SOC;
 
 use Livewire\Component;
 
+use App\Services\EntidadeService;
+use App\Services\IntegracaoSocEmpresaService;
+
 use App\Models\Integracao;
 use App\Models\IntegracaoSocEmpresa;
+use App\Models\Entidade;
 
 class ValorizacaoSoc extends Component
 {
@@ -13,7 +17,6 @@ class ValorizacaoSoc extends Component
     public $dataInicio, $dataFim;
     public $examesValorizados = [];
     public $empresasSoc = [];
-    public $openModalEmpresas = false;
 
     public function mount(){
         $this->integracao = Integracao::where('slug', 'soc-exames-producao')->firstOrFail();
@@ -91,9 +94,9 @@ class ValorizacaoSoc extends Component
             $factory = new \App\Factories\IntegracaoFactory;
             $serviceProvider = $factory->make($integracao, 'empresas');
 
-            $this->empresasSoc = $serviceProvider->getEmpresasSoc();
+            $this->empresasSoc = collect($serviceProvider->getEmpresasSoc())->keyBy('CODIGO')->toArray();
 
-            if(empty($this->empresasSoc)){
+            if(!$this->empresasSoc){
                 throw new \Exception('Erro ao resgatar empresas SOC cojunto vazio.');
             }
         }catch (\Exception $e){
@@ -103,6 +106,47 @@ class ValorizacaoSoc extends Component
 
             $this->dispatch('toast-error', 'Erro ao resgatar empresas SOC');
         }
+    }
+
+    public function vincularEmpresa($codEmpresa, $codUnidade = null){
+        $entidadeService = new EntidadeService;
+        $empresaSocService = new IntegracaoSocEmpresaService;
+
+        foreach($this->empresasSoc as $empresaSoc){
+            if($codEmpresa == $empresaSoc['CODIGO']){
+                $entidade = Entidade::where('cpf_cnpj', preg_replace('/[.\/-]/', '', $empresaSoc['CNPJ']))->first();
+                if(!$entidade){
+                    $cnpj = !$codUnidade ? preg_replace('/[.\/-]/', '', $empresaSoc['CNPJ']): null;
+
+                    $entidade = $entidadeService->store([
+                        'razao_social' => $empresaSoc['RAZAOSOCIAL'] ?? $empresaSoc['NOMEABREVIADO'],
+                        'cpf_cnpj' => $cnpj, # sim a integracao nao traz cpf haha
+                        'tipo' => 'pj', # ja que a itnegracao nao traz cpf nem adianta eu fazer qualquer validacao,
+                        'classificacao' => 'cliente',
+                    ]);
+                }
+                $empresaSocService->store([
+                    'entidade_id' => $entidade->id,
+                    'codigo_empresa' => $codEmpresa,
+                    'codigo_unidade' => $codUnidade ?? null,
+                    'nome_unidade' => $entidade->razao_social ?? null
+                ]);
+                
+                break;
+            }
+        }
+
+        foreach ($this->examesValorizados as &$item) {
+            if (
+                $item['CODIGO_EMPRESA'] == $codEmpresa &&
+                ($item['CODIGO_UNIDADE'] ?: null) == $codUnidade
+            ) {
+                $item['vinculada'] = true;
+                $item['entidade_id'] = $entidade->id;
+            }
+        }
+
+        $this->dispatch('toast-message', 'Empresa vinculada com sucesso');
     }
 
     public function render()
