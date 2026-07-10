@@ -64,6 +64,11 @@ class ValorizacaoSoc extends Component
      */
     public function getValorizacoes(){
         try{
+            if(!$this->dataInicio || !$this->dataFim){
+                $this->dispatch('toast-error', 'Selecione o range de datas primeiro.');
+                return;
+            }
+
             $factory = new \App\Factories\IntegracaoFactory;
             $serviceProvider = $factory->make($this->integracao, 'exames');
 

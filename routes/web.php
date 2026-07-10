@@ -105,7 +105,7 @@ Route::middleware(['auth', 'two.factor'])->controller(TituloController::class)->
 });
 
 Route::middleware(['checkUserType:admin,dev', 'two.factor'])->controller(SOCController::class)->group(function(){
-    Route::get('erp/SOC/valorizacoes', 'showListView')->name('erp.soc.index');
+    Route::get('erp/SOC/valorizacoes', 'showListView')->name('erp.receita.valorizacao.soc');
 });
 
 Route::post('logout', function (Request $request) {

@@ -24,10 +24,26 @@ class ImportarExames extends Component
         $this->categorias = $categoriaService->showReceitas();
     }
 
+    /**
+     * Fecha a modal
+     */
     public function fechar(){
         $this->dispatch('fechar-modal-soc');
     }
 
+    /**
+     * Importa os exames selecionados.
+     *
+     * Para cada exame são realizadas as seguintes operações:
+     * - Criação do título financeiro.
+     * - Criação da parcela correspondente.
+     * - Controle transacional para garantir consistência dos dados.
+     * - Registro de erros em log em caso de falha.
+     *
+     * Ao final da importação, são exibidas notificações de sucesso e/ou erro.
+     *
+     * @return void
+     */
     public function importar(){
         $tituloService = new \App\Services\TituloFinanceiroService;
         $parcelaService = new \App\Services\ParcelaService;
@@ -86,6 +102,15 @@ class ImportarExames extends Component
         }
     }
 
+        /**
+     * Monta a data de vencimento utilizando o dia padrão da entidade e
+     * o mês de cobrança informado pelo SOC.
+     *
+     * @param int $dia Dia do vencimento.
+     * @param int $mes Mês do vencimento.
+     *
+     * @return string Data no formato YYYY-MM-DD.
+     */
     public function formatarDataVencimento($dia, $mes){
         $data = Carbon::create(now()->year, $mes, $dia);
 
