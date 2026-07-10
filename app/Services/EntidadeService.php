@@ -12,20 +12,15 @@ class EntidadeService
             'nome_fantasia' => $dados['nome_fantasia'] ?? null,
             'cpf_cnpj' => $dados['cpf_cnpj'],
             'tipo' => $dados['tipo'],
-            'classificacao' => $dados['classificacao']
+            'classificacao' => $dados['classificacao'],
+            'dia_vencimento_padrao' => $dados['dia_vencimento_padrao'] ?? null
         ]);
     }
 
     public function update(array $dados, $id){
         $entidade = Entidade::findOrFail($id);
 
-        return $entidade->update([
-            'razao_social' => $dados['razao_social'],
-            'nome_fantasia' => $dados['nome_fantasia'] ?? null,
-            'cpf_cnpj' => $dados['cpf_cnpj'],
-            'tipo' => $dados['tipo'],
-            'classficacao' => $dados['classificacao']
-        ]);
+        return $entidade->update($dados);
     }
 
     public function show(){

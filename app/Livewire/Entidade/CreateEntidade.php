@@ -17,7 +17,7 @@ use App\Services\EnderecoEntidadeService;
  */
 class CreateEntidade extends Component
 {
-    public $razaoSocial, $nomeFantasia, $tipo, $classificacao, $cnpjcpf;
+    public $razaoSocial, $nomeFantasia, $tipo, $classificacao, $cnpjcpf, $diaVencimentoPadrao;
     public $email, $telefone;
     public $rua, $numero, $complemento, $bairro, $cep, $cidade, $uf;
 
@@ -42,6 +42,10 @@ class CreateEntidade extends Component
             'cnpjcpf.required' => 'O campo CNPJ / CPF é obrigatório.',
             'cnpjcpf.max' => 'O CNPJ / CPF não pode ter mais que 18 caracteres.',
             'cnpjcpf.unique' => 'Este CNPJ ou CPF já está cadastrado no sistema.',
+
+            // Dia de vencimento padrao
+            'diaVencimentoPadrao.integer' => 'O dia de vencimento padrão deve ser um número inteiro.',
+            'diaVencimentoPadrao.max' => 'O dia de vencimento padrão não pode ser maior que 31.',
 
             // Tipo e Classificação
             'tipo.required' => 'Por favor, selecione o Tipo (Pessoa Física ou Jurídica).',
@@ -77,7 +81,7 @@ class CreateEntidade extends Component
             'cnpjcpf' => 'required|string|max:18|unique:entidade,cpf_cnpj',
             'tipo' => 'required|in:pf,pj',
             'classificacao' => 'required|in:cliente,fornecedor,ambos',
-
+            'diaVencimentoPadrao' => 'nullable|integer|max:31',
             'email' => 'nullable|email|max:255',
             'telefone' => 'nullable|string|max:20',
 
@@ -107,7 +111,8 @@ class CreateEntidade extends Component
             'nome_fantasia' => $data['nomeFantasia'],
             'cpf_cnpj' => $data['cnpjcpf'],
             'tipo' => $data['tipo'],
-            'classificacao' => $data['classificacao']
+            'classificacao' => $data['classificacao'],
+            'dia_vencimento_padrao' => $data['diaVencimentoPadrao']
         ];
 
         $entidadeService = new EntidadeService();

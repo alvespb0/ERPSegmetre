@@ -16,7 +16,8 @@ class Entidade extends BaseModel
         'nome_fantasia', # nullable
         'cpf_cnpj', # unique
         'tipo', # enum [pf, pj]
-        'classificacao', #enum [cliente, fornecedor, ambos]
+        'classificacao', # enum [cliente, fornecedor, ambos]
+        'dia_vencimento_padrao'
     ];
 
     public function titulos(){
@@ -29,5 +30,9 @@ class Entidade extends BaseModel
 
     public function enderecos(){
         return $this->hasMany(EnderecoEntidade::class);
+    }
+
+    public function integracoesSoc(){
+        return $this->hasMany(IntegracaoSocEmpresa::class);
     }
 }
