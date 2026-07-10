@@ -3,6 +3,7 @@
 namespace App\Livewire\SOC;
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 use App\Services\EntidadeService;
 use App\Services\IntegracaoSocEmpresaService;
@@ -15,12 +16,35 @@ class ValorizacaoSoc extends Component
 {
     public $integracao;
     public $dataInicio, $dataFim;
+
+    // Informacoes via de integracao
     public $examesValorizados = [];
     public $empresasSoc = [];
+
+    // Selecao de Exames Checkboxes
+    public $examesSelecionados = [];
+    public bool $selecionarTodos = false;
+
+    public $openModalImportacao = false;
+    public $collectExames;
 
     public function mount(){
         $this->integracao = Integracao::where('slug', 'soc-exames-producao')->firstOrFail();
         $this->getEmpresas();
+    }
+
+    public function updatedSelecionarTodos($value){
+        if ($value) {
+            $this->examesSelecionados = array_keys($this->examesValorizados);
+        } else {
+            $this->examesSelecionados = [];
+        }
+    }
+
+    public function updatedExamesSelecionados(){
+        $this->selecionarTodos =
+            count($this->examesSelecionados) === count($this->examesValorizados)
+            && count($this->examesValorizados) > 0;
     }
 
     /**
@@ -137,17 +161,39 @@ class ValorizacaoSoc extends Component
         }
 
         foreach ($this->examesValorizados as &$item) {
-            if (
-                $item['CODIGO_EMPRESA'] == $codEmpresa &&
-                ($item['CODIGO_UNIDADE'] ?: null) == $codUnidade
-            ) {
+            if ($item['CODIGO_EMPRESA'] == $codEmpresa && ($item['CODIGO_UNIDADE'] ?: null) == $codUnidade) {
                 $item['vinculada'] = true;
                 $item['entidade_id'] = $entidade->id;
+
+                $item['integracao_soc_empresa'] = [
+                    'entidade_id' => $entidade->id,
+                    'codigo_empresa' => $codEmpresa,
+                    'codigo_unidade' => $codUnidade,
+                ];
             }
         }
 
         $this->dispatch('toast-message', 'Empresa vinculada com sucesso');
     }
+
+    public function importarExames(){
+        $exames = collect($this->examesValorizados)->only($this->examesSelecionados);
+
+        if ($exames->contains(fn ($item) => !$item['vinculada'])) {
+            $this->dispatch('toast-error', 'Existem exames sem vínculo com entidades. Vincule-os antes de importar.');
+            return;
+        }
+
+        $this->openModalImportacao = true;
+        $this->collectExames = $exames;
+    }
+
+    #[On('fechar-modal-soc')]
+    public function fecharModalSoc(){
+        $this->openModalImportacao = false;
+        $this->collectExames = null;
+    }
+
 
     public function render()
     {

@@ -17,7 +17,7 @@
             @if(!empty($examesValorizados))
                 <div class="flex flex-wrap gap-2">
                     <button
-                        wire:click="importarSelecionados"
+                        wire:click="importarExames"
                         class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors"
                     >
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -87,7 +87,7 @@
                                 <th class="px-4 py-3 text-left w-10">
                                     <input
                                         type="checkbox"
-                                        wire:model="selecionarTodos"
+                                        wire:model.live="selecionarTodos"
                                         class="rounded border-gray-300 text-[#313e50] shadow-sm focus:ring-[#313e50] focus:ring-opacity-50"
                                     >
                                 </th>
@@ -102,13 +102,13 @@
 
                         <tbody class="divide-y divide-gray-100">
                             @foreach($examesValorizados as $index => $item)
-                                <tr class="hover:bg-gray-50 transition-colors {{ in_array($index, $selecionados ?? []) ? 'bg-blue-50/50' : '' }}">
+                                <tr class="hover:bg-gray-50 transition-colors {{ in_array($index, $examesSelecionados ?? []) ? 'bg-blue-50/50' : '' }}">
                                     
                                     <td class="px-4 py-3 whitespace-nowrap">
                                         <input
                                             type="checkbox"
-                                            wire:model="selecionados"
-                                            value="{{ $index }}"
+                                            wire:model.live="examesSelecionados"
+                                            value="{{ (string) $index }}"
                                             class="rounded border-gray-300 text-[#313e50] shadow-sm focus:ring-[#313e50] focus:ring-opacity-50"
                                         >
                                     </td>
@@ -191,4 +191,10 @@
         @endif
 
     </div>
+    @if($collectExames && $openModalImportacao)
+        <livewire:SOC.ImportarExames
+            :exames="$collectExames" 
+            wire:key="modal-importacao-soc" 
+        />
+    @endif
 </div>
