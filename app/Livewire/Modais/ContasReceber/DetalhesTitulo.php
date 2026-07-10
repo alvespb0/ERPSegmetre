@@ -5,6 +5,7 @@ namespace App\Livewire\Modais\ContasReceber;
 use Livewire\Component;
 
 use App\Models\TituloFinanceiro;
+use App\Models\Parcela;
 
 use App\Services\BoletoCobrancaService;
 
@@ -45,7 +46,9 @@ class DetalhesTitulo extends Component
             $zipName = storage_path('app/public/boletos.zip');
             $zip->open($zipName, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
 
-            foreach($this->parcelasSelecionadas as $parcela){
+            $parcelas = Parcela::whereIn('id', $this->parcelasSelecionadas)->get();
+
+            foreach($parcelas as $parcela){
                 $boleto = $parcela->boleto_ativo;
 
                 if ($boleto && $boleto->pdf_path) {

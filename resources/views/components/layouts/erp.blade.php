@@ -253,6 +253,9 @@
                                         <li>
                                             <a href="{{route('erp.receita.index')}}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.receita.index') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Contas a Receber</a>
                                         </li>
+                                        <li>
+                                            <a href="{{route('erp.receita.valorizacao.soc')}}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.receita.valorizacao.soc') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Valorização SOC</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 @endif
