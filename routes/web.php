@@ -15,6 +15,7 @@ use App\Http\Controllers\EmpresaParametroController;
 use App\Http\Controllers\IntegracaoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SOCController;
 
 Route::middleware(['auth', 'two.factor'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
@@ -101,6 +102,10 @@ Route::middleware(['auth', 'two.factor'])->controller(TituloController::class)->
     Route::get('erp/titulo/receita', 'showListViewReceita')->middleware(['checkUserType:admin,dev,cobranca,visualisador'])->name('erp.receita.index');
     Route::get('erp/titulo/despesa/nova', 'showCreateViewDespesa')->name('erp.despesa.create');
     Route::get('erp/titulo/despesa', 'showListViewDespesa')->middleware(['checkUserType:admin,dev,cobranca,pagador'])->name('erp.despesa.index');
+});
+
+Route::middleware(['checkUserType:admin,dev', 'two.factor'])->controller(SOCController::class)->group(function(){
+    Route::get('erp/SOC/valorizacoes', 'showListView')->name('erp.soc.index');
 });
 
 Route::post('logout', function (Request $request) {
