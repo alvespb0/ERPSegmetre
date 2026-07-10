@@ -31,4 +31,8 @@ class Entidade extends BaseModel
     public function enderecos(){
         return $this->hasMany(EnderecoEntidade::class);
     }
+
+    public function integracoesSoc(){
+        return $this->hasMany(IntegracaoSocEmpresa::class);
+    }
 }
