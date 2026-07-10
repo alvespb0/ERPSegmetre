@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Crypt;
 
 use App\Models\Integracao;
 
-class SOCExamesService
+class SOCEmpresasService
 {
     protected $integracao;
 
@@ -15,38 +15,22 @@ class SOCExamesService
         $this->integracao = $integracao;
     }
 
-    /**
-     * Integracao para puxar os exames valorizados no sistema SOC
-     * Sistema legado, ele PEDE esse formato d/m/Y
-     */
-    public function getFaturamento($dataInicial, $dataFinal): array{
-        $dataInicialFormatada = Carbon::parse($dataInicial)->format('d/m/Y'); 
-        $dataFinalFormatada = Carbon::parse($dataFinal)->format('d/m/Y');
-
-        if(!$this->integracao->credenciais){
-            throw new \Exception([
-                'Integracao não possui credenciais cadastradas'
-            ]);
-        }
-
+    public function getEmpresasSoc(): array{
         $codEmpresa = $this->integracao->credenciais->username;
         $token = Crypt::decryptString($this->integracao->credenciais->password_enc);
 
-        $jsonString = "{\"empresa\":\"{$codEmpresa}\",\"codigo\":\"217845\",\"chave\":\"{$token}\",\"tipoSaida\":\"json\",\"dataInicio\":\"{$dataInicialFormatada}\",\"dataFim\":\"{$dataFinalFormatada}\"}";
+        $jsonString = "{\"empresa\":\"$codEmpresa\",\"codigo\":\"211287\",\"chave\":\"{$token}\",\"tipoSaida\":\"json\"}";
 
         $response = Http::get($this->integracao->endpoint, [
-            'parametro' => $jsonString,
+            'parametro' => $jsonString
         ]);
 
         if($response->ok()){
             $body = $response->body();
             $bodyUtf8 = $this->convertToUtf8($body);
             $dados = json_decode($bodyUtf8, true);
-
             if(empty($dados)){
-                throw new \Exception([
-                    'Não foi possível resgatar a valorização do SOC, conjunto de dados retornou vazio.'
-                ]);
+                throw new \Exception('Não foi possível resgatar a valorização do SOC, conjunto de dados retornou vazio.');
             }
 
             return $dados;
@@ -54,7 +38,7 @@ class SOCExamesService
 
         return [];
     }
-    
+
     /**
      * Converte uma string para UTF-8, preservando caracteres especiais
      * 

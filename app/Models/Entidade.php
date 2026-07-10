@@ -16,7 +16,7 @@ class Entidade extends BaseModel
         'nome_fantasia', # nullable
         'cpf_cnpj', # unique
         'tipo', # enum [pf, pj]
-        'classificacao', #enum [cliente, fornecedor, ambos]
+        'classificacao', # enum [cliente, fornecedor, ambos]
         'dia_vencimento_padrao'
     ];
 
