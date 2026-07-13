@@ -1,15 +1,24 @@
 <div>
     <div class="space-y-6">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-4">
             <div>
                 <p class="text-xs font-semibold tracking-wide text-gray-400 uppercase mb-1">
                     Configurações &middot; Empresa
                 </p>
                 <h1 class="text-2xl font-semibold text-gray-900">Empresa Base</h1>
                 <p class="text-sm text-gray-500 mt-1">
-                    Parametrização da empresa utilizada no sistema.
+                    Parametrização da empresa ativa na sessão atual.
                 </p>
             </div>
+            <a
+                href="{{ route('erp.empresa-parametro.create') }}"
+                class="inline-flex shrink-0 items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Nova Empresa
+            </a>
         </div>
 
         @if ($empresa)
@@ -175,6 +184,19 @@
                         @endif
                     </div>
                 </div>
+            </div>
+        @else
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center">
+                <h2 class="text-lg font-semibold text-amber-900">Nenhuma empresa ativa na sessão</h2>
+                <p class="text-sm text-amber-700 mt-2 max-w-md mx-auto">
+                    Selecione uma empresa no seletor do topo ou cadastre uma nova.
+                </p>
+                <a
+                    href="{{ route('erp.empresa-parametro.create') }}"
+                    class="mt-5 inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors"
+                >
+                    Cadastrar nova empresa
+                </a>
             </div>
         @endif
     </div>
