@@ -4,6 +4,8 @@ namespace App\Livewire\Entidade;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\Rule;
+use App\Helpers\Empresa;
 use App\Services\EntidadeService;
 use App\Services\ContatoService;
 use App\Services\EnderecoEntidadeService;
@@ -79,6 +81,12 @@ class CreateEntidade extends Component
             'razaoSocial' => 'required|string|max:255',
             'nomeFantasia' => 'nullable|string|max:255',
             'cnpjcpf' => 'required|string|max:18|unique:entidade,cpf_cnpj',
+            'cnpjcpf' => [
+                'required',
+                'string',
+                'max:18',
+                Rule::unique('entidade', 'cpf_cnpj')->where(fn ($q) => $q->where('empresa_parametro_id', Empresa::id()))
+            ],
             'tipo' => 'required|in:pf,pj',
             'classificacao' => 'required|in:cliente,fornecedor,ambos',
             'diaVencimentoPadrao' => 'nullable|integer|max:31',

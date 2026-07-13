@@ -5,7 +5,8 @@ namespace App\Livewire\Banco;
 use Livewire\Component;
 use App\Models\Banco;
 use App\Services\BancoService;
-use Illuminate\Validation\Rule; 
+use Illuminate\Validation\Rule;
+use App\Helpers\Empresa;
 
 class EditBanco extends Component
 {
@@ -18,7 +19,14 @@ class EditBanco extends Component
                 'required',
                 'string',
                 'max:18',
-                Rule::unique('banco', 'cnpj')->ignore($this->id)
+                Rule::unique('banco')
+                    ->ignore($this->id)
+                    ->where(fn ($q) =>
+                        $q->where(
+                            'empresa_parametro_id',
+                            Empresa::id()
+                        )
+                    )
             ],
             'numero_banco' => 'nullable|string'
         ];
