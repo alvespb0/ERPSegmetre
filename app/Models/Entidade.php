@@ -13,6 +13,7 @@ class Entidade extends BaseModel
 
     protected $fillable = [
         'razao_social',
+        'empresa_parametro_id',
         'nome_fantasia', # nullable
         'cpf_cnpj', # unique
         'tipo', # enum [pf, pj]
