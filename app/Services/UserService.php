@@ -21,6 +21,8 @@ class UserService
             $payload['password'] = Hash::make($dados['password']);
         }
 
+        $user->empresas()->sync($dados['empresa_parametro_ids'] ?? []);
+
         return $user->update($payload);
     }
 

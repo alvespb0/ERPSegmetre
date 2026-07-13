@@ -4,6 +4,8 @@ namespace App\Livewire\CategoriaFinanceira;
 
 use Livewire\Component;
 use App\Services\CategoriaFinanceiraService;
+use Illuminate\Validation\Rule;
+use App\Helpers\Empresa;
 
 class CreateCategoriaFinanceira extends Component
 {
@@ -11,7 +13,17 @@ class CreateCategoriaFinanceira extends Component
 
     public function rules(){
         return [
-            'nome' => 'required|string|min:3|max:255|unique:categoria_financeira,nome',
+            'nome' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                Rule::unique('categoria_financeira', 'nome'
+                    )->where(fn ($q) => 
+                        $q->where('empresa_parametro_id', Empresa::id()
+                    )
+                )
+            ],
             'descricao' => 'nullable|string|min:3|max:255',
             'tipo' => 'required|in:receita,despesa'
         ];

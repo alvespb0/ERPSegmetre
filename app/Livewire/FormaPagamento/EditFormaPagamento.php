@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\FormaPagamento;
 use App\Services\FormaPagamentoService;
 use Illuminate\Validation\Rule; 
+use App\Helpers\Empresa;
 
 class EditFormaPagamento extends Component
 {
@@ -24,7 +25,13 @@ class EditFormaPagamento extends Component
                 'string',
                 'min:3',
                 'max:255',
-                Rule::unique('forma_pagamento', 'nome')->ignore($this->id),
+                Rule::unique('forma_pagamento', 'nome'
+                    )
+                    ->ignore($this->id)
+                    ->where(fn ($q) => 
+                        $q->where('empresa_parametro_id', Empresa::id()
+                    )
+                )
             ],
         ];
     }

@@ -6,6 +6,8 @@ use Livewire\Component;
 use App\Services\BancoService;
 use App\Services\ContaService;
 use App\Services\TipoContaService;
+use Illuminate\Validation\Rule;
+use App\Helpers\Empresa;
 
 class CreateConta extends Component
 {
@@ -13,7 +15,17 @@ class CreateConta extends Component
 
     public function rules(){
         return [
-            'nome' => 'required|string|min:2|max:255|unique:conta,nome',
+            'nome' => [
+                'required',
+                'string',
+                'min:2',
+                'max:255',
+                Rule::unique('conta', 'nome'
+                    )->where(fn ($q) => 
+                        $q->where('empresa_parametro_id', Empresa::id()
+                    )
+                )
+            ],
             'modalidade' => 'required|in:pj,pf',
             'banco_id' => 'required|exists:banco,id',
             'tipo_conta_id' => 'required|exists:tipo_conta,id',
