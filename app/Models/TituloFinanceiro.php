@@ -22,6 +22,7 @@ class TituloFinanceiro extends BaseModel
         'data_emissao',
         'tipo', # enum [pagar, receber]
         'status', # enum [aberto, parcial, pago, cancelado] 
+        'empresa_parametro_id',
     ];
 
     public function centroCusto(){

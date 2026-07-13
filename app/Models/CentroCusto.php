@@ -14,6 +14,7 @@ class CentroCusto extends BaseModel
     protected $fillable = [
         'nome', # unique
         'descricao', # nullable
+        'empresa_parametro_id',
     ];
 
     public function titulos(){

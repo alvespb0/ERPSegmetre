@@ -12,7 +12,8 @@ class TipoConta extends BaseModel
     use SoftDeletes;
 
     protected $fillable = [
-        'descricao'
+        'descricao',
+        'empresa_parametro_id',
     ];
 
     public function contas(){

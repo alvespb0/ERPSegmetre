@@ -26,6 +26,7 @@ class IntegracaoCredencial extends BaseModel
         'token_expires_at',
         'scope',
         'certificado_digital_id',
+        'empresa_parametro_id',
     ];
 
     protected $casts = [

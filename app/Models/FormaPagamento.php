@@ -12,7 +12,8 @@ class FormaPagamento extends BaseModel
     use SoftDeletes;
 
     protected $fillable = [
-        'nome' # unique
+        'nome', # unique
+        'empresa_parametro_id',
     ];
 
     public function movimentacoes(){
