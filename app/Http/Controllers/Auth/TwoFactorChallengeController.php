@@ -51,6 +51,20 @@ class TwoFactorChallengeController extends Controller
 
         $request->session()->put('two_factor_passed', true);
 
+        if ($user->tipo === 'dev') {
+            $empresa = \App\Models\EmpresaParametro::first();
+        } else {
+            $empresa = $user->empresas()->first();
+        }
+
+        if (!$empresa) {
+            auth()->logout();
+
+            return redirect()->route('login')->withErrors(['email' => 'Seu usuário não possui nenhuma empresa vinculada.']);
+        }
+
+        $request->session()->put('empresa_parametro_id',$empresa->empresa_parametro_id);
+
         return redirect()->intended(RouteServiceProvider::HOME);
     }
 }

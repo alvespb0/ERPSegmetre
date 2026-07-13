@@ -61,6 +61,15 @@ class User extends Authenticatable
         return $this->hasMany(TrustedDevice::class);
     }
 
+    public function empresas(){
+        return $this->belongsToMany(
+            EmpresaParametro::class,
+            'user_empresa_parametro',
+            'user_id',
+            'empresa_parametro_id'
+        );
+    }
+
     public function isDev(): bool{
         return $this->tipo === 'dev';
     }
