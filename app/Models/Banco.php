@@ -14,7 +14,8 @@ class Banco extends BaseModel
     protected $fillable = [
         'nome',
         'cnpj', # unique
-        'numero_banco'
+        'numero_banco',
+        'empresa_parametro_id',
     ];
 
     public function contas(){

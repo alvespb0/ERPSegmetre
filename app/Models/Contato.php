@@ -14,7 +14,8 @@ class Contato extends BaseModel
     protected $fillable = [
         'entidade_id',
         'telefone',
-        'email'
+        'email',
+        'empresa_parametro_id',
     ];
 
     public function entidade(){

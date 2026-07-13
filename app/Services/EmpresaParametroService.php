@@ -57,6 +57,11 @@ class EmpresaParametroService
 
     public function show(): ?EmpresaParametro
     {
-        return EmpresaParametro::with('certificadoDigital')->first();
+        if (! session()->has('empresa_parametro_id')) {
+            return null;
+        }
+
+        return EmpresaParametro::with('certificadoDigital')
+            ->find(session('empresa_parametro_id'));
     }
 }

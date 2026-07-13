@@ -3,12 +3,16 @@
 namespace App\Livewire\Entidade;
 
 use Livewire\Component;
-use App\Models\Entidade;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Validation\Rule; 
+
+use App\Helpers\Empresa;
+
+use App\Models\Entidade;
+
 use App\Services\EntidadeService;
 use App\Services\ContatoService;
 use App\Services\EnderecoEntidadeService;
-use Illuminate\Validation\Rule; 
 
 /**
  * Componente Livewire responsável pela edição dos dados de uma Entidade.
@@ -110,7 +114,7 @@ class EditEntidade extends Component
                 'required',
                 'string',
                 'max:18',
-                Rule::unique('entidade', 'cpf_cnpj')->ignore($this->id),
+                Rule::unique('entidade', 'cpf_cnpj')->ignore($this->id)->where(fn ($q) => $q->where('empresa_parametro_id', Empresa::id()))
             ],
             'tipo' => 'required|in:pf,pj',
             'classificacao' => 'required|in:cliente,fornecedor,ambos',

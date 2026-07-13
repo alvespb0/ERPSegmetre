@@ -15,6 +15,7 @@ class CategoriaFinanceira extends BaseModel
         'nome', # unique
         'descricao', # nullable
         'tipo', # enum [receita, despesa]
+        'empresa_parametro_id',
     ];
 
     public function titulos(){

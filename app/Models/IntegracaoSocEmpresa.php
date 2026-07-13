@@ -13,6 +13,7 @@ class IntegracaoSocEmpresa extends Model
         'codigo_empresa',
         'codigo_unidade',
         'nome_unidade',
+        'empresa_parametro_id',
     ];
 
     public function entidade(){

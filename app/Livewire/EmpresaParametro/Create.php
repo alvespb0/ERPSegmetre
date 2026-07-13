@@ -154,7 +154,9 @@ class Create extends Component
             ];
         }
 
-        (new EmpresaParametroService())->store($empresaData, $certificadoDados, $this->certificado);
+        $empresa = (new EmpresaParametroService())->store($empresaData, $certificadoDados, $this->certificado);
+
+        session(['empresa_parametro_id' => $empresa->id]);
 
         $this->dispatch('toast-message', 'Parametrização da empresa salva com sucesso!');
         $this->redirect(route('erp.dev.empresa-parametro.index'), navigate: true);

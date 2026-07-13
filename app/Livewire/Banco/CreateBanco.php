@@ -4,6 +4,8 @@ namespace App\Livewire\Banco;
 
 use Livewire\Component;
 use App\Services\BancoService;
+use Illuminate\Validation\Rule;
+use App\Helpers\Empresa;
 
 class CreateBanco extends Component
 {
@@ -12,7 +14,18 @@ class CreateBanco extends Component
     public function rules(){
         return [
             'nome' => 'required|string|min:3|max:255',
-            'cnpj' => 'required|string|max:18|unique:banco,cnpj',
+            'cnpj' => [
+                'required',
+                'string',
+                'max:18',
+                Rule::unique('banco')
+                    ->where(fn ($q) =>
+                        $q->where(
+                            'empresa_parametro_id',
+                            Empresa::id()
+                        )
+                    )
+            ],
             'numero_banco' => 'nullable|string'
         ];
     }

@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\CategoriaFinanceira;
 use App\Services\CategoriaFinanceiraService;
 use Illuminate\Validation\Rule; 
+use App\Helpers\Empresa;
 
 class EditCategoriaFinanceira extends Component
 {
@@ -18,7 +19,13 @@ class EditCategoriaFinanceira extends Component
                 'string',
                 'min:3',
                 'max:255',
-                Rule::unique('categoria_financeira', 'nome')->ignore($this->id),
+                Rule::unique('categoria_financeira', 'nome'
+                    )
+                    ->ignore($this->id)
+                    ->where(fn ($q) => 
+                        $q->where('empresa_parametro_id', Empresa::id()
+                    )
+                )
             ],
             'descricao' => 'nullable|string|min:3|max:255',
             'tipo' => 'required|in:receita,despesa'

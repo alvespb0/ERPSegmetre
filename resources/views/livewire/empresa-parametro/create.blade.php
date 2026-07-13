@@ -1,15 +1,21 @@
 <div>
     <div class="space-y-6">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between gap-4">
             <div>
                 <p class="text-xs font-semibold tracking-wide text-gray-400 uppercase mb-1">
                     Configurações &middot; Empresa
                 </p>
-                <h1 class="text-2xl font-semibold text-gray-900">Parametrização da Empresa</h1>
+                <h1 class="text-2xl font-semibold text-gray-900">Nova Empresa</h1>
                 <p class="text-sm text-gray-500 mt-1">
-                    Cadastre os dados da empresa base utilizada no sistema.
+                    Cadastre os dados de uma nova empresa no sistema.
                 </p>
             </div>
+            <a
+                href="{{ route('erp.dev.empresa-parametro.index') }}"
+                class="inline-flex shrink-0 items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+                Voltar
+            </a>
         </div>
 
         <form wire:submit.prevent="submit" class="grid grid-cols-1 lg:grid-cols-3 gap-6">

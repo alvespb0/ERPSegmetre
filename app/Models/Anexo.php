@@ -13,6 +13,7 @@ class Anexo extends BaseModel
         'descricao',
         'path',
         'tipo',
+        'empresa_parametro_id',
     ];
 
     /**

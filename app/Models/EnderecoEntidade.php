@@ -17,7 +17,8 @@ class EnderecoEntidade extends BaseModel
         'cep',
         'cidade',
         'uf',
-        'complemento'
+        'complemento',
+        'empresa_parametro_id',
     ];
 
     public function entidade(){

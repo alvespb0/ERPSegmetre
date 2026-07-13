@@ -13,11 +13,13 @@ class Entidade extends BaseModel
 
     protected $fillable = [
         'razao_social',
+        'empresa_parametro_id',
         'nome_fantasia', # nullable
         'cpf_cnpj', # unique
         'tipo', # enum [pf, pj]
         'classificacao', # enum [cliente, fornecedor, ambos]
-        'dia_vencimento_padrao'
+        'dia_vencimento_padrao',
+        'empresa_parametro_id',
     ];
 
     public function titulos(){

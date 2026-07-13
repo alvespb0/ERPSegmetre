@@ -19,6 +19,7 @@ class ArquivoRemessa extends BaseModel
         'status',
         'data_geracao',
         'data_envio',
+        'empresa_parametro_id',
     ];
 
     public function configuracaoCobranca(){
