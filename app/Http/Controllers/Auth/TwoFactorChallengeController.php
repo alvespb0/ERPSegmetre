@@ -63,7 +63,7 @@ class TwoFactorChallengeController extends Controller
             return redirect()->route('login')->withErrors(['email' => 'Seu usuário não possui nenhuma empresa vinculada.']);
         }
 
-        $request->session()->put('empresa_parametro_id',$empresa->empresa_parametro_id);
+        $request->session()->put('empresa_parametro_id', $empresa->id);
 
         return redirect()->intended(RouteServiceProvider::HOME);
     }

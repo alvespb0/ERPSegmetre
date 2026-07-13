@@ -70,6 +70,15 @@ class User extends Authenticatable
         );
     }
 
+    public function empresasDisponiveis()
+    {
+        if ($this->tipo === 'dev') {
+            return \App\Models\EmpresaParametro::query();
+        }
+
+        return $this->empresas();
+    }
+    
     public function isDev(): bool{
         return $this->tipo === 'dev';
     }

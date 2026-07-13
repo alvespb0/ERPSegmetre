@@ -16,12 +16,14 @@ use App\Http\Controllers\IntegracaoController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SOCController;
+use App\Http\Controllers\EmpresaSessaoController;
 
 Route::middleware(['auth', 'two.factor'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
     Route::view('', 'dashboard')->name('dashboard');
 
     Route::get('perfil', [ProfileController::class, 'show'])->name('perfil');
+    Route::post('empresa/trocar', [EmpresaSessaoController::class, 'update'])->name('empresa.trocar');
 
     Route::prefix('erp')->name('erp.')->group(function () {
         Route::view('accounts-receivable', 'erp.accounts-receivable')->name('accounts-receivable');
