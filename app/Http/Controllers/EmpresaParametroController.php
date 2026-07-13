@@ -18,10 +18,6 @@ class EmpresaParametroController extends Controller
 
     public function showCreateView()
     {
-        if (EmpresaParametro::exists()) {
-            return redirect()->route('erp.dev.empresa-parametro.index');
-        }
-
         return view('erp.empresa-parametro.create');
     }
 

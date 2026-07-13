@@ -4,6 +4,8 @@ namespace App\Livewire\FormaPagamento;
 
 use Livewire\Component;
 use App\Services\FormaPagamentoService;
+use Illuminate\Validation\Rule;
+use App\Helpers\Empresa;
 
 class CreateFormaPagamento extends Component
 {
@@ -11,7 +13,17 @@ class CreateFormaPagamento extends Component
 
     public function rules(){
         return [
-            'nome' => 'required|string|min:2|max:255|unique:forma_pagamento,nome'
+            'nome' => [
+                'required',
+                'string',
+                'min:2',
+                'max:255',
+                Rule::unique('forma_pagamento', 'nome'
+                    )->where(fn ($q) => 
+                        $q->where('empresa_parametro_id', Empresa::id()
+                    )
+                )
+            ]
         ];
     }
 

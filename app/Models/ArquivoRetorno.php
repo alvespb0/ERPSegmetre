@@ -18,6 +18,7 @@ class ArquivoRetorno extends BaseModel
         'path',
         'status',
         'data_processamento',
+        'empresa_parametro_id',
     ];
 
     public function configuracaoCobranca(){

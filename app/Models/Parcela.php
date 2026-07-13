@@ -15,6 +15,7 @@ class Parcela extends BaseModel
         'valor',
         'data_vencimento',
         'status', # enum ['ativo', 'renegociado', 'cancelado'] STATUS ADMINISTRATIVO, NÃO DE PAGAMENTO, STATUS DE PAGAMENTO É CALCULADO DINAMICAMENTE.
+        'empresa_parametro_id',
     ];
 
     public function titulo(){

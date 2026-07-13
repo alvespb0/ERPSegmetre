@@ -32,7 +32,13 @@ class EditConta extends Component
                 'string',
                 'min:2',
                 'max:255',
-                Rule::unique('conta', 'nome')->ignore($this->id)
+                Rule::unique('conta', 'nome'
+                    )
+                    ->ignore($this->id)
+                    ->where(fn ($q) => 
+                        $q->where('empresa_parametro_id', Empresa::id()
+                    )
+                )
             ],
             'modalidade' => 'required|in:pj,pf',
             'banco_id' => 'required|exists:banco,id',

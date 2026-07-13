@@ -14,6 +14,7 @@ class Movimentacao extends BaseModel
         'conta_id', #nullable
         'valor_pago',
         'data_pagamento',
+        'empresa_parametro_id',
     ];
 
     public function formaPagamento(){

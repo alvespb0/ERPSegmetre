@@ -4,6 +4,8 @@ namespace App\Livewire\CentroCusto;
 
 use Livewire\Component;
 use App\Services\CentroCustoService;
+use Illuminate\Validation\Rule;
+use App\Helpers\Empresa;
 
 class CreateCentroCusto extends Component
 {
@@ -11,7 +13,17 @@ class CreateCentroCusto extends Component
 
     public function rules(){
         return [
-            'nome' => 'required|string|min:3|max:255|unique:centro_custo,nome',
+            'nome' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                Rule::unique('centro_custo', 'nome'
+                    )->where(fn ($q) => 
+                        $q->where('empresa_parametro_id', Empresa::id()
+                    )
+                )
+            ],
             'descricao' => 'nullable|string|min:3|max:255'
         ];
     }

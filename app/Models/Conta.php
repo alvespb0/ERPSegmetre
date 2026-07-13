@@ -18,6 +18,7 @@ class Conta extends BaseModel
         'modalidade', # enum [pj, pf]
         'agencia', # nullable
         'conta', # nullable
+        'empresa_parametro_id',
     ];
 
     public function banco(){

@@ -37,6 +37,7 @@ class BoletoCobranca extends BaseModel
         'data_juro',
         'data_liquidacao',
         'prazo_protesto',
+        'empresa_parametro_id',
     ];
     
     public function parcela(){

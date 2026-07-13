@@ -27,7 +27,19 @@ class EditCentroCusto extends Component
                 'string',
                 'min:3',
                 'max:255',
-                Rule::unique('centro_custo', 'nome')->ignore($this->id),
+            'nome' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                Rule::unique('centro_custo', 'nome'
+                    )
+                    ->ignore($this->id)
+                    ->where(fn ($q) => 
+                        $q->where('empresa_parametro_id', Empresa::id()
+                    )
+                )
+            ],
             ],
             'descricao' => 'nullable|string|min:3|max:255'
         ];

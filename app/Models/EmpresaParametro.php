@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
-class EmpresaParametro extends BaseModel
+class EmpresaParametro extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, LogsActivity;
 
     protected $table = 'empresa_parametro';
 
@@ -29,6 +31,14 @@ class EmpresaParametro extends BaseModel
         'email_financeiro',
         'logo_path',
     ];
+
+    public function getActivitylogOptions(): LogOptions{
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty() 
+            ->dontSubmitEmptyLogs()
+            ->useLogName(class_basename($this));
+    }
 
     public function certificadoDigital()
     {

@@ -406,7 +406,43 @@
                         </div>
                     </div>
                     
-                    <div class="flex items-center gap-6">
+                    <div class="flex items-center gap-4 sm:gap-6">
+                        @php
+                            $empresasDisponiveis = auth()->user()->empresasDisponiveis()
+                                ->orderBy('empresa_parametro.razao_social')
+                                ->orderBy('empresa_parametro.nome_fantasia')
+                                ->get([
+                                    'empresa_parametro.id',
+                                    'empresa_parametro.nome_fantasia',
+                                    'empresa_parametro.razao_social',
+                                ]);
+                            $empresaAtualId = session('empresa_parametro_id');
+                        @endphp
+
+                        @if($empresasDisponiveis->count() >= 1)
+                            <form method="POST" action="{{ route('empresa.trocar') }}">
+                                @csrf
+                                <label for="empresa_parametro_id" class="sr-only">Empresa ativa</label>
+                                <select
+                                    id="empresa_parametro_id"
+                                    name="empresa_parametro_id"
+                                    onchange="this.form.submit()"
+                                    class="erp-empresa-select min-w-[220px] w-[min(100%,320px)] sm:min-w-[280px] sm:w-[min(100%,380px)] rounded-lg border border-gray-200 bg-white py-2 pl-3 pr-10 text-sm text-gray-700 shadow-sm focus:border-[#2C394B] focus:outline-none focus:ring-2 focus:ring-[#2C394B]/20"
+                                >
+                                    @foreach($empresasDisponiveis as $empresa)
+                                        <option value="{{ $empresa->id }}" @selected($empresaAtualId == $empresa->id)>
+                                            {{ $empresa->razao_social ?? $empresa->nome_fantasia }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </form>
+                        @elseif($empresasDisponiveis->count() === 1)
+                            @php $empresaAtual = $empresasDisponiveis->first(); @endphp
+                            <span class="inline-flex min-w-[220px] max-w-[380px] truncate rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600" title="{{ $empresaAtual->nome_fantasia ?? $empresaAtual->razao_social }}">
+                                {{ $empresaAtual->nome_fantasia ?? $empresaAtual->razao_social }}
+                            </span>
+                        @endif
+
                         <a href="{{ route('perfil') }}" class="hidden md:flex items-center gap-3 text-sm hover:opacity-80 transition-opacity {{ request()->routeIs('perfil') ? 'opacity-100' : '' }}">
                             <div class="leading-tight text-right">
                                 <p class="text-gray-700 font-medium text-xs md:text-sm">
