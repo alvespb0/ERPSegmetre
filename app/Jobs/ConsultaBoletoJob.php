@@ -91,10 +91,19 @@ class ConsultaBoletoJob implements ShouldQueue
     }
 
     private function lancarMovimentacao(BoletoCobranca $boleto, $valorMovimentacao, $dataPagamento){
+        \Log::info([
+            'Iniciado Lancamento de Movimentacao' => [
+                'boleto_id' => $boleto->id,
+                'valor' => $valorMovimentacao,
+                'data_pagamento' => $dataPagamento,
+                'empresa_parametro_id' => $boleto->empresa_parametro_id,
+            ]
+        ]);
         $serviceMovimentacao = new MovimentacaoService;
 
         $serviceMovimentacao->store([
             'conta_id' => $boleto->configuracaoCobranca->conta_id,
+            'empresa_parametro_id' => $boleto->empresa_parametro_id,
             'parcela_id' => $boleto->parcela_id,
             'valor_pago' => $valorMovimentacao,
             'data_pagamento' => $dataPagamento

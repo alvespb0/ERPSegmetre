@@ -10,6 +10,7 @@ class MovimentacaoService
         return Movimentacao::create([
             'forma_pagamento_id' => $dados['forma_pagamento_id'] ?? null,
             'conta_id' => $dados['conta_id'] ?? null,
+            'empresa_parametro_id' => $dados['empresa_parametro_id'],
             'parcela_id' => $dados['parcela_id'],
             'valor_pago' => $dados['valor_pago'],
             'data_pagamento' => $dados['data_pagamento']
