@@ -2,6 +2,8 @@
 
 namespace App\Livewire\SOC;
 
+use App\Exceptions\SocException;
+
 use Livewire\Component;
 use Livewire\Attributes\On;
 
@@ -103,12 +105,20 @@ class ValorizacaoSoc extends Component
             }
 
             $this->dispatch('toast-message', 'Valorizacao resgatada com sucesso!');
-        }catch (\Exception $e){
+        }catch (SocException $e){
+            \Log::error('Erro ao resgatar valorização SOC', [
+                'erro' => $e->getMessage(),
+                'empresa_parametro_id' => $this->integracao->empresa_parametro_id,
+            ]);
+
+            $this->dispatch('toast-error', $e->friendlyMessage());
+        }catch (\Throwable $e){
             \Log::error('Erro ao resgatar valorização SOC', [
                 'erro' => $e->getMessage(),
             ]);
 
-            $this->dispatch('toast-error', $e->getMessage());
+            $this->dispatch('toast-error', 'Não foi possível resgatar a valorizacao SOC');
+
         }
     }
     
@@ -128,7 +138,14 @@ class ValorizacaoSoc extends Component
             if(!$this->empresasSoc){
                 throw new \Exception('Erro ao resgatar empresas SOC cojunto vazio.');
             }
-        }catch (\Exception $e){
+        }catch (SocException $e){
+            \Log::error('Erro ao resgatar empresas SOC', [
+                'erro' => $e->getMessage(),
+                'empresa_parametro_id' => $this->integracao->empresa_parametro_id,
+            ]);
+
+            $this->dispatch('toast-error', $e->friendlyMessage());
+        }catch (\Throwable $e){
             \Log::error([
                 'Erro ao resgatar empresas soc' => $e->getMessage()
             ]);

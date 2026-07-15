@@ -1,6 +1,8 @@
 <?php
 namespace App\Services\Integracoes\SOC;
 
+use App\Exceptions\SocException;
+
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Crypt;
@@ -24,7 +26,10 @@ class SOCExamesService
         $dataFinalFormatada = Carbon::parse($dataFinal)->format('d/m/Y');
 
         if(!$this->integracao->credenciais){
-            throw new \Exception('Integracao não possui credenciais cadastradas');
+            throw new SocException(
+                'Nao possuem credenciais cadastradas para essa integracao. Empresa parametro: ' . $this->integracao->empresa_parametro_id,
+                'Credenciais não localizadas para essa integracao SOC.'
+            );
         }
 
         $codEmpresa = $this->integracao->credenciais->username;
@@ -42,7 +47,10 @@ class SOCExamesService
             $dados = json_decode($bodyUtf8, true);
 
             if(empty($dados)){
-                throw new \Exception('Não foi possível resgatar a valorização do SOC, conjunto de dados retornou vazio.');
+                throw new SocException(
+                    'Nenhuma valorização foi encontrada para o período informado.',
+                    'SOC Retornou um conjunto vazio de valorizações.'
+                );
             }
 
             return $dados;

@@ -1,6 +1,8 @@
 <?php
 namespace App\Services\Integracoes\SOC;
 
+use App\Exceptions\SocException;
+
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Crypt;
@@ -16,6 +18,13 @@ class SOCEmpresasService
     }
 
     public function getEmpresasSoc(): array{
+        if(!$this->integracao->credenciais){
+            throw new SocException(
+                'Nao possuem credenciais cadastradas para essa integracao. Empresa parametro: ' . $this->integracao->empresa_parametro_id,
+                'Credenciais não localizadas para essa integracao SOC.'
+            );
+        }
+
         $codEmpresa = $this->integracao->credenciais->username;
         $token = Crypt::decryptString($this->integracao->credenciais->password_enc);
 
@@ -30,7 +39,10 @@ class SOCEmpresasService
             $bodyUtf8 = $this->convertToUtf8($body);
             $dados = json_decode($bodyUtf8, true);
             if(empty($dados)){
-                throw new \Exception('Não foi possível resgatar a valorização do SOC, conjunto de dados retornou vazio.');
+                throw new SocException(
+                    'Nao foi possivel resgatar as empresas SOC.',
+                    'Erro ao resgatar empresas SOC, SOC Retornou um conjunto vazio de empresas.'
+                );
             }
 
             return $dados;

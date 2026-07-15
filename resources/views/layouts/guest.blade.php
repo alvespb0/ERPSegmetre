@@ -39,7 +39,6 @@
 
                 <div class="space-y-2 text-xs text-gray-200/70">
                     <p>Painéis claros, gráficos financeiros e visão consolidada da sua operação.</p>
-                    <p>Produzido a partir do layout “ERP Dashboard for Clinic”.</p>
                 </div>
             </div>
 
