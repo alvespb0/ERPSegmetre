@@ -62,10 +62,10 @@ class Parcela extends BaseModel
             return 'parcial';
         }
 
-        if($this->data_vencimento < now()->startOfDay()){
+        if (Carbon::parse($this->data_vencimento)->isBefore(today())) {
             return 'atrasado';
         }
-
+        
         return 'aberto';
     }
 

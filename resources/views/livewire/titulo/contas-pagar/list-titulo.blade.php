@@ -43,7 +43,14 @@
             >
                 <p class="text-xs text-gray-400 uppercase">Vencidos</p>
                 <p class="text-xl font-semibold text-gray-900 mt-1">
-                    R$ {{ number_format($parcelas->filter(fn($p) =>$p->status !== 'cancelado' && $p->status_calculado != 'pago' &&$p->data_vencimento < now()->startOfDay())->sum('valor'), 2, ',', '.') }}
+                    R$ {{ number_format(
+                        $parcelas
+                            ->filter(fn($p) => $p->status !== 'cancelado' && Carbon\Carbon::parse($p->data_vencimento)->lt(today()))
+                            ->sum('valor'),
+                        2,
+                        ',',
+                        '.'
+                    ) }}
                 </p>
                 <p class="text-xs text-gray-500 mt-1">
                     Total do Filtro: R$ {{ number_format($vencidos, 2, ',', '.') }}
@@ -376,10 +383,6 @@
                                         
                                         // Substituição visual se a parcela estiver em aberto mas a data já passou
                                         $displayStatus = $parcela->status_calculado;
-                                        if($displayStatus === 'aberto' && \Carbon\Carbon::parse($parcela->data_vencimento)->isPast()) {
-                                            $displayStatus = 'atrasado';
-                                            $color = $statusColors['atrasado'];
-                                        }
                                     @endphp
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium border {{ $color }}">
                                         {{ ucfirst($displayStatus) }}
