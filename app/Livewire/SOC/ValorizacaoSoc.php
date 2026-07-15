@@ -104,11 +104,11 @@ class ValorizacaoSoc extends Component
 
             $this->dispatch('toast-message', 'Valorizacao resgatada com sucesso!');
         }catch (\Exception $e){
-            \Log::error([
-                'Erro ao resgatar valorizacao soc' => $e->getMessage()
+            \Log::error('Erro ao resgatar valorização SOC', [
+                'erro' => $e->getMessage(),
             ]);
 
-            $this->dispatch('toast-error', 'Erro ao resgatar valorizacao SOC');
+            $this->dispatch('toast-error', $e->getMessage());
         }
     }
     

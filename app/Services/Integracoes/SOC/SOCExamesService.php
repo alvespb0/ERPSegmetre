@@ -24,9 +24,7 @@ class SOCExamesService
         $dataFinalFormatada = Carbon::parse($dataFinal)->format('d/m/Y');
 
         if(!$this->integracao->credenciais){
-            throw new \Exception([
-                'Integracao não possui credenciais cadastradas'
-            ]);
+            throw new \Exception('Integracao não possui credenciais cadastradas');
         }
 
         $codEmpresa = $this->integracao->credenciais->username;
@@ -44,9 +42,7 @@ class SOCExamesService
             $dados = json_decode($bodyUtf8, true);
 
             if(empty($dados)){
-                throw new \Exception([
-                    'Não foi possível resgatar a valorização do SOC, conjunto de dados retornou vazio.'
-                ]);
+                throw new \Exception('Não foi possível resgatar a valorização do SOC, conjunto de dados retornou vazio.');
             }
 
             return $dados;
