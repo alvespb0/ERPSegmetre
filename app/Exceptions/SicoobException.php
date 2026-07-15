@@ -17,4 +17,12 @@ class SicoobException extends Exception
     public function getResponse(): string|array|null{
         return $this->response;
     }
+
+    public function context(): array{
+        return [
+            'http_status' => $this->httpStatus,
+            'response_body' => $this->responseBody,
+        ];
+    }
+
 }
