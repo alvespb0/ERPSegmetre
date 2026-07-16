@@ -50,6 +50,9 @@ class ListTitulo extends Component
     public bool $openModalAnexos = false;
     public ?Parcela $parcelaParaAnexos = null;
 
+    public bool $openModalSolicitacaoPagamento = false;
+    public ?Parcela $parcelaParaSolicitacao = null;
+
     public $search = '';
     public $filtroCompetencia;
     public $filtroCard;
@@ -409,6 +412,34 @@ class ListTitulo extends Component
 
         $this->parcelaParaAnexos = null;
     }
+
+    /**
+     * Abre o modal de solicitacao de pagamento de uma parcela, carregando relacionamentos necessários.
+     * * @param Parcela $parcela
+     * @return void
+     */
+    public function solicitacaoPagamento(Parcela $parcela){
+        $parcela->load([
+                'titulo.entidade', 
+                'movimentacoes', 
+            ]);
+            
+        $this->parcelaParaSolicitacao = $parcela;
+
+        $this->openModalSolicitacaoPagamento = true;
+    }
+
+    /**
+     * Evento acionado para fechar o modal de solicitacoes de pagamento e limpar os dados.
+     * * @return void
+     */
+    #[On('fechar-modal-solicitacao-pagamento')]
+    public function fecharModalSolicitacaoPagamento(){
+        $this->openModalSolicitacaoPagamento = false;
+
+        $this->parcelaParaSolicitacao = null;
+    }
+
 
     private function getQuery(){
         $query = $this->aplicarFiltros(Parcela::query());

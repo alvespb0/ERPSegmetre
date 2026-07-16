@@ -459,6 +459,12 @@
                                                 >
                                                     Anexos
                                                 </button>
+                                                <button
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                    wire:click="solicitacaoPagamento({{ $parcela->id }})"
+                                                >
+                                                    Solicitação de Pagamento
+                                                </button>
                                             </div>
                                         </div>
                                     </template>
@@ -531,11 +537,17 @@
             wire:key="modal-receber-{{ $parcelaParaEditarStatus->id }}" 
         />
     @endif
-
     @if($parcelaParaAnexos && $openModalAnexos)
         <livewire:Modais.ContasPagar.Anexos
             :parcela-id="$parcelaParaAnexos->id" 
             wire:key="modal-receber-{{ $parcelaParaAnexos->id }}" 
         />
     @endif
+    @if($parcelaParaSolicitacao && $openModalSolicitacaoPagamento)
+        <livewire:Modais.ContasPagar.SolicitacaoPagamento
+            :parcela-id="$parcelaParaSolicitacao->id" 
+            wire:key="modal-receber-{{ $parcelaParaSolicitacao->id }}" 
+        />
+    @endif
+
 </div>
