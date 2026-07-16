@@ -10,11 +10,11 @@ class SolicitacoesPagamentoService
         return SolicitacoesPagamento::create([
             'parcela_id' => $dados['parcela_id'],
             'movimentacao_id' => $dados['movimentacao_id'] ?? null,
-            'chave_idempotente' => $dados['chave_idempotente'],
+            'chave_idempotente' => $dados['chave_idempotente'] ?? null,
             'tipo' => $dados['tipo'],
             'identificador' => $dados['identificador'],
             'valor' => $dados['valor'],
-            'data_solicitacao' => $dados['data_solicitacao'] ?? Carbon\Carbon::today()->toDateString(),
+            'data_solicitacao' => $dados['data_solicitacao'] ?? Carbon\Carbon::now(),
             'data_pagamento' => $dados['data_pagamento'] ?? null,
             'comprovante_path' => $dados['comprovante_path'] ?? null,
             'status' => $dados['status'] ?? 'pendente'

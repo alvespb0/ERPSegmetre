@@ -38,6 +38,10 @@ class Parcela extends BaseModel
         return $this->hasMany(SolicitacoesPagamento::class, 'parcela_id');
     }
     
+    public function getPossuiSolicitacaoPagamentoAttribute(): bool{
+        return $this->solicitacoesPagamento->contains(fn($solicitacao) => $solicitacao->status === 'pendente');
+    }
+
     public function getBoletoAtivoAttribute(): ?BoletoCobranca{
         return $this->boletos
             ->first(fn ($boleto) => in_array($boleto->status, [

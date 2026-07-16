@@ -16,14 +16,14 @@ return new class extends Migration
             $table->unsignedBigInteger('parcela_id');
             $table->unsignedBigInteger('movimentacao_id')->nullable();
             $table->unsignedBigInteger('empresa_parametro_id')->nullable();
-            $table->string('chave_idempotente');
+            $table->string('chave_idempotente')->nullable();
             $table->enum('tipo', ['codigo_barras','pix','pix_copia_cola','tributo']);
             $table->string('identificador');
             $table->decimal('valor', 15, 2);
             $table->dateTime('data_solicitacao');
             $table->dateTime('data_pagamento')->nullable();
             $table->string('comprovante_path')->nullable();
-            $table->enum('status', ['pendente','recusado','pago',])->default('pendente');
+            $table->enum('status', ['pendente','recusado','pago','cancelado'])->default('pendente');
             $table->foreign('parcela_id')->references('id')->on('parcelas')->onDelete('cascade');
             $table->foreign('movimentacao_id')->references('id')->on('movimentacoes')->nullOnDelete();
             $table->foreign('empresa_parametro_id')->references('id')->on('empresa_parametro')->nullOnDelete();
