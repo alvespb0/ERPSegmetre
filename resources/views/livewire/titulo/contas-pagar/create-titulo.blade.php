@@ -62,7 +62,7 @@
                             <input
                                 type="text"
                                 class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]"
-                                placeholder="Ex.: Mensalidade, Venda de Produto, Prestação de Serviço..."
+                                placeholder="Ex.: Mensalidade, Compra de Produto, Prestação de Serviço..."
                                 wire:model="descricao"
                             >
                         </div>
@@ -171,6 +171,54 @@
                                 </span>
                             </button>
                         </div>
+                    </div>
+
+                    <div class="mt-6 border-t border-gray-100 pt-5">
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                wire:model.live="despesa_recorrente" 
+                                class="w-4 h-4 rounded border-gray-300 text-[#313e50] focus:ring-[#313e50]"
+                            >
+                            <span class="text-sm font-medium text-gray-800">Esta é uma despesa recorrente</span>
+                        </label>
+                        @if($despesa_recorrente)
+                            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Quantidade de Recorrências <span class="text-red-500">*</span></label>
+                                    <input
+                                        type="number"
+                                        min="2"
+                                        max="60"
+                                        class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]"
+                                        placeholder="Ex.: 12"
+                                        wire:model="quantidade_recorrencias"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Intervalo <span class="text-red-500">*</span></label>
+                                    <select
+                                        class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]"
+                                        wire:model="intervalo_recorrencia"
+                                    >
+                                        <option value="">Selecione o intervalo...</option>
+                                        <option value="7d">Semanal (7 dias)</option>
+                                        <option value="14d">Quinzenal (14 dias)</option>
+                                        <option value="21d">Tri-semanal (21 dias)</option>
+                                        <option value="30d">Mensal (30 dias)</option>
+                                        <option value="45d">A cada 45 dias</option>
+                                        <option value="60d">Bimestral (60 dias)</option>
+                                        <option value="90d">Trimestral (90 dias)</option>
+                                        <option value="1m">1 Mês</option>
+                                        <option value="2m">2 Meses</option>
+                                        <option value="3m">3 Meses</option>
+                                        <option value="6m">Semestral (6 Meses)</option>
+                                        <option value="12m">Anual (12 Meses)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                     @if(!empty($parcelas))
                         <div class="mt-6 pt-4 border-t border-gray-100">
