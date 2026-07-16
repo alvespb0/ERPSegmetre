@@ -34,6 +34,10 @@ class Parcela extends BaseModel
         return $this->hasMany(BoletoCobranca::class, 'parcela_id');
     }
 
+    public function solicitacoesPagamento(){
+        return $this->hasMany(SolicitacoesPagamento::class, 'parcela_id');
+    }
+    
     public function getBoletoAtivoAttribute(): ?BoletoCobranca{
         return $this->boletos
             ->first(fn ($boleto) => in_array($boleto->status, [
