@@ -15,10 +15,18 @@ class ModuloDDA extends Component
     public $filtroConta, $dataInicial, $dataFinal, $situacao;
     public $titulos = [];
 
+    public $openModalDespesa = false;
+
     public function mount(){
         $this->contas = Conta::whereHas('configuracaoCobranca')->with('banco', 'tipoConta', 'configuracaoCobranca')->get();
     }
 
+    /**
+     * Consulta os boletos DDA da conta selecionada utilizando
+     * a integração configurada para o ambiente correspondente.
+     *
+     * @return void
+     */
     public function buscarBoletos(){
         $conta = Conta::findOrFail($this->selectedConta);
 
@@ -61,6 +69,12 @@ class ModuloDDA extends Component
         }
     }
     
+    public function cadastrarDespesa($linhaDigitavel){
+        $titulo = collect($this->titulos)->firstWhere('linha_digitavel', $linhaDigitavel);
+        
+        $this->openModalDespesa = true;
+    }
+
     public function render()
     {
         return view('livewire.titulo.contas-pagar.modulo-d-d-a');

@@ -184,7 +184,7 @@
                                 <td class="px-6 py-3.5 text-center whitespace-nowrap">
                                     <button
                                         type="button"
-                                        wire:click="cadastrarDespesa('{{ $titulo['linha_digitavel'] ?? '' }}')"
+                                        wire:click="cadastrarDespesa({{ $titulo['linha_digitavel'] }})"
                                         class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#313e50] bg-white border border-[#313e50]/30 rounded-lg hover:bg-[#313e50] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#313e50] transition-all"
                                     >
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,4 +217,10 @@
             @endif
         </div>
     </div>
+
+    @if($openModalDespesa == true)
+        <livewire:Modais.ContasPagar.LancarTituloDDA
+            wire:key="modal-despesa" 
+        />
+    @endif
 </div>
