@@ -12,14 +12,14 @@ class ModuloDDA extends Component
     public $contas;
     public ?int $selectedConta = null;
     public $integracao = null;
-
+    public $filtroConta, $dataInicial, $dataFinal, $situacao;
     public $titulos = [];
 
     public function mount(){
         $this->contas = Conta::whereHas('configuracaoCobranca')->with('banco', 'tipoConta', 'configuracaoCobranca')->get();
     }
 
-    public function updatedSelectedConta(){
+    public function buscarBoletos(){
         $conta = Conta::findOrFail($this->selectedConta);
 
         $config = $conta->configuracaoCobranca;
@@ -40,13 +40,13 @@ class ModuloDDA extends Component
                     $this->dispatch('toast-error', 'Integração não implementa DDA Sandbox.');
                     return;
                 }
-                $this->titulos = $serviceProvider->ddaSandbox();
+                $this->titulos = $serviceProvider->ddaSandbox($this->dataInicial, $this->dataFinal, $this->situacao, preg_replace('/-/', '', $conta->conta));
             } elseif ($config->ambiente === 'producao') {
                 if (!method_exists($serviceProvider, 'ddaProducao')) {
                     $this->dispatch('toast-error', 'Integração não implementa DDA.');
                     return;
                 }
-                $this->titulos = $serviceProvider->ddaProducao();
+                $this->titulos = $serviceProvider->ddaProducao($this->dataInicial, $this->dataFinal, $this->situacao, preg_replace('/-/', '', $conta->conta));
             }
 
             $this->dispatch('toast-message', 'Boletos resgatados com sucesso.');
