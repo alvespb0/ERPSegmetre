@@ -63,6 +63,10 @@ class SolicitacaoPagamento extends Component
             $this->validate();
             $service = new SolicitacoesPagamentoService;
 
+            if ($this->parcela->status === 'cancelado') {
+                $this->dispatch('toast-error', 'Não é possível lançar solicitação de pagamento para parcela cancelada.');
+                return;
+            }
             if($this->parcela->possuiSolicitacaoPagamento){
                 $this->dispatch('toast-error', 'Parcela já possui uma solicitação de pagamento pendente.');
                 return;

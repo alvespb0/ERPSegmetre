@@ -17,6 +17,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SOCController;
 use App\Http\Controllers\EmpresaSessaoController;
+use App\Http\Controllers\DDAController;
 
 Route::middleware(['auth', 'two.factor'])->group(function () {
     Route::view('dashboard', 'dashboard')->name('dashboard');
@@ -108,6 +109,10 @@ Route::middleware(['auth', 'two.factor'])->controller(TituloController::class)->
 
 Route::middleware(['checkUserType:admin,dev', 'two.factor'])->controller(SOCController::class)->group(function(){
     Route::get('erp/SOC/valorizacoes', 'showListView')->name('erp.receita.valorizacao.soc');
+});
+
+Route::middleware(['checkUserType:admin,dev', 'two.factor'])->controller(DDAController::class)->group(function(){
+    Route::get('erp/dda', 'showListView')->name('erp.dda.index');
 });
 
 Route::post('logout', function (Request $request) {
