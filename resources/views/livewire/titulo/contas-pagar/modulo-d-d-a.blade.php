@@ -11,6 +11,17 @@
                     Busque e gerencie boletos eletrônicos emitidos contra o CNPJ da empresa.
                 </p>
             </div>
+            
+            <!-- Loading State -->
+            <div class="flex flex-wrap gap-2 min-h-[40px] items-center">
+                <div wire:loading wire:target="selectedConta" class="inline-flex items-center gap-2 text-sm font-medium text-[#313e50]">
+                    <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Buscando boletos no banco...
+                </div>
+            </div>
         </div>
 
         <!-- Painel de Filtros -->
@@ -94,111 +105,98 @@
             </form>
         </div>
 
-        <!-- Resumo (Mostrado apenas se houver resultados) -->
-        @if(count($titulos) > 0)
-            <div class="flex flex-wrap gap-8 items-center px-2 py-2">
-                <div>
-                    <p class="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Boletos Encontrados</p>
-                    <p class="text-2xl font-semibold text-gray-900">{{ count($titulos) }}</p>
-                </div>
-                <div class="w-px h-10 bg-gray-200 hidden md:block"></div>
-                <div>
-                    <p class="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Valor Total</p>
-                    <p class="text-2xl font-semibold text-emerald-600">
-                        R$ {{ number_format(collect($titulos)->sum('valor'), 2, ',', '.') }}
-                    </p>
-                </div>
-            </div>
-        @endif
-
-        @php
-            $statusLabels = [
-                1 => ['label' => 'Em aberto', 'classes' => 'bg-yellow-50 text-yellow-700 border-yellow-200'],
-                2 => ['label' => 'Agendado',  'classes' => 'bg-blue-50 text-blue-700 border-blue-200'],
-                3 => ['label' => 'Liquidado', 'classes' => 'bg-emerald-50 text-emerald-700 border-emerald-200'],
-                4 => ['label' => 'Baixado',   'classes' => 'bg-gray-100 text-gray-700 border-gray-200'],
-            ];
-        @endphp
-
-        <!-- Listagem de Títulos DDA -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden relative">
+        <!-- Área de Listagem e Resumo Integrados -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative">
             
             <!-- Overlay de carregamento sobre a tabela -->
             <div wire:loading wire:target="buscarBoletos" class="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex items-center justify-center">
-                <!-- Vazio, o loading do botão já indica a ação, aqui só bloqueamos a tabela visualmente -->
             </div>
+
+            <!-- Header da Tabela (Resumo) -->
+            @if(count($titulos) > 0)
+                <div class="bg-gray-50/50 border-b border-gray-200 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-6">
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-0.5">Boletos Encontrados</p>
+                            <p class="text-xl font-semibold text-gray-900">{{ count($titulos) }}</p>
+                        </div>
+                        <div class="w-px h-8 bg-gray-300 hidden md:block"></div>
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-0.5">Valor Total</p>
+                            <p class="text-xl font-semibold text-emerald-600">
+                                R$ {{ number_format(collect($titulos)->sum('valor'), 2, ',', '.') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             <div class="min-w-full overflow-x-auto">
                 <table class="min-w-full text-sm">
-                    <thead class="bg-gray-50 text-xs text-gray-500 uppercase">
+                    <thead class="bg-gray-50 text-xs text-gray-500 uppercase border-b border-gray-100">
                         <tr>
-                            <th class="px-4 py-3 text-left">Vencimento</th>
-                            <th class="px-4 py-3 text-left">Beneficiário</th>
-                            <th class="px-4 py-3 text-left">Linha Digitável</th>
-                            <th class="px-4 py-3 text-right">Valor (R$)</th>
-                            <th class="px-4 py-3 text-center">Situação</th>
-                            <th class="px-4 py-3 text-center">Ações</th>
+                            <th class="px-6 py-3 text-left font-semibold">Vencimento</th>
+                            <th class="px-6 py-3 text-left font-semibold">Beneficiário</th>
+                            <th class="px-6 py-3 text-left font-semibold">Linha Digitável</th>
+                            <th class="px-6 py-3 text-right font-semibold">Valor (R$)</th>
+                            <th class="px-6 py-3 text-center font-semibold">Situação</th>
+                            <th class="px-6 py-3 text-center font-semibold">Ações</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @forelse($titulos as $titulo)
-                            <tr class="hover:bg-gray-50 transition-colors">
+                            <tr class="hover:bg-gray-50/80 transition-colors">
                                 <!-- Vencimento -->
-                                <td class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
+                                <td class="px-6 py-3.5 font-medium text-gray-900 whitespace-nowrap">
                                     {{ isset($titulo['vencimento']) ? date('d/m/Y', strtotime($titulo['vencimento'])) : '--/--/----' }}
                                 </td>
                                 
                                 <!-- Beneficiário -->
-                                <td class="px-4 py-3">
+                                <td class="px-6 py-3.5">
                                     <span class="text-gray-900 font-medium block">
                                         {{ $titulo['nome_beneficiario'] ?? 'Não informado' }}
                                     </span>
-                                    <span class="text-xs text-gray-500 block mt-0.5">
+                                    <span class="text-[11px] text-gray-500 block mt-0.5">
                                         Doc: {{ $titulo['documento_beneficiario'] ?? 'N/A' }}
                                     </span>
                                 </td>
                                 
                                 <!-- Linha Digitável -->
-                                <td class="px-4 py-3">
+                                <td class="px-6 py-3.5">
                                     <span class="text-gray-600 font-mono text-xs break-all">
                                         {{ $titulo['linha_digitavel'] ?? 'N/A' }}
                                     </span>
                                 </td>
                                 
                                 <!-- Valor -->
-                                <td class="px-4 py-3 text-right font-medium text-gray-900 whitespace-nowrap">
+                                <td class="px-6 py-3.5 text-right font-medium text-gray-900 whitespace-nowrap">
                                     {{ number_format($titulo['valor'] ?? 0, 2, ',', '.') }}
                                 </td>
 
-                                <!-- Situação -->
-                                <td class="px-4 py-3 text-center">
-                                    @php
-                                        $situacaoInfo = $statusLabels[$titulo['situacao'] ?? 1] ?? ['label' => 'Desconhecido', 'classes' => 'bg-gray-50 text-gray-500 border-gray-200'];
-                                    @endphp
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border {{ $situacaoInfo['classes'] }}">
-                                        {{ $situacaoInfo['label'] }}
+                                <!-- Situação (Limpa e Neutra) -->
+                                <td class="px-4 py-3 text-center whitespace-nowrap">
+                                    <span class="text-gray-600 font-medium text-xs">
+                                        {{ $titulo['situacao'] ?? 'Não informada' }}
                                     </span>
                                 </td>
                                 
-                                <!-- Ações -->
-                                <td class="px-4 py-3 text-center">
-                                    @if(($titulo['situacao'] ?? 1) == 1)
-                                        <button
-                                            type="button"
-                                            wire:click="cadastrarDespesa('{{ $titulo['linha_digitavel'] ?? '' }}')"
-                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#313e50] text-white text-xs font-medium rounded-lg hover:bg-[#313e50]/90 transition-colors shadow-sm"
-                                        >
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                                            Cadastrar Despesa
-                                        </button>
-                                    @else
-                                        <span class="text-xs text-gray-400 italic">Sem ações</span>
-                                    @endif
+                                <!-- Ações (Botão menor e mais leve) -->
+                                <td class="px-6 py-3.5 text-center whitespace-nowrap">
+                                    <button
+                                        type="button"
+                                        wire:click="cadastrarDespesa('{{ $titulo['linha_digitavel'] ?? '' }}')"
+                                        class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#313e50] bg-white border border-[#313e50]/30 rounded-lg hover:bg-[#313e50] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#313e50] transition-all"
+                                    >
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                        Cadastrar Despesa
+                                    </button>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-12 text-center text-sm text-gray-500">
+                                <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-500">
                                     <div class="flex flex-col items-center justify-center">
                                         <svg class="w-10 h-10 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                                         Nenhum boleto encontrado para os filtros selecionados.
@@ -210,9 +208,8 @@
                 </table>
             </div>
             
-            <!-- Footer Informativo -->
             @if(count($titulos) > 0)
-                <div class="border-t border-gray-100 px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+                <div class="bg-gray-50/50 border-t border-gray-100 px-6 py-3 flex items-center justify-center text-xs text-gray-500">
                     <p>
                         Mostrando <span class="font-medium text-gray-900">{{ count($titulos) }}</span> boletos resgatados via integração DDA.
                     </p>
