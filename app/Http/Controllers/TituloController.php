@@ -22,4 +22,8 @@ class TituloController extends Controller
     public function showListViewDespesa(){
         return view('erp.titulo.conta-pagar.index');
     }
+
+    public function showListViewSolicitacoes(){
+        return view('erp.titulo.conta-pagar.solicitacoes');
+    }
 }

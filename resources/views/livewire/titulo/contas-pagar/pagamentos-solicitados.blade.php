@@ -1,0 +1,351 @@
+<div x-data="{ mostrarFiltrosAvancados: false }">
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <p class="text-xs font-semibold tracking-wide text-gray-400 uppercase mb-1">
+                    Financeiro &middot; Contas a Pagar
+                </p>
+                <h1 class="text-2xl font-semibold text-gray-900">Solicitações de Pagamento</h1>
+                <p class="text-sm text-gray-500 mt-1">
+                    Gerencie, filtre e aprove as solicitações de pagamento da empresa.
+                </p>
+            </div>
+            
+            <!-- Loading State & Actions -->
+            <div class="flex flex-wrap items-center gap-3">
+                <div wire:loading class="inline-flex items-center gap-2 text-sm font-medium text-[#313e50] mr-2">
+                    <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processando...
+                </div>
+
+                <button 
+                    type="button"
+                    wire:click="$set('openModalNovaSolicitacao', true)"
+                    class="inline-flex items-center gap-2 px-4 py-2 bg-[#313e50] text-white text-sm font-medium rounded-lg hover:bg-[#313e50]/90 transition-colors shadow-sm w-full md:w-auto justify-center"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Nova Solicitação
+                </button>
+            </div>
+        </div>
+
+        <!-- Painel de Filtros Integrado -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all">
+            <!-- HEADER -->
+            <div class="p-2 flex flex-col xl:flex-row items-center gap-2">
+                <!-- SEARCH -->
+                <div class="relative flex-1 w-full">
+                    <svg class="absolute left-3 top-2.5 w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input
+                        type="text"
+                        wire:model.live.debounce.500ms="search"
+                        placeholder="Buscar por ID, Beneficiário, CPF/CNPJ..."
+                        class="w-full pl-9 pr-3 py-2 text-sm border border-transparent rounded-lg focus:border-gray-200 focus:ring-0 bg-gray-50 hover:bg-gray-100 transition-colors"
+                    >
+                </div>
+
+                <div class="hidden xl:block w-px h-6 bg-gray-200"></div>
+
+                <!-- FILTROS PRINCIPAIS -->
+                <div class="flex flex-wrap items-center gap-2 w-full xl:w-auto">
+                    <!-- COMPETÊNCIA -->
+                    <select
+                        wire:model.live="filtroCompetencia"
+                        class="text-sm bg-white border-gray-200 rounded-lg px-7 py-2 focus:ring-0 cursor-pointer hover:bg-gray-50"
+                    >
+                        <option value="todos">Qualquer Data</option>
+                        <option value="hoje">Hoje</option>
+                        <option value="ontem">Ontem</option>
+                        <option value="semana">Semana</option>
+                        <option value="mes">Mês</option>
+                        <option value="custom">Período Customizado</option>
+                    </select>
+
+                    <!-- BLOCO DINÂMICO DE DATAS -->
+                    <div class="flex items-center gap-2">
+                        <!-- HOJE / ONTEM -->
+                        @if(in_array($filtroCompetencia, ['hoje', 'ontem']))
+                            <div class="flex items-center gap-1">
+                                <button
+                                    type="button"
+                                    wire:click="diaAnterior"
+                                    class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 bg-white"
+                                >
+                                    ←
+                                </button>
+                                <span class="text-sm text-gray-600 px-2 font-medium">
+                                    {{ $labelDiaEspecifico ?? 'Hoje' }}
+                                </span>
+                                <button
+                                    type="button"
+                                    wire:click="diaPosterior"
+                                    class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 bg-white"
+                                >
+                                    →
+                                </button>
+                            </div>
+                        @endif
+
+                        <!-- SEMANA -->
+                        @if($filtroCompetencia === 'semana')
+                            <span class="text-sm text-gray-600 px-2 font-medium">
+                                {{ $labelCompetencia ?? 'Semana atual' }}
+                            </span>
+                        @endif
+
+                        <!-- MÊS -->
+                        @if($filtroCompetencia === 'mes')
+                            <div class="flex items-center gap-1">
+                                <button wire:click="mesAnterior" class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 bg-white">
+                                    ←
+                                </button>
+                                <span class="text-sm text-gray-600 px-2 font-medium">
+                                    {{ $labelMesAno ?? 'Março / 2026' }}
+                                </span>
+                                <button wire:click="mesPosterior" class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 bg-white">
+                                    →
+                                </button>
+                            </div>
+                        @endif
+
+                        <!-- RANGE CUSTOM -->
+                        @if($filtroCompetencia === 'custom')
+                            <div class="flex items-center gap-2">
+                                <input
+                                    type="date"
+                                    wire:model.live="dataInicioRange"
+                                    class="border border-gray-200 rounded px-2 py-1 text-sm focus:ring-[#313e50] focus:border-[#313e50]"
+                                >
+                                <span class="text-gray-400 text-xs">até</span>
+                                <input
+                                    type="date"
+                                    wire:model.live="dataFimRange"
+                                    class="border border-gray-200 rounded px-2 py-1 text-sm focus:ring-[#313e50] focus:border-[#313e50]"
+                                >
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="hidden md:block w-px h-4 bg-gray-200"></div>
+
+                    <!-- STATUS -->
+                    <select
+                        wire:model.live="status"
+                        class="text-sm bg-white border-gray-200 rounded-lg pl-3 pr-8 py-2 focus:ring-0 cursor-pointer hover:bg-gray-50"
+                    >
+                        <option value="">Todos Status</option>
+                        <option value="pendente">Pendente</option>
+                        <option value="pago">Pago</option>
+                        <option value="cancelado">Cancelado</option>
+                        <option value="recusado">Recusado</option>
+                    </select>
+
+                    <!-- AVANÇADO -->
+                    <button
+                        type="button"
+                        @click="mostrarFiltrosAvancados = !mostrarFiltrosAvancados"
+                        class="px-3 py-2 rounded-lg text-sm font-medium transition"
+                        :class="mostrarFiltrosAvancados ? 'bg-[#313e50] text-white' : 'text-gray-600 hover:bg-gray-50 bg-white border border-transparent'"
+                    >
+                        Filtros
+                    </button>
+                    
+                    <button
+                        type="button"
+                        wire:click="limparFiltros"
+                        class="px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                        title="Limpar todos os filtros"
+                    >
+                        Limpar
+                    </button>
+                </div>
+            </div>
+
+            <!-- FILTROS AVANÇADOS -->
+            <div 
+                x-show="mostrarFiltrosAvancados"
+                x-collapse
+                class="border-t border-gray-100 bg-gray-50/50 p-4"
+                style="display:none;"
+            >
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="lg:col-span-2">
+                        <label class="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5 block">Aplicar Data Por</label>
+                        <select wire:model.live="tipoFiltroData" class="w-full border-gray-200 bg-white rounded-lg px-3 py-2 text-sm focus:ring-[#313e50] focus:border-[#313e50]">
+                            <option value="vencimento">Data de Vencimento</option>
+                            <option value="solicitacao">Data da Solicitação</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-4 flex justify-end">
+                    <button
+                        wire:click="limparFiltros"
+                        class="text-xs text-red-600 hover:text-red-700 font-medium transition-colors"
+                    >
+                        Resetar filtros avançados
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Área de Listagem e Resumo Integrados -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative">
+            
+            <!-- Overlay de carregamento sobre a tabela -->
+            <div wire:loading class="absolute inset-0 bg-white/60 z-10 flex items-center justify-center"></div>
+
+            <!-- Header da Tabela (Resumo) -->
+            @if($solicitacoes->total() > 0)
+                <div class="bg-gray-50/50 border-b border-gray-200 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-6">
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-0.5">Total Encontrado</p>
+                            <p class="text-xl font-semibold text-gray-900">{{ $solicitacoes->total() }}</p>
+                        </div>
+                        <div class="w-px h-8 bg-gray-300 hidden md:block"></div>
+                        <div>
+                            <p class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-0.5">Soma na Página</p>
+                            <p class="text-xl font-semibold text-[#313e50]">
+                                R$ {{ number_format($solicitacoes->sum('valor'), 2, ',', '.') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <div class="min-w-full overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-gray-50 text-xs text-gray-500 uppercase border-b border-gray-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left font-semibold">ID / Solicitante</th>
+                            <th class="px-6 py-3 text-left font-semibold">Beneficiário</th>
+                            <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">Datas</th>
+                            <th class="px-6 py-3 text-right font-semibold">Valor (R$)</th>
+                            <th class="px-6 py-3 text-center font-semibold">Status</th>
+                            <th class="px-6 py-3 text-center font-semibold">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse($solicitacoes as $solicitacao)
+                            <tr class="hover:bg-gray-50/80 transition-colors">
+                                
+                                <!-- ID / Solicitante -->
+                                <td class="px-6 py-3.5">
+                                    <span class="text-gray-900 font-semibold block">
+                                        #{{ str_pad($solicitacao['id'], 5, '0', STR_PAD_LEFT) }}
+                                    </span>
+                                    <span class="text-[11px] text-gray-500 block mt-0.5 whitespace-nowrap">
+                                        {{ $solicitacao['solicitante'] ?? 'Não informado' }}
+                                    </span>
+                                </td>
+                                
+                                <!-- Beneficiário -->
+                                <td class="px-6 py-3.5">
+                                    <span class="text-gray-900 font-medium block whitespace-nowrap">
+                                        {{ $solicitacao->parcela->titulo->entidade->razao_social ?? 'Não informado' }}
+                                    </span>
+                                    <span class="text-[11px] text-gray-500 block mt-0.5 whitespace-nowrap">
+                                        {{ $solicitacao->parcela->titulo->categoriaFinanceira->nome ?? 'Sem Categoria' }}
+                                    </span>
+                                </td>
+                                
+                                <!-- Datas (Solicitação e Vencimento) -->
+                                <td class="px-6 py-3.5 whitespace-nowrap">
+                                    <div class="flex flex-col gap-1 text-[11px]">
+                                        <div class="flex items-center gap-1.5 text-gray-500">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                            <span class="font-medium text-gray-700">Ven:</span> 
+                                            {{ isset($solicitacao->parcela->data_vencimento) ? date('d/m/Y', strtotime($solicitacao->parcela->data_vencimento)) : '--/--/----' }}
+                                        </div>
+                                        <div class="flex items-center gap-1.5 text-gray-400">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            <span>Sol:</span>
+                                            {{ isset($solicitacao->data_solicitacao) ? date('d/m/Y', strtotime($solicitacao->data_solicitacao)) : '--/--/----' }}
+                                        </div>
+                                    </div>
+                                </td>
+                                
+                                <!-- Valor -->
+                                <td class="px-6 py-3.5 text-right font-medium text-gray-900 whitespace-nowrap">
+                                    {{ number_format($solicitacao->valor ?? 0, 2, ',', '.') }}
+                                </td>
+
+                                <!-- Status -->
+                                <td class="px-6 py-3.5 text-center whitespace-nowrap">
+                                    @php
+                                        $statusClass = match(strtolower($solicitacao['status'] ?? '')) {
+                                            'pago' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                            'pendente' => 'bg-amber-50 text-amber-700 border-amber-200',
+                                            'rejeitado' => 'bg-red-50 text-red-700 border-red-200',
+                                            'cancelado' => 'bg-gray-50 text-gray-600 border-gray-200',
+                                            default => 'bg-gray-50 text-gray-600 border-gray-200',
+                                        };
+                                    @endphp
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold border {{ $statusClass }}">
+                                        {{ ucfirst($solicitacao['status'] ?? 'Não informado') }}
+                                    </span>
+                                </td>
+                                
+                                <!-- Ações -->
+                                <td class="px-6 py-3.5 text-center whitespace-nowrap">
+                                    <button
+                                        type="button"
+                                        wire:click="abrirDetalhes({{ $solicitacao['id'] }})"
+                                        class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#313e50] bg-white border border-[#313e50]/30 rounded-lg hover:bg-[#313e50] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#313e50] transition-all"
+                                    >
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                        Analisar
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-500">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <svg class="w-10 h-10 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        Nenhuma solicitação encontrada para os filtros aplicados.
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Footer Informativo de Paginação -->
+            <div class="border-t border-gray-100 px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+                <p>
+                    Mostrando <span class="font-medium text-gray-900">{{ $solicitacoes->firstItem() ?? 0 }}</span> 
+                    a <span class="font-medium text-gray-900">{{ $solicitacoes->lastItem() ?? 0 }}</span> 
+                    de <span class="font-medium text-gray-900">{{ $solicitacoes->total() }}</span> registros
+                </p>
+                
+                <div class="flex gap-2">
+                    <button 
+                        @if($solicitacoes->onFirstPage()) disabled @else wire:click="previousPage" @endif
+                        class="px-3 py-1.5 rounded-lg border border-gray-200 transition-colors {{ $solicitacoes->onFirstPage() ? 'text-gray-400 bg-gray-50 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50' }}"
+                    >
+                        Anterior
+                    </button>
+
+                    <button 
+                        @if(!$solicitacoes->hasMorePages()) disabled @else wire:click="nextPage" @endif
+                        class="px-3 py-1.5 rounded-lg border border-gray-200 transition-colors {{ !$solicitacoes->hasMorePages() ? 'text-gray-400 bg-gray-50 cursor-not-allowed' : 'text-gray-700 bg-white hover:bg-gray-50' }}"
+                    >
+                        Próximo
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
