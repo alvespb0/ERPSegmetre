@@ -3,6 +3,7 @@
 namespace App\Livewire\Titulo\ContasPagar;
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 use App\Models\Conta;
 use App\Models\Integracao;
@@ -16,7 +17,8 @@ class ModuloDDA extends Component
     public $titulos = [];
 
     public $openModalDespesa = false;
-
+    public $dadosDDA = [];
+    
     public function mount(){
         $this->contas = Conta::whereHas('configuracaoCobranca')->with('banco', 'tipoConta', 'configuracaoCobranca')->get();
     }
@@ -71,8 +73,20 @@ class ModuloDDA extends Component
     
     public function cadastrarDespesa($linhaDigitavel){
         $titulo = collect($this->titulos)->firstWhere('linha_digitavel', $linhaDigitavel);
-        
+
+        $this->dadosDDA = $titulo;
         $this->openModalDespesa = true;
+    }
+
+    /**
+     * Evento acionado para fechar o modal de anexos e limpar os dados.
+     * * @return void
+     */
+    #[On('fechar-modal-cadastro-despesa')]
+    public function fecharModalAnexos(){
+        $this->openModalDespesa = false;
+
+        $this->dadosDDA = null;
     }
 
     public function render()

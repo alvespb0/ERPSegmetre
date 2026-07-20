@@ -14,7 +14,7 @@ class SolicitacoesPagamentoService
             'tipo' => $dados['tipo'],
             'identificador' => $dados['identificador'],
             'valor' => $dados['valor'],
-            'data_solicitacao' => $dados['data_solicitacao'] ?? Carbon\Carbon::now(),
+            'data_solicitacao' => $dados['data_solicitacao'] ?? \Carbon\Carbon::now(),
             'data_pagamento' => $dados['data_pagamento'] ?? null,
             'comprovante_path' => $dados['comprovante_path'] ?? null,
             'status' => $dados['status'] ?? 'pendente'

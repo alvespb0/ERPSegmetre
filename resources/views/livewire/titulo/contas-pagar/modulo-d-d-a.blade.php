@@ -220,6 +220,7 @@
 
     @if($openModalDespesa == true)
         <livewire:Modais.ContasPagar.LancarTituloDDA
+            :dadosDDA="$dadosDDA" 
             wire:key="modal-despesa" 
         />
     @endif
