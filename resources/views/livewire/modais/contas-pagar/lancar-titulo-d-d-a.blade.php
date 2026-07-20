@@ -84,15 +84,93 @@
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div class="md:col-span-3">
-                                    <label class="block text-xs font-medium text-gray-700 mb-1">Fornecedor / Recebedor<span class="text-red-500">*</span></label>
-                                    <select class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]" wire:model="entidade_id">
-                                        <option value="">Selecione o Fornecedor...</option>
-                                        @foreach($entidades ?? [] as $entidade)
-                                            <option value="{{ $entidade->id }}">{{ $entidade->razao_social ?? $entidade->nome_fantasia }} - {{ $entidade->cpf_cnpj }}</option>
-                                        @endforeach
-                                    </select>
+                                
+                                <!-- Bloco de Fornecedor / Recebedor com Cadastro Rápido -->
+                                <div class="md:col-span-3" x-data="{ cadastrarNovo: false }" @entidade-cadastrada.window="cadastrarNovo = false">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <label class="block text-xs font-medium text-gray-700">Fornecedor / Recebedor <span class="text-red-500">*</span></label>
+                                        <button 
+                                            type="button" 
+                                            @click="cadastrarNovo = !cadastrarNovo" 
+                                            class="text-xs font-medium text-[#313e50] hover:underline transition-colors"
+                                            x-text="cadastrarNovo ? '← Voltar para seleção' : '+ Cadastrar Novo'"
+                                        ></button>
+                                    </div>
+
+                                    <!-- Select Existente -->
+                                    <div x-show="!cadastrarNovo">
+                                        <select class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]" wire:model="entidade_id">
+                                            <option value="">Selecione o Fornecedor...</option>
+                                            @foreach($entidades ?? [] as $entidade)
+                                                <option value="{{ $entidade->id }}">{{ $entidade->razao_social ?? $entidade->nome_fantasia }} - {{ $entidade->cpf_cnpj }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
+                                    <!-- Formulário de Nova Entidade -->
+                                    <div x-show="cadastrarNovo" x-cloak class="p-4 rounded-xl border border-gray-200 bg-gray-50 mt-2">
+                                        <div class="flex items-center gap-2 mb-4">
+                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                            <h4 class="text-sm font-semibold text-gray-800">Cadastro Rápido de Fornecedor</h4>
+                                        </div>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="md:col-span-2">
+                                                <label class="block text-xs font-medium text-gray-700 mb-1">Razão Social <span class="text-red-500">*</span></label>
+                                                <input type="text" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]" wire:model="nova_entidade.razao_social" placeholder="Razão Social da empresa">
+                                            </div>
+                                            
+                                            <div class="md:col-span-2">
+                                                <label class="block text-xs font-medium text-gray-700 mb-1">Nome Fantasia</label>
+                                                <input type="text" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]" wire:model="nova_entidade.nome_fantasia" placeholder="Nome fantasia (opcional)">
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-700 mb-1">CPF/CNPJ <span class="text-red-500">*</span></label>
+                                                <input type="text" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]" wire:model="nova_entidade.cpf_cnpj" placeholder="000.000.000-00">
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-700 mb-1">Tipo <span class="text-red-500">*</span></label>
+                                                <select class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]" wire:model="nova_entidade.tipo">
+                                                    <option value="">Selecione...</option>
+                                                    <option value="PJ">Jurídica</option>
+                                                    <option value="PF">Física</option>
+                                                </select>
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-700 mb-1">Classificação <span class="text-red-500">*</span></label>
+                                                <select class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]" wire:model="nova_entidade.classificacao">
+                                                    <option value="fornecedor">Fornecedor</option>
+                                                    <option value="cliente">Cliente</option>
+                                                    <option value="ambos">Ambos</option>
+                                                </select>
+                                            </div>
+                                            
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-700 mb-1">Dia Venc. Padrão</label>
+                                                <input type="number" min="1" max="31" class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:border-[#313e50]" wire:model="nova_entidade.dia_vencimento_padrao" placeholder="Ex: 10">
+                                            </div>
+                                            
+                                            <div class="md:col-span-2 flex justify-end mt-2">
+                                                <button 
+                                                    type="button" 
+                                                    wire:click="salvarEntidadeRapido" 
+                                                    wire:loading.attr="disabled"
+                                                    class="inline-flex items-center gap-2 px-4 py-2 bg-[#313e50] text-white text-xs font-semibold rounded-lg hover:bg-[#313e50]/90 transition-colors disabled:opacity-75"
+                                                >
+                                                    <span wire:loading.remove wire:target="salvarEntidadeRapido" class="inline-flex items-center gap-2">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                                        Cadastrar e Selecionar
+                                                    </span>
+                                                    <span wire:loading wire:target="salvarEntidadeRapido">Cadastrando...</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+                                <!-- Fim do Bloco de Fornecedor -->
 
                                 <div class="md:col-span-3">
                                     <label class="block text-xs font-medium text-gray-700 mb-1">Descrição da Despesa <span class="text-red-500">*</span></label>

@@ -261,7 +261,7 @@
                                 @endif
 
                                 @if(auth()->user()->isAdmin() || auth()->user()->isDev() || auth()->user()->isCobranca() || auth()->user()->isPagador())
-                                <li x-data="{ openSub: {{ request()->routeIs('erp.despesa.*') || request()->routeIs('erp.contas-pagar.*') ? 'true' : 'false' }} }">
+                                <li x-data="{ openSub: {{ request()->routeIs('erp.despesa.*') || request()->routeIs('erp.contas-pagar.*') || request()->routeIs('erp.dda.*') ? 'true' : 'false' }} }">
                                     <button type="button" @click="openSub = !openSub" class="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 text-white/60 hover:bg-white/5 hover:text-white">
                                         <div class="flex items-center gap-3">
                                             <span class="inline-flex h-5 w-5 items-center justify-center">
@@ -277,6 +277,9 @@
                                         </li>
                                         <li>
                                             <a href="{{route('erp.despesa.index')}}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.despesa.index') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Contas a Pagar</a>
+                                        </li>
+                                        <li>
+                                            <a href="{{route('erp.dda.index')}}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.dda.index') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">DDA</a>
                                         </li>
                                     </ul>
                                 </li>

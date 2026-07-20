@@ -7,6 +7,8 @@ use Livewire\Component;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use App\Helpers\Empresa;
 
 use App\Services\CategoriaFinanceiraService;
 use App\Services\CentroCustoService;
@@ -29,7 +31,8 @@ class LancarTituloDDA extends Component
     /* Variáveis do DDA */
     public array $dadosDDA;
     public $vencimentoDDA, $valorDDA, $nomeBeneficiario, $documentoBeneficiario, $linhaDigitavel;
-
+    
+    public array $nova_entidade = [];
     public function mount(
         CategoriaFinanceiraService $categoriaFinanceiraService,
         CentroCustoService $centroCustoService,
@@ -44,9 +47,37 @@ class LancarTituloDDA extends Component
         $this->dadosDDA = $dadosDDA;
         $this->valorDDA = $dadosDDA['valor'];
         $this->vencimentoDDA = $dadosDDA['vencimento']->toDateString();
+        $this->data_vencimento = $this->vencimentoDDA ?? null;
+        $this->valor_total = $this->valorDDA ?? null;
         $this->nomeBeneficiario = $dadosDDA['nome_beneficiario'];
         $this->documentoBeneficiario = $dadosDDA['documento_beneficiario'];
         $this->linhaDigitavel = $dadosDDA['linha_digitavel'];
+
+        $somenteNumeros = preg_replace('/[^0-9]/', '', $this->documentoBeneficiario);
+        if (strlen($somenteNumeros) === 11) {
+            $cpfCnpjFormatado = preg_replace(
+                '/(\d{3})(\d{3})(\d{3})(\d{2})/',
+                '$1.$2.$3-$4',
+                $somenteNumeros
+            );
+        } elseif (strlen($somenteNumeros) === 14) {
+            $cpfCnpjFormatado = preg_replace(
+                '/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/',
+                '$1.$2.$3/$4-$5',
+                $somenteNumeros
+            );
+        } else {
+            $cpfCnpjFormatado = $this->documentoBeneficiario;
+        }
+
+        $this->nova_entidade = [
+            'razao_social' => $this->nomeBeneficiario,
+            'nome_fantasia' => $this->nomeBeneficiario,
+            'cpf_cnpj' => $cpfCnpjFormatado,
+            'tipo' => strlen($somenteNumeros) > 11 ? 'PJ' : 'PF',
+            'classificacao' => 'fornecedor',
+            'dia_vencimento_padrao' => null
+        ];
     }
 
     public function rules(){
@@ -63,7 +94,6 @@ class LancarTituloDDA extends Component
                 'in:' . $this->valorDDA,
             ],
             'data_emissao' => 'nullable|date',
-            'data_vencimento' => 'required|date',
             'data_vencimento' => [
                 'required',
                 'date',
@@ -107,6 +137,36 @@ class LancarTituloDDA extends Component
         ];
     }
 
+    public function salvarEntidadeRapido(EntidadeService $entidadeService)
+    {
+        $this->validate(
+            [
+                'nova_entidade.razao_social' => 'required|string',
+                'nova_entidade.cpf_cnpj' => [
+                    'required',
+                    'string',
+                    'max:18',
+                    Rule::unique('entidade', 'cpf_cnpj')->where(fn ($q) => $q->where('empresa_parametro_id', Empresa::id()))
+                ],
+                'nova_entidade.tipo' => 'required|in:PF,PJ',
+                'nova_entidade.classificacao' => 'required|string',
+            ],
+            [
+                'nova_entidade.razao_social.required' => 'Informe a razão social.',
+                'nova_entidade.cpf_cnpj.required' => 'Informe o CPF/CNPJ.',
+                'nova_entidade.cpf_cnpj.max' => 'O CPF/CNPJ deve ter no máximo 18 caracteres.',
+                'nova_entidade.cpf_cnpj.unique' => 'Já existe uma entidade cadastrada com este CPF/CNPJ.',
+                'nova_entidade.tipo.required' => 'Selecione o tipo da entidade.',
+                'nova_entidade.tipo.in' => 'O tipo informado é inválido.',
+                'nova_entidade.classificacao.required' => 'Selecione a classificação da entidade.',
+            ]
+        );
+
+        $entidade = $entidadeService->store($this->nova_entidade); 
+        $this->entidades = $entidadeService->showFornecedores();
+        $this->entidade_id = $entidade->id;
+        $this->dispatch('entidade-cadastrada');
+    }
 
     public function submit(TituloFinanceiroService $tituloService, ParcelaService $parcelaService, SolicitacoesPagamentoService $solicitacaoService){
         try{
@@ -139,8 +199,8 @@ class LancarTituloDDA extends Component
             $solicitacaoService->store([
                 'parcela_id' => $parcela->id,
                 'tipo' => 'codigo_barras',
-                'identificador' => $this->dadosDDA['linha_digitavel'],
-                'valor' => $this->dadosDDA['valor'],
+                'identificador' => $this->linhaDigitavel,
+                'valor' => $this->valorDDA,
             ]);
 
             DB::commit();

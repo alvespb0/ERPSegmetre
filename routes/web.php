@@ -112,7 +112,7 @@ Route::middleware(['checkUserType:admin,dev', 'two.factor'])->controller(SOCCont
 });
 
 Route::middleware(['checkUserType:admin,dev', 'two.factor'])->controller(DDAController::class)->group(function(){
-    Route::get('erp/dda', 'showListView')->name('erp.dda.index');
+    Route::get('erp/titulo/despesa/dda', 'showListView')->name('erp.dda.index');
 });
 
 Route::post('logout', function (Request $request) {

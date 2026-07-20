@@ -80,7 +80,6 @@ class CreateEntidade extends Component
         return [
             'razaoSocial' => 'required|string|max:255',
             'nomeFantasia' => 'nullable|string|max:255',
-            'cnpjcpf' => 'required|string|max:18|unique:entidade,cpf_cnpj',
             'cnpjcpf' => [
                 'required',
                 'string',
