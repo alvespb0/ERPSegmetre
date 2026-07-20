@@ -34,6 +34,9 @@ class PagamentosSolicitados extends Component
     public $dataInicioRange;
     public $dataFimRange;
 
+    public $openModalPagamento = false;
+    public ?int $solicitacao_id;
+
     public function updatedFiltroCompetencia(){
         $this->resetarFiltrosDeData();
         switch ($this->filtroCompetencia){
@@ -214,6 +217,11 @@ class PagamentosSolicitados extends Component
         });
     }
 
+    public function abrirDetalhes($solicitacao_id){
+        $this->openModalPagamento = true;
+        $this->solicitacao_id = $solicitacao_id;
+    }
+    
     public function render()
     {
         $query = $this->getQuery();
