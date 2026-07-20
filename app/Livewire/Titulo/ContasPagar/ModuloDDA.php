@@ -7,6 +7,7 @@ use Livewire\Attributes\On;
 
 use App\Models\Conta;
 use App\Models\Integracao;
+use App\Models\SolicitacoesPagamento;
 
 class ModuloDDA extends Component
 {
@@ -14,7 +15,8 @@ class ModuloDDA extends Component
     public ?int $selectedConta = null;
     public $integracao = null;
     public $filtroConta, $dataInicial, $dataFinal, $situacao;
-    public $titulos = [];
+    public $titulosVinculados = [];
+    public $titulosSemVinculo = [];
 
     public $openModalDespesa = false;
     public $dadosDDA = [];
@@ -30,6 +32,9 @@ class ModuloDDA extends Component
      * @return void
      */
     public function buscarBoletos(){
+        $this->titulosSemVinculo = [];
+        $this->titulosVinculados = [];
+
         $conta = Conta::findOrFail($this->selectedConta);
 
         $config = $conta->configuracaoCobranca;
@@ -45,19 +50,41 @@ class ModuloDDA extends Component
             $factory = new \App\Factories\IntegracaoFactory;
             $serviceProvider = $factory->make($this->integracao, 'pagamento');
 
+            $titulos = [];
+            $titulosVinculados = [];
+            $titulosSemVinculo = [];
+
             if ($config->ambiente === 'homologacao') {
                 if (!method_exists($serviceProvider, 'ddaSandbox')) {
                     $this->dispatch('toast-error', 'Integração não implementa DDA Sandbox.');
                     return;
                 }
-                $this->titulos = $serviceProvider->ddaSandbox($this->dataInicial, $this->dataFinal, $this->situacao, preg_replace('/-/', '', $conta->conta));
+                $titulos = $serviceProvider->ddaSandbox($this->dataInicial, $this->dataFinal, $this->situacao, preg_replace('/-/', '', $conta->conta));
             } elseif ($config->ambiente === 'producao') {
                 if (!method_exists($serviceProvider, 'ddaProducao')) {
                     $this->dispatch('toast-error', 'Integração não implementa DDA.');
                     return;
                 }
-                $this->titulos = $serviceProvider->ddaProducao($this->dataInicial, $this->dataFinal, $this->situacao, preg_replace('/-/', '', $conta->conta));
+                $titulos = $serviceProvider->ddaProducao($this->dataInicial, $this->dataFinal, $this->situacao, preg_replace('/-/', '', $conta->conta));
             }
+            $linhas = collect($titulos)
+                ->pluck('linha_digitavel')
+                ->all();
+
+            $vinculados = SolicitacoesPagamento::whereIn('identificador', $linhas)
+                ->pluck('identificador')
+                ->flip();
+
+            foreach($titulos as $titulo){
+                if (isset($vinculados[$titulo['linha_digitavel']])) {
+                    $titulosVinculados[] = $titulo;
+                } else {
+                    $titulosSemVinculo[] = $titulo;
+                }
+            }
+
+            $this->titulosSemVinculo = $titulosSemVinculo;
+            $this->titulosVinculados = $titulosVinculados;
 
             $this->dispatch('toast-message', 'Boletos resgatados com sucesso.');
         }catch (\Throwable $e){
@@ -72,8 +99,7 @@ class ModuloDDA extends Component
     }
     
     public function cadastrarDespesa($linhaDigitavel){
-        $titulo = collect($this->titulos)->firstWhere('linha_digitavel', $linhaDigitavel);
-
+        $titulo = collect($this->titulosSemVinculo)->firstWhere('linha_digitavel', $linhaDigitavel);
         $this->dadosDDA = $titulo;
         $this->openModalDespesa = true;
     }
