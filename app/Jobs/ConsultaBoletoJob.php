@@ -79,7 +79,7 @@ class ConsultaBoletoJob implements ShouldQueue
                 }
             } catch (\Throwable $e) {
                 $contexto = method_exists($e, 'context') ? $e->context() : [];
-                Log::error([
+                \Log::error([
                     'Erro ao consultar boleto' => [
                         'boleto_id' => $boleto->id,
                         'erro' => $e->getMessage(),

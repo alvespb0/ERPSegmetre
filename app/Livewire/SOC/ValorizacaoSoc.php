@@ -160,8 +160,19 @@ class ValorizacaoSoc extends Component
 
         foreach($this->empresasSoc as $empresaSoc){
             if($codEmpresa == $empresaSoc['CODIGO']){
-                $entidade = Entidade::where('cpf_cnpj', preg_replace('/[.\/-]/', '', $empresaSoc['CNPJ']))
-                                    ->orWhere('cpf_cnpj', $empresaSoc['CNPJ'])->first();
+                \Log::debug([
+                    'codigo_recebido' => $codEmpresa,
+                    'empresa_soc' => $empresaSoc,
+                ]);
+
+                $cnpj = trim($empresaSoc['CNPJ'] ?? '');
+
+                $entidade = null;
+
+                if ($cnpj !== '') {
+                    $entidade = Entidade::where('cpf_cnpj', $cnpj)->first();
+                }
+                
                 if(!$entidade){
                     $cnpj = !$codUnidade ?  $empresaSoc['CNPJ'] : null;
 
