@@ -21,15 +21,6 @@
                     </svg>
                     Processando...
                 </div>
-
-                <button 
-                    type="button"
-                    wire:click="$set('openModalNovaSolicitacao', true)"
-                    class="inline-flex items-center gap-2 px-4 py-2 bg-[#313e50] text-white text-sm font-medium rounded-lg hover:bg-[#313e50]/90 transition-colors shadow-sm w-full md:w-auto justify-center"
-                >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Nova Solicitação
-                </button>
             </div>
         </div>
 
@@ -198,10 +189,10 @@
         <!-- Área de Listagem e Resumo Integrados -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative">
             
-            <!-- Overlay de carregamento sobre a tabela -->
+            <!-- Overlay de carregamento sobre a listagem -->
             <div wire:loading class="absolute inset-0 bg-white/60 z-10 flex items-center justify-center"></div>
 
-            <!-- Header da Tabela (Resumo) -->
+            <!-- Header da Listagem (Resumo) -->
             @if($solicitacoes->total() > 0)
                 <div class="bg-gray-50/50 border-b border-gray-200 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
                     <div class="flex items-center gap-6">
@@ -220,106 +211,93 @@
                 </div>
             @endif
 
-            <div class="min-w-full overflow-x-auto">
-                <table class="min-w-full text-sm">
-                    <thead class="bg-gray-50 text-xs text-gray-500 uppercase border-b border-gray-100">
-                        <tr>
-                            <th class="px-6 py-3 text-left font-semibold">ID / Solicitante</th>
-                            <th class="px-6 py-3 text-left font-semibold">Beneficiário</th>
-                            <th class="px-6 py-3 text-left font-semibold whitespace-nowrap">Datas</th>
-                            <th class="px-6 py-3 text-right font-semibold">Valor (R$)</th>
-                            <th class="px-6 py-3 text-center font-semibold">Status</th>
-                            <th class="px-6 py-3 text-center font-semibold">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @forelse($solicitacoes as $solicitacao)
-                            <tr class="hover:bg-gray-50/80 transition-colors">
-                                
-                                <!-- ID / Solicitante -->
-                                <td class="px-6 py-3.5">
-                                    <span class="text-gray-900 font-semibold block">
+            <!-- Listagem Responsiva (Cards) -->
+            <div class="p-4 bg-gray-50/30">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    @forelse($solicitacoes as $solicitacao)
+                        @php
+                            $statusColors = [
+                                'aprovado'  => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                                'pendente'  => 'bg-amber-50 text-amber-700 border-amber-200',
+                                'rejeitado' => 'bg-red-50 text-red-700 border-red-200',
+                                'cancelado' => 'bg-gray-50 text-gray-600 border-gray-200',
+                                'recusado'  => 'bg-red-50 text-red-700 border-red-200',
+                                'pago'      => 'bg-blue-50 text-blue-700 border-blue-200',
+                            ];
+                            $statusStr = strtolower($solicitacao['status'] ?? 'pendente');
+                            $corStatus = $statusColors[$statusStr] ?? 'bg-gray-50 text-gray-600 border-gray-200';
+                            
+                            $isVencido = isset($solicitacao->parcela->data_vencimento) && \Carbon\Carbon::parse($solicitacao->parcela->data_vencimento)->isPast() && $statusStr !== 'pago';
+                        @endphp
+
+                        <!-- Card Clickable -->
+                        <div 
+                            wire:click="abrirDetalhes({{ $solicitacao['id'] }})"
+                            class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-[#313e50]/40 transition-all cursor-pointer flex flex-col justify-between gap-4 group relative overflow-hidden"
+                        >
+
+                            <!-- Cabeçalho do Card: Status e ID/Solicitante -->
+                            <div class="flex justify-between items-start border-b border-gray-50 pb-3">
+                                <div>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border uppercase tracking-wider {{ $corStatus }}">
+                                        {{ $solicitacao['status'] ?? 'Pendente' }}
+                                    </span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-sm font-bold text-gray-900 block">
                                         #{{ str_pad($solicitacao['id'], 5, '0', STR_PAD_LEFT) }}
                                     </span>
-                                    <span class="text-[11px] text-gray-500 block mt-0.5 whitespace-nowrap">
+                                    <span class="text-[10px] font-medium text-gray-400 block mt-0.5" title="Solicitante">
                                         {{ $solicitacao['solicitante'] ?? 'Não informado' }}
                                     </span>
-                                </td>
-                                
-                                <!-- Beneficiário -->
-                                <td class="px-6 py-3.5">
-                                    <span class="text-gray-900 font-medium block whitespace-nowrap">
-                                        {{ $solicitacao->parcela->titulo->entidade->razao_social ?? 'Não informado' }}
-                                    </span>
-                                    <span class="text-[11px] text-gray-500 block mt-0.5 whitespace-nowrap">
-                                        {{ $solicitacao->parcela->titulo->categoriaFinanceira->nome ?? 'Sem Categoria' }}
-                                    </span>
-                                </td>
-                                
-                                <!-- Datas (Solicitação e Vencimento) -->
-                                <td class="px-6 py-3.5 whitespace-nowrap">
-                                    <div class="flex flex-col gap-1 text-[11px]">
-                                        <div class="flex items-center gap-1.5 text-gray-500">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                            <span class="font-medium text-gray-700">Ven:</span> 
-                                            {{ isset($solicitacao->parcela->data_vencimento) ? date('d/m/Y', strtotime($solicitacao->parcela->data_vencimento)) : '--/--/----' }}
-                                        </div>
-                                        <div class="flex items-center gap-1.5 text-gray-400">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            <span>Sol:</span>
-                                            {{ isset($solicitacao->data_solicitacao) ? date('d/m/Y', strtotime($solicitacao->data_solicitacao)) : '--/--/----' }}
-                                        </div>
-                                    </div>
-                                </td>
-                                
-                                <!-- Valor -->
-                                <td class="px-6 py-3.5 text-right font-medium text-gray-900 whitespace-nowrap">
-                                    {{ number_format($solicitacao->valor ?? 0, 2, ',', '.') }}
-                                </td>
+                                </div>
+                            </div>
 
-                                <!-- Status -->
-                                <td class="px-6 py-3.5 text-center whitespace-nowrap">
-                                    @php
-                                        $statusClass = match(strtolower($solicitacao['status'] ?? '')) {
-                                            'pago' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                                            'pendente' => 'bg-amber-50 text-amber-700 border-amber-200',
-                                            'rejeitado' => 'bg-red-50 text-red-700 border-red-200',
-                                            'cancelado' => 'bg-gray-50 text-gray-600 border-gray-200',
-                                            default => 'bg-gray-50 text-gray-600 border-gray-200',
-                                        };
-                                    @endphp
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold border {{ $statusClass }}">
-                                        {{ ucfirst($solicitacao['status'] ?? 'Não informado') }}
-                                    </span>
-                                </td>
-                                
-                                <!-- Ações -->
-                                <td class="px-6 py-3.5 text-center whitespace-nowrap">
-                                    <button
-                                        type="button"
-                                        wire:click="abrirDetalhes({{ $solicitacao['id'] }})"
-                                        class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#313e50] bg-white border border-[#313e50]/30 rounded-lg hover:bg-[#313e50] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#313e50] transition-all"
-                                    >
-                                        Analisar
-                                    </button>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-500">
-                                    <div class="flex flex-col items-center justify-center">
-                                        <svg class="w-10 h-10 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                        Nenhuma solicitação encontrada para os filtros aplicados.
+                            <!-- Corpo do Card: Beneficiário e Categoria -->
+                            <div class="flex-1">
+                                <h4 class="text-sm font-semibold text-gray-900 group-hover:text-[#313e50] transition-colors line-clamp-2" title="{{ $solicitacao->parcela->titulo->entidade->razao_social ?? 'Não informado' }}">
+                                    {{ $solicitacao->parcela->titulo->entidade->razao_social ?? $solicitacao->parcela->titulo->entidade->nome_fantasia ?? 'Beneficiário Não Informado' }}
+                                </h4>
+                                <p class="text-[11px] text-gray-500 mt-1 line-clamp-1">
+                                    {{ $solicitacao->parcela->titulo->categoriaFinanceira->nome ?? 'Sem Categoria' }}
+                                </p>
+                            </div>
+
+                            <!-- Rodapé do Card: Datas e Valor -->
+                            <div class="flex justify-between items-end pt-3 mt-1 bg-gray-50/50 -mx-4 -mb-4 p-4 border-t border-gray-50">
+                                <div class="space-y-1.5">
+                                    <div class="flex items-center gap-1.5" title="Vencimento">
+                                        <span class="text-[11px] font-medium {{ $isVencido ? 'text-red-600' : 'text-gray-600' }}">
+                                            Vencimento: {{ isset($solicitacao->parcela->data_vencimento) ? date('d/m/Y', strtotime($solicitacao->parcela->data_vencimento)) : '--/--/----' }}
+                                        </span>
                                     </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                                    <div class="flex items-center gap-1.5" title="Data da Solicitação">
+                                        <span class="text-[10px] text-gray-400">
+                                            Solicitação: {{ isset($solicitacao->data_solicitacao) ? date('d/m/Y', strtotime($solicitacao->data_solicitacao)) : '--/--/----' }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-[10px] text-gray-400 uppercase font-semibold tracking-wide mb-0.5">Valor (R$)</p>
+                                    <p class="text-base font-bold text-gray-900">
+                                        {{ number_format($solicitacao->valor ?? 0, 2, ',', '.') }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="col-span-full py-12 text-center bg-white border border-dashed border-gray-200 rounded-xl">
+                            <div class="flex flex-col items-center justify-center">
+                                <svg class="w-10 h-10 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                <p class="text-sm text-gray-500">Nenhuma solicitação encontrada para os filtros aplicados.</p>
+                            </div>
+                        </div>
+                    @endforelse
+                </div>
             </div>
             
             <!-- Footer Informativo de Paginação -->
-            <div class="border-t border-gray-100 px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
+            <div class="border-t border-gray-100 px-6 py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4 bg-white">
                 <p>
                     Mostrando <span class="font-medium text-gray-900">{{ $solicitacoes->firstItem() ?? 0 }}</span> 
                     a <span class="font-medium text-gray-900">{{ $solicitacoes->lastItem() ?? 0 }}</span> 
@@ -344,6 +322,7 @@
             </div>
         </div>
     </div>
+    
     @if($solicitacao_id && $openModalPagamento)
         <livewire:Modais.ContasPagar.PagamentosSolicitados
             :solicitacao-id="$solicitacao_id" 

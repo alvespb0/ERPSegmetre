@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
 use App\Models\BoletoCobranca;
+use App\Models\Conta;
 use App\Models\Integracao;
 
 use App\Bancos\Sicoob\Payloads\DDAPayload;
@@ -70,6 +71,28 @@ class SicoobPagamentoService
         })->values()->all();
     }
 
+    /**
+     * Consulta boletos DDA no ambiente de Produção.
+     *
+     * Realiza autenticação OAuth, utiliza certificado digital e
+     * consulta a API de pagamentos do Sicoob.
+     *
+     * @param string|\DateTimeInterface $dataInicial Data inicial da consulta.
+     * @param string|\DateTimeInterface $dataFinal Data final da consulta.
+     * @param string $situacao Situação dos boletos.
+     * @param string $numConta Número da conta.
+     *
+     * @return array<int, array{
+     *     vencimento: Carbon,
+     *     nome_beneficiario: string,
+     *     documento_beneficiario: string,
+     *     linha_digitavel: string,
+     *     valor: float|int|string,
+     *     situacao: string
+     * }>
+     *
+     * @throws SicoobException Quando a API retornar erro.
+     */
     public function ddaProducao($dataInicial, $dataFinal, $situacao, $numConta){
         $authService = new AuthService;
         $access_token = $authService->auth($this->integracao, 'pagamentos_consulta');
@@ -121,6 +144,60 @@ class SicoobPagamentoService
                 'situacao' => $boleto['descricaoSituacaoBoleto']
             ];
         })->values()->all();
+    }
 
+    public function consultaBoletoPagamentoProducao(Conta $conta, $codigoBarras){
+        $authService = new AuthService;
+        $access_token = $authService->auth($this->integracao, 'pagamentos_consulta');
+        $client_id = $this->integracao->credenciais->client_id;
+        $cert = $this->integracao->empresaParametro->certificadoDigital;
+
+        $response = Http::withToken($access_token)
+            ->withOptions([
+                'cert' => Storage::disk('local')->path($cert->cert_path)
+            ])
+            ->withHeaders([
+                'client_id' => $client_id,
+            ])
+            ->get(
+                $this->integracao->endpoint . "pagamentos/v3/boletos/{$codigoBarras}", [
+                    'numeroConta' => preg_replace('/-/', '', $conta->conta)
+                ]
+            );
+
+        if(!$response->successful()) {
+            \Log::error([
+                'Erro ao resgatar boleto pagamento' => [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'empresa_parametro' => $this->integracao->empresa_parametro_id
+                ]
+            ]);
+
+            throw new SicoobException(
+                'Erro ao resgatar boleto para pagamento',
+                $response->status(),
+                $response->body()
+            );
+        }
+
+        $resultado = $response->json('resultado');
+
+        return [
+            'banco_beneficiario' => $resultado['nomeInstituicaoEmissora'],
+            'cpf_cnpj_beneficiario' => $resultado['numeroCpfCnpjBeneficiario'],
+            'razao_social_beneficiario' => $resultado['nomeRazaoSocialBeneficiario'],
+            'nome_fantasia_beneficiario' => $resultado['nomeFantasiaBeneficiario'] ?? null,
+            'cpf_cnpj_pagador' => $resultado['numeroCpfCnpjPagador'],
+            'razao_social_pagador' => $resultado['nomeRazaoSocialPagador'],
+            'nome_fantasia_pagador' => $resultado['nomeFantasiaPagador'] ?? null,
+            'valor_boleto' => $resultado['valorBoleto'],
+            'valor_abatimento' => $resultado['valorAbatimentoDesconto'],
+            'valor_multa' => $resultado['valorMultaMora'] ?? 0.00,
+            'valor_final' => $resultado['valorPagamento'] ?? $resultado['valorBoleto'],
+            'vencimento_boleto' => $resultado['dataVencimentoBoleto'],
+            'aceita_valor_divergente' => $resultado['permiteAlterarValor'], # bool
+            'identificador_consulta' => $resultado['identificadorConsulta'] # isso vem em hash e é requisito obrigatorio para o post de pagamento de boleto
+        ];
     }
 }
