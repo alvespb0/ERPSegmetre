@@ -16,6 +16,7 @@ class PagamentosSolicitados extends Component
     public $contas;
     public $selected_conta;
     public $saldo, $limite, $bloqueado;
+    public $consultaDespesaRet = [];
 
     /**
      * Inicializa o componente carregando a solicitação de pagamento
@@ -145,7 +146,7 @@ class PagamentosSolicitados extends Component
         ];
     }
 
-    public function processarPagamento(){
+    public function consultaDespesa(){
         try{
             if(!$this->selected_conta){
                 $this->dispatch('toast-error', 'Selecione uma conta de origem primeiro.');
@@ -154,22 +155,19 @@ class PagamentosSolicitados extends Component
             $conta = Conta::findOrFail($this->selected_conta);
 
             $config = $conta->configuracaoCobranca;
-            $consultaDespesa = [];
 
             if(!$config->integracao){
                 $this->dispatch('toast-error', 'A conta de origem não possui integração bancária para completar a transação.');
             }else{
                 switch($this->solicitacao->tipo){
                     case 'codigo_barras':
-                        $consultaDespesa = $this->consultaBoletoIntegracao($config, $conta);
+                        $this->consultaDespesaRet = $this->consultaBoletoIntegracao($config, $conta);
                     case 'pix' || 'pix_copia_cola':
                         # ...
                     case 'tributo':
                         # ... 
                 }
             }
-
-            dd($consultaDespesa);
         } catch(\Throwable $e){
             \Log::error([
                 'Erro ao buscar consultar boleto para pagamento' => $e->getMessage(),
@@ -177,7 +175,13 @@ class PagamentosSolicitados extends Component
                 'Empresa Parâmetro' => Empresa::id()
             ]);
 
-            $this->dispatch('toast-error', 'Erro ao processar pagamento!');
+            $message = 'Erro ao processar pagamento.';
+
+            if (method_exists($e, 'friendlyMessage')) {
+                $message = $e->friendlyMessage();
+            }
+
+            $this->dispatch('toast-error', $message);
         }
     }
 

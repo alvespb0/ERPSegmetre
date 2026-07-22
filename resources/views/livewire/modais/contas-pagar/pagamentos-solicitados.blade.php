@@ -144,9 +144,7 @@
                     </div>
 
                     <!-- Definição da Conta de Pagamento & Saldo -->
-                    <div class="bg-white rounded-xl border border-blue-100 overflow-hidden shadow-sm relative">
-                        <div class="absolute left-0 top-0 bottom-0 w-1 bg-[#313e50]"></div>
-                        
+                    <div class="bg-white rounded-xl border border-blue-100 overflow-hidden shadow-sm relative">                        
                         <div class="px-5 py-3 bg-[#313e50]/5 border-b border-blue-100">
                             <h4 class="text-xs font-semibold text-[#313e50] uppercase tracking-wide">Origem do Pagamento</h4>
                         </div>
@@ -229,6 +227,72 @@
                         </div>
                     </div>
 
+                    <!-- NOVO BLOCO: Retorno da Consulta de Despesa -->
+                    @if(!empty($consultaDespesaRet))
+                        @php
+                            $valorFinalRet = $consultaDespesaRet['valor_final'] ?? $consultaDespesaRet['valor_boleto'] ?? 0;
+                            $valorSolicitacao = $solicitacao->valor ?? 0;
+                            $valorDivergente = $valorFinalRet != $valorSolicitacao;
+
+                            $vencRet = $consultaDespesaRet['vencimento_boleto'] ?? null;
+                            $vencSol = $solicitacao->parcela->data_vencimento ?? null;
+                            $vencSolFormat = $vencSol ? \Carbon\Carbon::parse($vencSol)->format('Y-m-d') : null;
+                            $vencDivergente = $vencRet && $vencSolFormat && $vencRet !== $vencSolFormat;
+                        @endphp
+
+                        <div class="bg-white rounded-xl border border-[#313e50]/20 overflow-hidden shadow-sm relative">                            
+                            <div class="px-5 py-3 bg-[#313e50]/5 border-b border-[#313e50]/10">
+                                <h4 class="text-xs font-semibold text-[#313e50] uppercase tracking-wide">Dados Retornados do Banco</h4>
+                            </div>
+                            <div class="p-5 space-y-4 text-sm">
+                                
+                                <div>
+                                    <p class="text-gray-500 text-xs mb-0.5">Beneficiário Encontrado</p>
+                                    <p class="font-medium text-gray-900">
+                                        {{ $consultaDespesaRet['razao_social_beneficiario'] ?? $consultaDespesaRet['nome_fantasia_beneficiario'] ?? 'N/A' }}
+                                        <span class="text-gray-500 font-normal ml-1">({{ $consultaDespesaRet['cpf_cnpj_beneficiario'] ?? 'N/A' }})</span>
+                                    </p>
+                                    <p class="text-gray-500 text-xs mt-1">Instituição: {{ $consultaDespesaRet['banco_beneficiario'] ?? 'N/A' }}</p>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-3 border-t border-gray-100">
+                                    <!-- Coluna Solicitação -->
+                                    <div>
+                                        <p class="font-semibold text-gray-700 mb-2">Dados da Solicitação</p>
+                                        <p class="text-gray-600">Valor: R$ {{ number_format($valorSolicitacao, 2, ',', '.') }}</p>
+                                        <p class="text-gray-600">Vencimento: {{ $vencSol ? \Carbon\Carbon::parse($vencSol)->format('d/m/Y') : 'N/A' }}</p>
+                                    </div>
+                                    
+                                    <!-- Coluna Retorno -->
+                                    <div>
+                                        <p class="font-semibold text-gray-700 mb-2">Dados do Título</p>
+                                        <p class="font-medium {{ $valorDivergente ? 'text-red-600' : 'text-gray-900' }}">
+                                            Valor Cobrado: R$ {{ number_format($valorFinalRet, 2, ',', '.') }}
+                                        </p>
+                                        <p class="font-medium {{ $vencDivergente ? 'text-red-600' : 'text-gray-900' }}">
+                                            Vencimento: {{ $vencRet ? \Carbon\Carbon::parse($vencRet)->format('d/m/Y') : 'N/A' }}
+                                        </p>
+
+                                        @if(isset($consultaDespesaRet['valor_multa']) && $consultaDespesaRet['valor_multa'] > 0)
+                                            <p class="text-gray-500 text-xs mt-1">Multa/Juros: R$ {{ number_format($consultaDespesaRet['valor_multa'], 2, ',', '.') }}</p>
+                                        @endif
+                                        @if(isset($consultaDespesaRet['valor_abatimento']) && $consultaDespesaRet['valor_abatimento'] > 0)
+                                            <p class="text-gray-500 text-xs mt-1">Abatimento: R$ {{ number_format($consultaDespesaRet['valor_abatimento'], 2, ',', '.') }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                @if($valorDivergente || $vencDivergente)
+                                    <div class="mt-2 pt-3 border-t border-gray-200 flex items-start gap-2.5 text-amber-700 bg-amber-50/50 p-2.5 rounded-lg border border-amber-100/50">
+                                        <p class="text-[11px] font-medium leading-tight">
+                                            <strong>Atenção:</strong> Há divergências entre os dados lançados no sistema e os dados retornados pela instituição financeira. Verifique antes de confirmar o pagamento.
+                                        </p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
                 </div>
 
                 <!-- Footer / Ações -->
@@ -240,18 +304,37 @@
                     >
                         Cancelar
                     </button>
-                    <button 
-                        type="button" 
-                        wire:click="processarPagamento"
-                        wire:loading.attr="disabled"
-                        class="inline-flex items-center justify-center px-5 py-2 rounded-lg bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors shadow-sm disabled:opacity-70"
-                    >
-                        <svg wire:loading wire:target="processarPagamento" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Aprovar e Pagar
-                    </button>
+                    
+                    @if(empty($consultaDespesaRet))
+                        <!-- Botão Aprovar (Faz a consulta) -->
+                        <button 
+                            type="button" 
+                            wire:click="consultaDespesa"
+                            wire:loading.attr="disabled"
+                            class="inline-flex items-center justify-center px-5 py-2 rounded-lg bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors shadow-sm disabled:opacity-70"
+                        >
+                            <svg wire:loading wire:target="consultaDespesa" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span wire:loading.remove wire:target="consultaDespesa">Consultar Título</span>
+                            <span wire:loading wire:target="consultaDespesa">Consultando...</span>
+                        </button>
+                    @else
+                        <button 
+                            type="button" 
+                            wire:click="processarPagamento"
+                            wire:loading.attr="disabled"
+                            class="inline-flex items-center justify-center px-5 py-2 rounded-lg bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors shadow-sm disabled:opacity-70"
+                        >
+                            <svg wire:loading wire:target="processarPagamento" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span wire:loading.remove wire:target="processarPagamento">Processar Pagamento</span>
+                            <span wire:loading wire:target="processarPagamento">Processando...</span>
+                        </button>
+                    @endif
                 </div>
                 
             </div>
