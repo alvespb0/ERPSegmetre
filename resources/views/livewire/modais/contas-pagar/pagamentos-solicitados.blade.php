@@ -112,14 +112,14 @@
                                 </p>
 
                                 <div class="bg-gray-50 rounded-lg p-3 border border-gray-100 flex items-start justify-between gap-2">
-                                    <p class="font-mono font-medium text-gray-800 break-all flex-1">
+                                    <p class="font-mono font-medium text-gray-800 break-all flex-1 mt-0.5">
                                         {{ $solicitacao->identificador ?? 'Nenhum identificador registrado.' }}
                                     </p>
 
                                     @if($solicitacao->identificador)
                                         <button
                                             type="button"
-                                            class="flex-shrink-0 p-2 rounded-md hover:bg-gray-200 transition"
+                                            class="flex-shrink-0 p-1.5 rounded-md hover:bg-gray-200 transition text-gray-500 hover:text-gray-800"
                                             @click="
                                                 navigator.clipboard.writeText('{{ $solicitacao->identificador }}');
                                                 copied = true;
@@ -127,63 +127,116 @@
                                             "
                                             :title="copied ? 'Copiado!' : 'Copiar'"
                                         >
-                                            <svg x-show="!copied" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M10 8h8a2 2 0 012 2v8a2 2 0 01-2 2h-8a2 2 0 01-2-2v-8a2 2 0 012-2z"/>
+                                            <svg x-show="!copied" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M10 8h8a2 2 0 012 2v8a2 2 0 01-2 2h-8a2 2 0 01-2-2v-8a2 2 0 012-2z"/>
                                             </svg>
-
-                                            <svg x-show="copied" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:none">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M5 13l4 4L19 7"/>
+                                            <svg x-show="copied" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="display:none">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                             </svg>
                                         </button>
                                     @endif
                                 </div>
-
-                                <span
-                                    x-show="copied"
-                                    x-transition
-                                    class="text-xs text-green-600 mt-1 inline-block"
-                                    style="display:none"
-                                >
+                                <span x-show="copied" x-transition class="text-[10px] font-medium text-green-600 mt-1 inline-block" style="display:none">
                                     Copiado para a área de transferência!
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Definição da Conta de Pagamento -->
+                    <!-- Definição da Conta de Pagamento & Saldo -->
                     <div class="bg-white rounded-xl border border-blue-100 overflow-hidden shadow-sm relative">
-                        <!-- Filete lateral azul -->
                         <div class="absolute left-0 top-0 bottom-0 w-1 bg-[#313e50]"></div>
                         
                         <div class="px-5 py-3 bg-[#313e50]/5 border-b border-blue-100">
                             <h4 class="text-xs font-semibold text-[#313e50] uppercase tracking-wide">Origem do Pagamento</h4>
                         </div>
-                        <div class="p-5">
-                            <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Conta Bancária *</label>
-                            <select 
-                                wire:model="conta_selecionada"
-                                class="w-full text-sm bg-gray-50 border-gray-200 focus:border-[#313e50] focus:ring-[#313e50] outline-none text-gray-700 rounded-lg py-2.5 px-3 cursor-pointer hover:bg-gray-100 transition-colors"
-                            >
-                                <option value="">Selecione de qual conta o dinheiro irá sair...</option>
-                                @foreach($contas ?? [] as $conta)
-                                    <option value="{{ $conta->id }}">
-                                        {{ $conta->banco->nome ?? 'Banco' }} - Ag: {{ $conta->agencia }} / Cc: {{ $conta->conta }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        <div class="p-5 space-y-4">
+                            
+                            <!-- Seletor de Contas -->
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Conta Bancária *</label>
+                                <select 
+                                    wire:model.live="selected_conta"
+                                    class="w-full text-sm bg-gray-50 border-gray-200 focus:border-[#313e50] focus:ring-[#313e50] outline-none text-gray-700 rounded-lg py-2.5 px-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                                >
+                                    <option value="">Selecione de qual conta o dinheiro irá sair...</option>
+                                    @foreach($contas ?? [] as $conta)
+                                        <option value="{{ $conta->id }}">
+                                            {{ $conta->banco->nome ?? 'Banco' }} - Ag: {{ $conta->agencia }} / Cc: {{ $conta->conta }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <!-- Estado de Loading da Consulta de Saldo -->
+                            <div wire:loading wire:target="selected_conta" class="w-full">
+                                <div class="flex items-center gap-2 text-sm text-gray-500 px-2 py-1">
+                                    <svg class="animate-spin h-4 w-4 text-[#313e50]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Consultando saldos disponíveis...
+                                </div>
+                            </div>
+
+                            <!-- Display do Saldo (Mostra apenas após carregar) -->
+                            @if($selected_conta && isset($saldo))
+                                <div wire:loading.remove wire:target="selected_conta" class="bg-gray-50 border border-gray-100 rounded-xl p-4 transition-all">
+                                    
+                                    <!-- Grid de Valores Financeiros -->
+                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:divide-x divide-gray-200">
+                                        
+                                        <!-- Saldo Atual -->
+                                        <div class="md:px-3 first:pl-0">
+                                            <p class="text-[10px] text-gray-500 uppercase font-semibold tracking-wide mb-1">Saldo Conta</p>
+                                            <p class="text-base font-bold {{ $saldo < 0 ? 'text-red-600' : 'text-emerald-600' }}">
+                                                R$ {{ number_format($saldo, 2, ',', '.') }}
+                                            </p>
+                                        </div>
+
+                                        <!-- Limite -->
+                                        @if(isset($limite))
+                                            <div class="md:px-3">
+                                                <p class="text-[10px] text-gray-500 uppercase font-semibold tracking-wide mb-1">Limite Disp.</p>
+                                                <p class="text-base font-medium text-gray-700">
+                                                    R$ {{ number_format($limite, 2, ',', '.') }}
+                                                </p>
+                                            </div>
+                                        @endif
+
+                                        <!-- Valor Bloqueado -->
+                                        @if(isset($bloqueado))
+                                            <div class="md:px-3 col-span-2 md:col-span-1">
+                                                <p class="text-[10px] text-gray-500 uppercase font-semibold tracking-wide mb-1">Bloqueado</p>
+                                                <p class="text-base font-medium text-amber-600">
+                                                    R$ {{ number_format($bloqueado, 2, ',', '.') }}
+                                                </p>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <!-- Alerta se o saldo for insuficiente -->
+                                    @if($saldo < $solicitacao->valor)
+                                        <div class="mt-4 pt-3 border-t border-gray-200 flex items-start gap-2.5 text-amber-700 bg-amber-50/50 p-2.5 rounded-lg border border-amber-100/50">
+                                            <p class="text-[11px] font-medium leading-tight">
+                                                O saldo disponível (R$ {{ number_format($saldo, 2, ',', '.') }}) é inferior ao valor da solicitação. Esta transação pode ser rejeitada pelo banco.
+                                            </p>
+                                        </div>
+                                    @endif
+
+                                </div>
+                            @endif
                         </div>
                     </div>
 
                 </div>
 
                 <!-- Footer / Ações -->
-                <div class="bg-white border-t border-gray-100 px-6 py-4 flex flex-col-reverse sm:flex-row justify-end gap-3 rounded-b-xl">
+                <div class="bg-white border-t border-gray-100 px-6 py-4 flex justify-end gap-3 rounded-b-xl">
                     <button 
                         type="button" 
                         @click="show = false; setTimeout(() => $wire.$parent.set('openModalPagamento', false), 200)"
-                        class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm w-full sm:w-auto"
+                        class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
                     >
                         Cancelar
                     </button>
@@ -191,7 +244,7 @@
                         type="button" 
                         wire:click="processarPagamento"
                         wire:loading.attr="disabled"
-                        class="inline-flex items-center justify-center px-5 py-2 rounded-lg bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors shadow-sm w-full sm:w-auto disabled:opacity-70"
+                        class="inline-flex items-center justify-center px-5 py-2 rounded-lg bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors shadow-sm disabled:opacity-70"
                     >
                         <svg wire:loading wire:target="processarPagamento" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
