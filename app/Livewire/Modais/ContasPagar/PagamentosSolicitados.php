@@ -209,6 +209,60 @@ class PagamentosSolicitados extends Component
         }       
     }
 
+    public function processarPagamento(){
+        try{
+            if(!$this->consultaDespesaRet){
+                $this->dispatch('toast-error', 'Realize uma nova consutla de despesa.');
+            }
+
+            $conta = Conta::findOrFail($this->selected_conta);
+
+            $config = $conta->configuracaoCobranca;
+
+            if(!$config->integracao){
+                $this->dispatch('toast-error', 'A conta de origem não possui integração bancária para completar a transação.');
+            }else{
+                $integracao = $config->integracao;        
+                $factory = new \App\Factories\IntegracaoFactory;
+                $serviceProvider = $factory->make($integracao, 'pagamento');
+                
+                if ($config->ambiente === 'homologacao') {
+
+                    if (!method_exists($serviceProvider, 'processarPagamentoSandbox')) {
+                        $this->dispatch('toast-error', 'Integração não implementa pagamento de boleto SANDBOX.');
+                        return;
+                    }
+
+                    $serviceProvider->processarPagamentoSandbox($conta, $this->solicitacao->identificador, $this->consultaDespesaRet);
+                } elseif ($config->ambiente === 'producao') {
+
+                    if (!method_exists($serviceProvider, 'processarPagamentoProducao')) {
+                        $this->dispatch('toast-error', 'Integração não implementa pagamento de boleto.');
+                        return;
+                    }
+
+                    $serviceProvider->processarPagamentoProducao($conta, $this->solicitacao->identificador, $this->consultaDespesaRet);
+                }       
+            }
+
+        } catch(\Throwable $e){
+            \Log::error([
+                'Erro ao buscar tentar realizar transação para pagamento de boleto' => $e->getMessage(),
+                'Conta' => $this->selected_conta,
+                'Empresa Parâmetro' => Empresa::id()
+            ]);
+
+            $message = 'Erro ao processar pagamento.';
+
+            if (method_exists($e, 'friendlyMessage')) {
+                $message = $e->friendlyMessage();
+            }
+
+            $this->dispatch('toast-error', $message);
+        }
+
+    }
+
     /**
      * Renderiza a view do componente.
      *

@@ -13,6 +13,9 @@ use App\Models\Conta;
 use App\Models\Integracao;
 
 use App\Bancos\Sicoob\Payloads\DDAPayload;
+use App\Bancos\Sicoob\Payloads\PagamentoPayload;
+
+use App\Helpers\IdempotencyKey;
 
 class SicoobPagamentoService
 {
@@ -200,4 +203,51 @@ class SicoobPagamentoService
             'identificador_consulta' => $resultado['identificadorConsulta'] # isso vem em hash e é requisito obrigatorio para o post de pagamento de boleto
         ];
     }
+
+    public function processarPagamentoProducao(Conta $conta, string $codigoBarras, array $boletoPagamento){
+        $authService = new AuthService;
+        $access_token = $authService->auth($this->integracao, 'pagamentos_inclusao');
+        $client_id = $this->integracao->credenciais->client_id;
+        $cert = $this->integracao->empresaParametro->certificadoDigital;
+
+        $payloadMounter = new PagamentoPayload;
+
+        $payload = $payloadMounter->payloadMount($boletoPagamento, $conta);
+
+        $idemKey = IdempotencyKey::make(strtok($conta->agencia, '-'), preg_replace('/-/', '', $conta->conta));
+
+        #dd([$payload, $idemKey]);
+
+        $response = Http::withToken($access_token)
+            ->withOptions([
+                'cert' => Storage::disk('local')->path($cert->cert_path),
+                'decode_content' => false,
+            ])
+            ->withHeaders([
+                'client_id' => $client_id,
+                'x-idempotency-key' => $idemKey,
+            ])
+            ->post(
+                $this->integracao->endpoint . "pagamentos/v3/boletos/pagamentos/{$codigoBarras}", $payload
+            );
+
+        if(!$response->successful()) {
+            \Log::error([
+                'Erro na tentativa de pagamento' => [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'empresa_parametro' => $this->integracao->empresa_parametro_id
+                ]
+            ]);
+
+            throw new SicoobException(
+                'Erro na tentativa de pagamento',
+                $response->status(),
+                $response->body()
+            );
+        }
+
+        dd($response->json());
+    }
+
 }
