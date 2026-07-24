@@ -7,6 +7,8 @@ use Livewire\WithFileUploads;
 
 use Illuminate\Support\Facades\DB;
 
+use App\Helpers\Empresa;
+
 use App\Models\Parcela;
 
 use App\Services\MovimentacaoService;
@@ -72,6 +74,7 @@ class ReceberParcela extends Component
         DB::transaction(function () use ($movimentacaoService) {
             $movimentacao = $movimentacaoService->store([
                 'forma_pagamento_id' => $this->pagamentoFormaId ?? null,
+                'empresa_parametro_id' => Empresa::id(),
                 'conta_id' => $this->contaId ?? null,
                 'parcela_id' => $this->parcela->id,
                 'valor_pago' => $this->pagamentoValor,
