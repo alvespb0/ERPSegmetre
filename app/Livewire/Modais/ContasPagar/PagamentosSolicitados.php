@@ -10,6 +10,7 @@ use App\Models\SolicitacoesPagamento;
 use App\Models\Conta;
 use App\Models\Movimentacao;
 
+use App\Services\MovimentacaoService;
 class PagamentosSolicitados extends Component
 {
     public $solicitacao;
@@ -213,6 +214,7 @@ class PagamentosSolicitados extends Component
         try{
             if(!$this->consultaDespesaRet){
                 $this->dispatch('toast-error', 'Realize uma nova consutla de despesa.');
+                return;
             }
 
             $conta = Conta::findOrFail($this->selected_conta);
@@ -221,11 +223,14 @@ class PagamentosSolicitados extends Component
 
             if(!$config->integracao){
                 $this->dispatch('toast-error', 'A conta de origem não possui integração bancária para completar a transação.');
+                return;
             }else{
                 $integracao = $config->integracao;        
                 $factory = new \App\Factories\IntegracaoFactory;
                 $serviceProvider = $factory->make($integracao, 'pagamento');
                 
+                $retorno = [];
+
                 if ($config->ambiente === 'homologacao') {
 
                     if (!method_exists($serviceProvider, 'processarPagamentoSandbox')) {
@@ -233,7 +238,7 @@ class PagamentosSolicitados extends Component
                         return;
                     }
 
-                    $serviceProvider->processarPagamentoSandbox($conta, $this->solicitacao->identificador, $this->consultaDespesaRet);
+                    $retorno = $serviceProvider->processarPagamentoSandbox($conta, $this->solicitacao->identificador, $this->consultaDespesaRet);
                 } elseif ($config->ambiente === 'producao') {
 
                     if (!method_exists($serviceProvider, 'processarPagamentoProducao')) {
@@ -241,10 +246,25 @@ class PagamentosSolicitados extends Component
                         return;
                     }
 
-                    $serviceProvider->processarPagamentoProducao($conta, $this->solicitacao->identificador, $this->consultaDespesaRet);
+                    $retorno = $serviceProvider->processarPagamentoProducao($conta, $this->solicitacao->identificador, $this->consultaDespesaRet);
                 }       
             }
 
+            \Log::debug([
+                'Retorno da transacao de pagamento' => $retorno
+            ]);
+
+            match ($retorno['status']) {
+                'pago' => $this->processarPagamentoEfetivado($retorno, $conta),
+                'agendado' => $this->processarPagamentoAgendado($retorno),
+                'pendente_assinatura' => $this->processarPagamentoPendente($retorno),
+                'processado' => $this->processarPagamentoProcessado($retorno),
+                'rejeitado' => throw new SicoobException(
+                    $retorno['mensagem'] ?? 'Pagamento rejeitado.'
+                ),
+                default => throw new \RuntimeException('Status de pagamento desconhecido.')
+            };
+            
         } catch(\Throwable $e){
             \Log::error([
                 'Erro ao buscar tentar realizar transação para pagamento de boleto' => $e->getMessage(),
@@ -263,6 +283,47 @@ class PagamentosSolicitados extends Component
 
     }
 
+    private function processarPagamentoEfetivado(array $retorno, $conta){
+        \Log::info([
+            'Iniciado Lancamento de Movimentacao' => [
+                'solicitacao' => $this->solicitacao->id,
+                'valor' => $retorno['pagamento']['valor'],
+                'data_pagamento' => $retorno['pagamento']['data_pagamento'],
+                'empresa_parametro_id' => Empresa::id(),
+            ]
+        ]);
+
+        $serviceMovimentacao = new MovimentacaoService;
+
+        $movimentacao = $serviceMovimentacao->store([
+            'conta_id' => $conta->id,
+            'empresa_parametro_id' => Empresa::id(),
+            'parcela_id' => $this->solicitacao->parcela_id,
+            'valor_pago' => $retorno['pagamento']['valor'] ?? $this->solicitacao->valor,
+            'data_pagamento' => $retorno['pagamento']['data_pagamento'] ?? Carbon::today()->toDateString()
+        ]);
+        
+        # aqui ainda teria que fazer a parte de criacao de comprovante para salvar em solicitacao->comprovante_path
+        $this->solicitacao->update([
+            'movimentacao_id' => $movimentacao->id,
+            'chave_idempotente' => $retorno['idempotency_key'],
+            'data_pagamento' => $retorno['pagamento']['data_pagamento']
+        ]);
+
+        $this->dispatch('toast-message', 'Pagamento efetuado com sucesso!');
+    }
+
+    private function processarPagamentoAgendado(array $retorno){
+
+    }
+
+    private function processarPagamentoPendente(array $retorno){
+
+    }
+
+    private function processarPagamentoProcessado(array $retorno){
+
+    }
     /**
      * Renderiza a view do componente.
      *

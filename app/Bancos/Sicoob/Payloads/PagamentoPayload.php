@@ -22,13 +22,14 @@ class PagamentoPayload
             'numeroCpfCnpjPortador' => $boletoPagamento['cpf_cnpj_pagador'],
             'nomePortador' => $boletoPagamento['razao_social_pagador'],
             'amount' => (double) $boletoPagamento['valor_final'],
+            'date' => \Carbon\Carbon::today()->toDateString(),
             'debtorAccount' => $this->mountDebtorAccount($conta)
         ];
     }
 
     private function mountDebtorAccount(Conta $conta){
         return [
-            'issuer' => (int) preg_replace('/-/', '', $conta->agencia),
+            'issuer' => (int) explode('-', $conta->agencia)[0],
             'number' => (int) preg_replace('/-/', '', $conta->conta),
             'accountType' => 0,
             'personType' => $conta->modalidade == 'pj' ? 1 : 0

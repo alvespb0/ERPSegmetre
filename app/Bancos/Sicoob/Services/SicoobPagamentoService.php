@@ -214,6 +214,10 @@ class SicoobPagamentoService
 
         $payload = $payloadMounter->payloadMount($boletoPagamento, $conta);
 
+        \Log::debug([
+            'Payload de pagamaento' => $payload
+        ]);
+        
         $idemKey = IdempotencyKey::make(strtok($conta->agencia, '-'), preg_replace('/-/', '', $conta->conta));
 
         #dd([$payload, $idemKey]);
@@ -247,7 +251,74 @@ class SicoobPagamentoService
             );
         }
 
-        dd($response->json());
+        $resultado = $response->json('resultado');
+
+        return match ($response->status()) {
+            200 => match ($resultado['situacaoPagamento']) {
+                'Efetivado' => [
+                    'status' => 'pago',
+                    'idempotency_key' => $idemKey,
+
+                    'destinatario' => array_filter([
+                        'nome' => $resultado['nomeRazaoSocialBeneficiario'] ?? null,
+                        'cpf_cnpj' => $resultado['numeroCpfCnpjBeneficiario'] ?? null,
+                        'banco' => $resultado['nomeInstituicaoEmissora'] ?? null,
+                        'documento' => $resultado['numeroDocumento'] ?? null,
+                        'nosso_numero' => $resultado['nossoNumero'] ?? null,
+                    ], fn ($v) => !is_null($v)),
+
+                    'pagador' => array_filter([
+                        'nome' => $resultado['nomeRazaoSocialPagador'] ?? null,
+                        'cpf_cnpj' => $resultado['numeroCpfCnpjPagador'] ?? null,
+                    ], fn ($v) => !is_null($v)),
+
+                    'pagamento' => array_filter([
+                        'valor' => $resultado['valorPagamento'] ?? null,
+                        'valor_boleto' => $resultado['valorBoleto'] ?? null,
+                        'valor_desconto' => $resultado['valorAbatimentoDesconto'] ?? null,
+                        'valor_multa' => $resultado['valorMultaMora'] ?? null,
+                        'data_pagamento' => $resultado['dataPagamento'] ?? null,
+                        'data_vencimento' => $resultado['dataVencimento'] ?? null,
+                        'codigo_autenticacao' => $resultado['numeroAutenticacaoPagamento'] ?? null,
+                        'id_pagamento' => $resultado['idPagamento'] ?? null,
+                    ], fn ($v) => !is_null($v)),
+                ],
+
+                'Agendado' => [
+                    'status' => 'agendado',
+                    'idempotency_key' => $idemKey,
+                    'mensagem' => $resultado['descricaoDetalheSituacao'] ?? null,
+                ],
+
+                'Rejeitado' => [
+                    'status' => 'rejeitado',
+                    'idempotency_key' => $idemKey,
+                    'mensagem' => $resultado['descricaoDetalheSituacao'] ?? null,
+                ],
+
+                default => throw new SicoobException(
+                    'Situação de pagamento desconhecida.',
+                    $response->status(),
+                    $response->body()
+                ),
+            },
+
+            202 => [
+                'status' => 'pendente_assinatura',
+                'idempotency_key' => $idemKey,
+            ],
+
+            204 => [
+                'status' => 'processado',
+                'idempotency_key' => $idemKey,
+            ],
+
+            default => throw new SicoobException(
+                'Resposta inesperada do Sicoob.',
+                $response->status(),
+                $response->body()
+            ),
+        };
     }
 
 }
