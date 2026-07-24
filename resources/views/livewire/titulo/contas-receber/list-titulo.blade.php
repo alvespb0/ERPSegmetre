@@ -44,7 +44,7 @@
                 <p class="text-xl font-semibold text-gray-900 mt-1">
                     R$ {{ number_format(
                         $parcelas
-                            ->filter(fn($p) => $p->status !== 'cancelado' && Carbon\Carbon::parse($p->data_vencimento)->lt(today()))
+                            ->filter(fn($p) => $p->status !== 'cancelado' && $p->status_calculado == 'atrasado')
                             ->sum('valor'),
                         2,
                         ',',
