@@ -8,6 +8,7 @@ use Carbon\Carbon;
 
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Storage;
 
 use App\Models\Parcela;
 
@@ -109,6 +110,10 @@ class SolicitacaoPagamento extends Component
         ]);
 
         $this->dispatch('toast-message', 'Solicitação cancelada com sucesso');
+    }
+
+    public function downloadComprovante($compPath){
+        return Storage::disk('public')->download($compPath);
     }
 
     public function render()
