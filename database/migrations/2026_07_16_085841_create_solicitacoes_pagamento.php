@@ -23,7 +23,7 @@ return new class extends Migration
             $table->dateTime('data_solicitacao');
             $table->dateTime('data_pagamento')->nullable();
             $table->string('comprovante_path')->nullable();
-            $table->enum('status', ['pendente','recusado','pago','cancelado'])->default('pendente');
+            $table->enum('status', ['pendente','recusado','pago','cancelado','agendado','pendente_assinatura'])->default('pendente');
             $table->foreign('parcela_id')->references('id')->on('parcelas')->onDelete('cascade');
             $table->foreign('movimentacao_id')->references('id')->on('movimentacoes')->nullOnDelete();
             $table->foreign('empresa_parametro_id')->references('id')->on('empresa_parametro')->nullOnDelete();

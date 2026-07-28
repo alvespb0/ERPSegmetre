@@ -5,6 +5,7 @@ namespace App\Livewire\Titulo\ContasPagar;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Livewire\WithoutUrlPagination;
+use Livewire\Attributes\On;
 
 use Carbon\Carbon;
 
@@ -220,6 +221,12 @@ class PagamentosSolicitados extends Component
     public function abrirDetalhes($solicitacao_id){
         $this->openModalPagamento = true;
         $this->solicitacao_id = $solicitacao_id;
+    }
+
+    #[On('fechar-modal-pagamento-solicitacao')]
+    public function fecharModalPagamento(){
+        $this->openModalPagamento = false;
+        $this->solicitacao_id = null;
     }
     
     public function render()

@@ -259,7 +259,7 @@ class PagamentosSolicitados extends Component
                 'agendado' => $this->processarPagamentoAgendado($retorno),
                 'pendente_assinatura' => $this->processarPagamentoPendente($retorno),
                 'processado' => $this->processarPagamentoProcessado($retorno),
-                'rejeitado' => throw new SicoobException(
+                'rejeitado' => throw new \Exception(
                     $retorno['mensagem'] ?? 'Pagamento rejeitado.'
                 ),
                 default => throw new \RuntimeException('Status de pagamento desconhecido.')
@@ -305,32 +305,64 @@ class PagamentosSolicitados extends Component
         
         $service = new \App\Services\SolicitacaoPagamentoService;
 
-        $compPath = $service->makeComprovantePagamento($dados);
+        $compPath = $service->makeComprovantePagamento($retorno);
 
         $this->solicitacao->update([
             'movimentacao_id' => $movimentacao->id,
             'chave_idempotente' => $retorno['idempotency_key'],
             'data_pagamento' => $retorno['pagamento']['data_pagamento'],
-            'codigo_autenticacao' => $retorno['pagamento']['codigo_autenticacao'],
-            'id_pagamento' => $retorno['pagamento']['id_pagamento'],
+            'codigo_autenticacao' => $retorno['pagamento']['codigo_autenticacao'] ?? null,
+            'id_pagamento' => $retorno['pagamento']['id_pagamento'] ?? null,
             'comprovante_path' => $compPath ?? null,
             'status' => 'pago'
         ]);
 
+        $this->fechar();
         $this->dispatch('toast-message', 'Pagamento efetuado com sucesso!');
     }
 
     private function processarPagamentoAgendado(array $retorno){
+        $this->solicitacao->update([
+            'chave_idempotente' => $retorno['idempotency_key'],
+            'data_pagamento' => $retorno['pagamento']['data_pagamento'] ?? null,
+            'codigo_autenticacao' => $retorno['pagamento']['codigo_autenticacao'] ?? null,
+            'id_pagamento' => $retorno['pagamento']['id_pagamento'] ?? null,
+            'comprovante_path' => $compPath ?? null,
+            'status' => 'agendado'
+        ]);
+
+        $mensagem = $retorno['mensagem'] ?? 'Pagamento agendado, comprovante será gerado após confirmação do banco.';
+
+        $this->fechar();
+        $this->dispatch('toast-message', $mensagem);
 
     }
 
     private function processarPagamentoPendente(array $retorno){
+        $this->solicitacao->update([
+            'chave_idempotente' => $retorno['idempotency_key'],
+            'status' => 'pendente_assinatura'
+        ]);
 
+        $this->fechar();
+        $this->dispatch('toast-message', 'Pagamento pendente de aceite no app da instituição bancária.');
     }
 
     private function processarPagamentoProcessado(array $retorno){
+        $this->solicitacao->update([
+            'chave_idempotente' => $retorno['idempotency_key'],
+            'status' => 'pago'
+        ]);
 
+        $this->fechar();
+        $this->dispatch('toast-message', 'Pagamento processado.');
+        $this->dispatch('toast-message', 'Comprovante de pagamento não gerado, aguardando retorno da instituição bancária');
     }
+
+    public function fechar(){
+        $this->dispatch('fechar-modal-pagamento-solicitacao');
+    }
+
     /**
      * Renderiza a view do componente.
      *

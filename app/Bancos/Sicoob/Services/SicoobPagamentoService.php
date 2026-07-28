@@ -288,6 +288,20 @@ class SicoobPagamentoService
                     'status' => 'agendado',
                     'idempotency_key' => $idemKey,
                     'mensagem' => $resultado['descricaoDetalheSituacao'] ?? null,
+                    'pagador' => array_filter([
+                        'nome' => $resultado['nomeRazaoSocialPagador'] ?? null,
+                        'cpf_cnpj' => $resultado['numeroCpfCnpjPagador'] ?? null,
+                    ], fn ($v) => !is_null($v)),
+                    'pagamento' => array_filter([
+                        'valor' => $resultado['valorPagamento'] ?? null,
+                        'valor_boleto' => $resultado['valorBoleto'] ?? null,
+                        'valor_desconto' => $resultado['valorAbatimentoDesconto'] ?? null,
+                        'valor_multa' => $resultado['valorMultaMora'] ?? null,
+                        'data_pagamento' => $resultado['dataPagamento'] ?? null,
+                        'data_vencimento' => $resultado['dataVencimento'] ?? null,
+                        'codigo_autenticacao' => $resultado['numeroAutenticacaoPagamento'] ?? null,
+                        'id_pagamento' => $resultado['idPagamento'] ?? null,
+                    ], fn ($v) => !is_null($v)),
                 ],
 
                 'Rejeitado' => [
