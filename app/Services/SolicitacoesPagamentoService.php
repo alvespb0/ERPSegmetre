@@ -2,6 +2,10 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+
+use Barryvdh\DomPDF\Facade\Pdf;
+
 use App\Models\SolicitacoesPagamento;
 
 class SolicitacoesPagamentoService
@@ -24,6 +28,18 @@ class SolicitacoesPagamentoService
     public function update($solicitacaoId, array $dados){
         $solicitacao = SolicitacoesPagamento::findOrFail($solicitacaoId);
         return $solicitacao->update($dados);
+    }
+
+    public function makeComprovantePagamento(array $dados){
+        $fileName = 'comprovante-' . time() . '.pdf';
+
+        $pdf = Pdf::loadView('erp.pdf.comprovante-pagamento', ['retorno' => $dados]);
+
+        $path = "comprovantes/{$fileName}";
+
+        Storage::disk('public')->put($path, $pdf->output());
+
+        return $path;
     }
 }
 

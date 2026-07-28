@@ -303,11 +303,18 @@ class PagamentosSolicitados extends Component
             'data_pagamento' => $retorno['pagamento']['data_pagamento'] ?? Carbon::today()->toDateString()
         ]);
         
-        # aqui ainda teria que fazer a parte de criacao de comprovante para salvar em solicitacao->comprovante_path
+        $service = new \App\Services\SolicitacaoPagamentoService;
+
+        $compPath = $service->makeComprovantePagamento($dados);
+
         $this->solicitacao->update([
             'movimentacao_id' => $movimentacao->id,
             'chave_idempotente' => $retorno['idempotency_key'],
-            'data_pagamento' => $retorno['pagamento']['data_pagamento']
+            'data_pagamento' => $retorno['pagamento']['data_pagamento'],
+            'codigo_autenticacao' => $retorno['pagamento']['codigo_autenticacao'],
+            'id_pagamento' => $retorno['pagamento']['id_pagamento'],
+            'comprovante_path' => $compPath ?? null,
+            'status' => 'pago'
         ]);
 
         $this->dispatch('toast-message', 'Pagamento efetuado com sucesso!');
