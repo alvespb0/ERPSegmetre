@@ -39,6 +39,17 @@ class PagamentosSolicitados extends Component
      * @return void
      */
     public function updatedSelectedConta(){
+        if (!$this->selected_conta) {
+            $this->reset([
+                'saldo',
+                'limite',
+                'bloqueado',
+                'consultaDespesaRet',
+            ]);
+
+            return;
+        }
+
         $this->buscarSaldoConta($this->selected_conta);
     }
 
