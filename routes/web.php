@@ -20,8 +20,16 @@ use App\Http\Controllers\EmpresaSessaoController;
 use App\Http\Controllers\DDAController;
 
 Route::middleware(['auth', 'two.factor'])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
-    Route::view('', 'dashboard')->name('dashboard');
+    $dashboardHandler = function () {
+        if (auth()->user()->isPagador()) {
+            return redirect()->route('erp.solicitacoes-pagamento.index');
+        }
+
+        return view('dashboard');
+    };
+
+    Route::get('dashboard', $dashboardHandler)->name('dashboard');
+    Route::get('', $dashboardHandler);
 
     Route::get('perfil', [ProfileController::class, 'show'])->name('perfil');
     Route::post('empresa/trocar', [EmpresaSessaoController::class, 'update'])->name('empresa.trocar');

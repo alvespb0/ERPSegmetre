@@ -46,13 +46,13 @@
                     <ul class="space-y-1">
                         
                         <li>
-                            <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('dashboard') ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
+                            <a href="{{ auth()->user()->isPagador() ? route('erp.solicitacoes-pagamento.index') : route('dashboard') }}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 {{ request()->routeIs('dashboard') || (auth()->user()->isPagador() && request()->routeIs('erp.solicitacoes-pagamento.*')) ? 'bg-white/10 text-white font-medium' : 'text-white/60 hover:bg-white/5 hover:text-white' }}">
                                 <span class="inline-flex h-5 w-5 items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="h-4 w-4">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l9-9 9 9M5 10v9h4v-5h6v5h4v-9" />
                                     </svg>
                                 </span>
-                                <span>Dashboard</span>
+                                <span>{{ auth()->user()->isPagador() ? 'Solicitações de Pagamento' : 'Dashboard' }}</span>
                             </a>
                         </li>
 
@@ -261,7 +261,7 @@
                                 @endif
 
                                 @if(auth()->user()->isAdmin() || auth()->user()->isDev() || auth()->user()->isCobranca() || auth()->user()->isPagador())
-                                <li x-data="{ openSub: {{ request()->routeIs('erp.despesa.*') || request()->routeIs('erp.contas-pagar.*') || request()->routeIs('erp.dda.*') ? 'true' : 'false' }} }">
+                                <li x-data="{ openSub: {{ request()->routeIs('erp.despesa.*') || request()->routeIs('erp.contas-pagar.*') || request()->routeIs('erp.dda.*') || request()->routeIs('erp.solicitacoes-pagamento.*') ? 'true' : 'false' }} }">
                                     <button type="button" @click="openSub = !openSub" class="flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 text-white/60 hover:bg-white/5 hover:text-white">
                                         <div class="flex items-center gap-3">
                                             <span class="inline-flex h-5 w-5 items-center justify-center">
@@ -278,6 +278,11 @@
                                         <li>
                                             <a href="{{route('erp.despesa.index')}}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.despesa.index') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Contas a Pagar</a>
                                         </li>
+                                        @if(auth()->user()->isDev() || auth()->user()->isPagador())
+                                        <li>
+                                            <a href="{{ route('erp.solicitacoes-pagamento.index') }}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.solicitacoes-pagamento.*') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Solicitações de Pagamento</a>
+                                        </li>
+                                        @endif
                                         <li>
                                             <a href="{{route('erp.dda.index')}}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.dda.index') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">DDA</a>
                                         </li>
