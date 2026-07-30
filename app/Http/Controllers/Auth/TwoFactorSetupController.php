@@ -21,7 +21,7 @@ class TwoFactorSetupController extends Controller
         $user = $request->user();
 
         if (! $user->needsTwoFactorSetup()) {
-            return redirect()->intended(RouteServiceProvider::HOME);
+            return redirect()->intended(RouteServiceProvider::home($user));
         }
 
         $google2fa = new Google2FA();
@@ -51,7 +51,7 @@ class TwoFactorSetupController extends Controller
         $user = $request->user();
 
         if (! $user->needsTwoFactorSetup()) {
-            return redirect()->intended(RouteServiceProvider::HOME);
+            return redirect()->intended(RouteServiceProvider::home($user));
         }
 
         $request->validate([
@@ -73,7 +73,7 @@ class TwoFactorSetupController extends Controller
 
         $request->session()->put('two_factor_passed', true);
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        return redirect()->intended(RouteServiceProvider::home($user));
     }
 
     private function qrCodeSvg(string $url): string

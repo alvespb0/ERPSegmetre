@@ -33,4 +33,7 @@ class Movimentacao extends BaseModel
         return $this->belongsTo(Conta::class, 'conta_id');
     }
 
+    public function solicitacaoPagamento(){
+        return $this->hasOne(SolicitacoesPagamento::class, 'movimentacao_id');
+    }
 }
