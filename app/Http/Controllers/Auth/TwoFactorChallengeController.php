@@ -20,7 +20,7 @@ class TwoFactorChallengeController extends Controller
         }
 
         if ($request->session()->get('two_factor_passed')) {
-            return redirect()->intended(RouteServiceProvider::HOME);
+            return redirect()->intended(RouteServiceProvider::home($user));
         }
 
         return view('auth.two-factor.challenge');
@@ -65,6 +65,6 @@ class TwoFactorChallengeController extends Controller
 
         $request->session()->put('empresa_parametro_id', $empresa->id);
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        return redirect()->intended(RouteServiceProvider::home($user));
     }
 }

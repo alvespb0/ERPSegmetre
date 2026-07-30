@@ -11,6 +11,17 @@
                 </p>
             </div>
             <div class="flex flex-wrap gap-2">
+                @if(auth()->user()->isDev() || auth()->user()->isPagador())
+                <a
+                    href="{{ route('erp.solicitacoes-pagamento.index') }}"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    Solicitações de Pagamento
+                </a>
+                @endif
                 <a
                     href="{{ route('erp.despesa.create') }}"
                     class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors"
@@ -459,6 +470,12 @@
                                                 >
                                                     Anexos
                                                 </button>
+                                                <button
+                                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#313e50]"
+                                                    wire:click="solicitacaoPagamento({{ $parcela->id }})"
+                                                >
+                                                    Solicitação de Pagamento
+                                                </button>
                                             </div>
                                         </div>
                                     </template>
@@ -531,11 +548,17 @@
             wire:key="modal-receber-{{ $parcelaParaEditarStatus->id }}" 
         />
     @endif
-
     @if($parcelaParaAnexos && $openModalAnexos)
         <livewire:Modais.ContasPagar.Anexos
             :parcela-id="$parcelaParaAnexos->id" 
             wire:key="modal-receber-{{ $parcelaParaAnexos->id }}" 
         />
     @endif
+    @if($parcelaParaSolicitacao && $openModalSolicitacaoPagamento)
+        <livewire:Modais.ContasPagar.SolicitacaoPagamento
+            :parcela-id="$parcelaParaSolicitacao->id" 
+            wire:key="modal-receber-{{ $parcelaParaSolicitacao->id }}" 
+        />
+    @endif
+
 </div>

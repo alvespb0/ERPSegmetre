@@ -31,7 +31,7 @@ class RedirectIfAuthenticated
                     return redirect()->route('two-factor.challenge');
                 }
 
-                return redirect(RouteServiceProvider::HOME);
+                return redirect(RouteServiceProvider::home($user));
             }
         }
 

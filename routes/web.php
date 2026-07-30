@@ -17,10 +17,19 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SOCController;
 use App\Http\Controllers\EmpresaSessaoController;
+use App\Http\Controllers\DDAController;
 
 Route::middleware(['auth', 'two.factor'])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
-    Route::view('', 'dashboard')->name('dashboard');
+    $dashboardHandler = function () {
+        if (auth()->user()->isPagador()) {
+            return redirect()->route('erp.solicitacoes-pagamento.index');
+        }
+
+        return view('dashboard');
+    };
+
+    Route::get('dashboard', $dashboardHandler)->name('dashboard');
+    Route::get('', $dashboardHandler);
 
     Route::get('perfil', [ProfileController::class, 'show'])->name('perfil');
     Route::post('empresa/trocar', [EmpresaSessaoController::class, 'update'])->name('empresa.trocar');
@@ -104,10 +113,15 @@ Route::middleware(['auth', 'two.factor'])->controller(TituloController::class)->
     Route::get('erp/titulo/receita', 'showListViewReceita')->middleware(['checkUserType:admin,dev,cobranca,visualisador'])->name('erp.receita.index');
     Route::get('erp/titulo/despesa/nova', 'showCreateViewDespesa')->name('erp.despesa.create');
     Route::get('erp/titulo/despesa', 'showListViewDespesa')->middleware(['checkUserType:admin,dev,cobranca,pagador'])->name('erp.despesa.index');
+    Route::get('erp/titulo/despesa/solicitacoes-pagamento', 'showListViewSolicitacoes')->middleware(['checkUserType:dev,pagador'])->name('erp.solicitacoes-pagamento.index');
 });
 
 Route::middleware(['checkUserType:admin,dev', 'two.factor'])->controller(SOCController::class)->group(function(){
     Route::get('erp/SOC/valorizacoes', 'showListView')->name('erp.receita.valorizacao.soc');
+});
+
+Route::middleware(['checkUserType:admin,dev', 'two.factor'])->controller(DDAController::class)->group(function(){
+    Route::get('erp/titulo/despesa/dda', 'showListView')->name('erp.dda.index');
 });
 
 Route::post('logout', function (Request $request) {
