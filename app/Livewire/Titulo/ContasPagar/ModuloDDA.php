@@ -19,6 +19,7 @@ class ModuloDDA extends Component
     public $titulosSemVinculo = [];
 
     public $openModalDespesa = false;
+    public $openModalVincular = false;
     public $dadosDDA = [];
     
     public function mount(){
@@ -104,15 +105,53 @@ class ModuloDDA extends Component
         $this->openModalDespesa = true;
     }
 
+    public function vincularDespesa($linhaDigitavel){
+        $titulo = collect($this->titulosSemVinculo)->firstWhere('linha_digitavel', $linhaDigitavel);
+        $this->dadosDDA = $titulo;
+        $this->openModalVincular = true;
+    }
+
     /**
-     * Evento acionado para fechar o modal de anexos e limpar os dados.
-     * * @return void
+     * Evento acionado para fechar o modal de cadastro de despesa e limpar os dados.
+     *
+     * @return void
      */
     #[On('fechar-modal-cadastro-despesa')]
-    public function fecharModalAnexos(){
+    public function fecharModalCadastroDespesa(){
         $this->openModalDespesa = false;
+        $this->dadosDDA = [];
+    }
 
-        $this->dadosDDA = null;
+    /**
+     * Evento acionado para fechar o modal de vínculo de despesa e limpar os dados.
+     *
+     * @return void
+     */
+    #[On('fechar-modal-vincular-despesa')]
+    public function fecharModalVincularDespesa(){
+        $this->openModalVincular = false;
+        $this->dadosDDA = [];
+    }
+
+    /**
+     * Move o boleto da aba "Sem Vínculo" para "Vinculados" após cadastro ou vínculo.
+     *
+     * @return void
+     */
+    #[On('boleto-vinculado-dda')]
+    public function moverBoletoParaVinculados(string $linhaDigitavel){
+        $titulo = collect($this->titulosSemVinculo)->firstWhere('linha_digitavel', $linhaDigitavel);
+
+        if (!$titulo) {
+            return;
+        }
+
+        $this->titulosSemVinculo = collect($this->titulosSemVinculo)
+            ->reject(fn ($item) => $item['linha_digitavel'] === $linhaDigitavel)
+            ->values()
+            ->all();
+
+        $this->titulosVinculados[] = $titulo;
     }
 
     public function render()

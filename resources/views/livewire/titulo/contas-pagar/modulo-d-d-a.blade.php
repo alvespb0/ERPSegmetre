@@ -199,18 +199,30 @@
                                             {{ $titulo['situacao'] ?? 'Não informada' }}
                                         </span>
                                     </td>
-                                    <!-- Ação Ativa -->
+                                    <!-- Ações -->
                                     <td class="px-6 py-3.5 text-center whitespace-nowrap">
-                                        <button
-                                            type="button"
-                                            wire:click="cadastrarDespesa('{{ $titulo['linha_digitavel'] }}')"
-                                            class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#313e50] bg-white border border-[#313e50]/30 rounded-lg hover:bg-[#313e50] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#313e50] transition-all"
-                                        >
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                            </svg>
-                                            Cadastrar Despesa
-                                        </button>
+                                        <div class="inline-flex items-center gap-2">
+                                            <button
+                                                type="button"
+                                                wire:click="vincularDespesa('{{ $titulo['linha_digitavel'] }}')"
+                                                class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 bg-white border border-emerald-200 rounded-lg hover:bg-emerald-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                                            >
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                                </svg>
+                                                Vincular
+                                            </button>
+                                            <button
+                                                type="button"
+                                                wire:click="cadastrarDespesa('{{ $titulo['linha_digitavel'] }}')"
+                                                class="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#313e50] bg-white border border-[#313e50]/30 rounded-lg hover:bg-[#313e50] hover:text-white focus:outline-none focus:ring-2 focus:ring-[#313e50] transition-all"
+                                            >
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                                </svg>
+                                                Cadastrar
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -321,7 +333,14 @@
     @if($openModalDespesa == true)
         <livewire:Modais.ContasPagar.LancarTituloDDA
             :dadosDDA="$dadosDDA" 
-            wire:key="modal-despesa" 
+            wire:key="modal-despesa-{{ $dadosDDA['linha_digitavel'] ?? 'novo' }}" 
+        />
+    @endif
+
+    @if($openModalVincular == true)
+        <livewire:Modais.ContasPagar.VincularTituloDDA
+            :dadosDDA="$dadosDDA"
+            wire:key="modal-vincular-{{ $dadosDDA['linha_digitavel'] ?? 'novo' }}"
         />
     @endif
 </div>

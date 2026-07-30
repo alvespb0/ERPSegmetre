@@ -205,6 +205,7 @@ class LancarTituloDDA extends Component
 
             DB::commit();
             $this->dispatch('toast-message', 'Título, parcela e solicitação de pagamento criado com sucesso!');
+            $this->dispatch('boleto-vinculado-dda', linhaDigitavel: $this->linhaDigitavel);
             $this->fechar();
         }catch (ValidationException $e) {
             DB::rollBack();
