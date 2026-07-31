@@ -267,9 +267,9 @@ class PagamentosSolicitados extends Component
 
             match ($retorno['status']) {
                 'pago' => $this->processarPagamentoEfetivado($retorno, $conta),
-                'agendado' => $this->processarPagamentoAgendado($retorno),
-                'pendente_assinatura' => $this->processarPagamentoPendente($retorno),
-                'processado' => $this->processarPagamentoProcessado($retorno),
+                'agendado' => $this->processarPagamentoAgendado($retorno, $conta),
+                'pendente_assinatura' => $this->processarPagamentoPendente($retorno, $conta),
+                'processado' => $this->processarPagamentoProcessado($retorno, $conta),
                 'rejeitado' => throw new \Exception(
                     $retorno['mensagem'] ?? 'Pagamento rejeitado.'
                 ),
@@ -314,7 +314,7 @@ class PagamentosSolicitados extends Component
             'data_pagamento' => $retorno['pagamento']['data_pagamento'] ?? Carbon::today()->toDateString()
         ]);
         
-        $service = new \App\Services\SolicitacaoPagamentoService;
+        $service = new \App\Services\SolicitacoesPagamentoService;
 
         $compPath = $service->makeComprovantePagamento($retorno);
 
@@ -332,10 +332,11 @@ class PagamentosSolicitados extends Component
         $this->dispatch('toast-message', 'Pagamento efetuado com sucesso!');
     }
 
-    private function processarPagamentoAgendado(array $retorno){
+    private function processarPagamentoAgendado(array $retorno, $conta){
         $this->solicitacao->update([
             'chave_idempotente' => $retorno['idempotency_key'],
             'data_pagamento' => $retorno['pagamento']['data_pagamento'] ?? null,
+            'conta_id' => $conta->id ?? null,
             'codigo_autenticacao' => $retorno['pagamento']['codigo_autenticacao'] ?? null,
             'id_pagamento' => $retorno['pagamento']['id_pagamento'] ?? null,
             'comprovante_path' => $compPath ?? null,
@@ -349,9 +350,10 @@ class PagamentosSolicitados extends Component
 
     }
 
-    private function processarPagamentoPendente(array $retorno){
+    private function processarPagamentoPendente(array $retorno, $conta){
         $this->solicitacao->update([
             'chave_idempotente' => $retorno['idempotency_key'],
+            'conta_id' => $conta->id ?? null,
             'status' => 'pendente_assinatura'
         ]);
 
@@ -359,9 +361,10 @@ class PagamentosSolicitados extends Component
         $this->dispatch('toast-message', 'Pagamento pendente de aceite no app da instituição bancária.');
     }
 
-    private function processarPagamentoProcessado(array $retorno){
+    private function processarPagamentoProcessado(array $retorno, $conta){
         $this->solicitacao->update([
             'chave_idempotente' => $retorno['idempotency_key'],
+            'conta_id' => $conta->id ?? null,
             'status' => 'pago'
         ]);
 

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 use App\Models\BoletoCobranca;
 use App\Models\Conta;
+use App\Models\SolicitacoesPagamento;
 use App\Models\Integracao;
 
 use App\Bancos\Sicoob\Payloads\DDAPayload;
@@ -25,6 +26,28 @@ class SicoobPagamentoService
         $this->integracao = $integracao;
     }
 
+    /**
+     * Consulta boletos DDA no ambiente Sandbox.
+     *
+     * Realiza a consulta de boletos disponíveis para pagamento
+     * utilizando o ambiente de homologação do Sicoob.
+     *
+     * @param string|\DateTimeInterface $dataInicial Data inicial da consulta.
+     * @param string|\DateTimeInterface $dataFinal Data final da consulta.
+     * @param string $situacao Situação dos boletos a serem consultados.
+     * @param string $numConta Número da conta corrente.
+     *
+     * @return array<int, array{
+     *     vencimento: Carbon,
+     *     nome_beneficiario: string,
+     *     documento_beneficiario: string,
+     *     linha_digitavel: string,
+     *     valor: float|int|string,
+     *     situacao: string
+     * }>
+     *
+     * @throws SicoobException Quando a API retornar erro.
+     */
     public function ddaSandbox($dataInicial, $dataFinal, $situacao, $numConta){
         $client_id = $this->integracao->credenciais->client_id; # em SANDBOX isso só vai ser passado no header client_id => $client_id
         $access_token = $this->integracao->credenciais->access_token; # em SANDBOX atua como um bearer
@@ -149,6 +172,35 @@ class SicoobPagamentoService
         })->values()->all();
     }
 
+    /**
+     * Consulta os dados de um boleto para pagamento no ambiente de Produção.
+     *
+     * Recupera todas as informações necessárias para validação do boleto
+     * e obtenção do identificador de consulta, obrigatório para efetivação
+     * do pagamento.
+     *
+     * @param Conta $conta Conta que realizará o pagamento.
+     * @param string $codigoBarras Código de barras do boleto.
+     *
+     * @return array{
+     *     banco_beneficiario: string,
+     *     cpf_cnpj_beneficiario: string,
+     *     razao_social_beneficiario: string,
+     *     nome_fantasia_beneficiario: string|null,
+     *     cpf_cnpj_pagador: string,
+     *     razao_social_pagador: string,
+     *     nome_fantasia_pagador: string|null,
+     *     valor_boleto: float|int|string,
+     *     valor_abatimento: float|int|string,
+     *     valor_multa: float|int|string,
+     *     valor_final: float|int|string,
+     *     vencimento_boleto: string,
+     *     aceita_valor_divergente: bool,
+     *     identificador_consulta: string
+     * }
+     *
+     * @throws SicoobException Quando a API retornar erro.
+     */
     public function consultaBoletoPagamentoProducao(Conta $conta, $codigoBarras){
         $authService = new AuthService;
         $access_token = $authService->auth($this->integracao, 'pagamentos_consulta');
@@ -204,6 +256,31 @@ class SicoobPagamentoService
         ];
     }
 
+    /**
+     * Processa o pagamento de um boleto no ambiente de Produção.
+     *
+     * Envia a solicitação de pagamento para a API do Sicoob utilizando
+     * autenticação OAuth, certificado digital e chave de idempotência.
+     *
+     * Dependendo da resposta da API, o pagamento poderá ser:
+     * - pago;
+     * - agendado;
+     * - rejeitado;
+     * - pendente de assinatura;
+     * - processado.
+     *
+     * @param Conta $conta Conta utilizada para realizar o pagamento.
+     * @param string $codigoBarras Código de barras do boleto.
+     * @param array<string, mixed> $boletoPagamento Dados utilizados na montagem
+     *     do payload de pagamento.
+     *
+     * @return array<string, mixed> Estrutura contendo o status do pagamento,
+     * idempotency_key e demais informações retornadas pela API, conforme o
+     * resultado da operação.
+     *
+     * @throws SicoobException Quando ocorrer erro na requisição, a API retornar
+     * uma resposta inesperada ou a situação do pagamento não for reconhecida.
+     */
     public function processarPagamentoProducao(Conta $conta, string $codigoBarras, array $boletoPagamento){
         $authService = new AuthService;
         $access_token = $authService->auth($this->integracao, 'pagamentos_inclusao');
@@ -215,7 +292,7 @@ class SicoobPagamentoService
         $payload = $payloadMounter->payloadMount($boletoPagamento, $conta);
 
         \Log::debug([
-            'Payload de pagamaento' => $payload
+            'Payload de pagamento' => $payload
         ]);
         
         $idemKey = IdempotencyKey::make(strtok($conta->agencia, '-'), preg_replace('/-/', '', $conta->conta));
@@ -335,4 +412,112 @@ class SicoobPagamentoService
         };
     }
 
+    public function consultaComprovanteProducao(SolicitacoesPagamento $solicitacao){
+        $authService = new AuthService;
+        $access_token = $authService->auth($this->integracao, 'pagamentos_consulta');
+        $client_id = $this->integracao->credenciais->client_id;
+        $cert = $this->integracao->empresaParametro->certificadoDigital;
+
+        $response = Http::withToken($access_token)
+            ->withOptions([
+                'cert' => Storage::disk('local')->path($cert->cert_path),
+                'decode_content' => false,
+            ])
+            ->withHeaders([
+                'client_id' => $client_id,
+            ])
+            ->get(
+                $this->integracao->endpoint . "pagamentos/v3/boletos/pagamentos/{$solicitacao->chave_idempotente}/idempotency/comprovantes"
+            );
+
+        if(!$response->successful()) {
+            \Log::error([
+                'Erro na tentativa consulta de comprovante' => [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'empresa_parametro' => $this->integracao->empresa_parametro_id
+                ]
+            ]);
+
+            throw new SicoobException(
+                'Erro na consulta de comprovante',
+                $response->status(),
+                $response->body()
+            );
+        }
+
+        $resultado = $response->json('resultado');
+
+        return match ($response->status()) {
+            200 => match ($resultado['situacaoPagamento']) {
+                'Efetivado' => [
+                    'status' => 'pago',
+                    'destinatario' => array_filter([
+                        'nome' => $resultado['nomeRazaoSocialBeneficiario'] ?? null,
+                        'cpf_cnpj' => $resultado['numeroCpfCnpjBeneficiario'] ?? null,
+                        'banco' => $resultado['nomeInstituicaoEmissora'] ?? null,
+                        'documento' => $resultado['numeroDocumento'] ?? null,
+                        'nosso_numero' => $resultado['nossoNumero'] ?? null,
+                    ], fn ($v) => !is_null($v)),
+
+                    'pagador' => array_filter([
+                        'nome' => $resultado['nomeRazaoSocialPagador'] ?? null,
+                        'cpf_cnpj' => $resultado['numeroCpfCnpjPagador'] ?? null,
+                    ], fn ($v) => !is_null($v)),
+
+                    'pagamento' => array_filter([
+                        'valor' => $resultado['valorPagamento'] ?? null,
+                        'valor_boleto' => $resultado['valorBoleto'] ?? null,
+                        'valor_desconto' => $resultado['valorAbatimentoDesconto'] ?? null,
+                        'valor_multa' => $resultado['valorMultaMora'] ?? null,
+                        'data_pagamento' => $resultado['dataPagamento'] ?? null,
+                        'data_vencimento' => $resultado['dataVencimento'] ?? null,
+                        'codigo_autenticacao' => $resultado['numeroAutenticacaoPagamento'] ?? null,
+                        'id_pagamento' => $resultado['idPagamento'] ?? null,
+                    ], fn ($v) => !is_null($v)),
+                ],
+
+                'Agendado' => [
+                    'status' => 'agendado',
+                    'mensagem' => $resultado['descricaoDetalheSituacao'] ?? null,
+                    'pagador' => array_filter([
+                        'nome' => $resultado['nomeRazaoSocialPagador'] ?? null,
+                        'cpf_cnpj' => $resultado['numeroCpfCnpjPagador'] ?? null,
+                    ], fn ($v) => !is_null($v)),
+                    'pagamento' => array_filter([
+                        'valor' => $resultado['valorPagamento'] ?? null,
+                        'valor_boleto' => $resultado['valorBoleto'] ?? null,
+                        'valor_desconto' => $resultado['valorAbatimentoDesconto'] ?? null,
+                        'valor_multa' => $resultado['valorMultaMora'] ?? null,
+                        'data_pagamento' => $resultado['dataPagamento'] ?? null,
+                        'data_vencimento' => $resultado['dataVencimento'] ?? null,
+                        'codigo_autenticacao' => $resultado['numeroAutenticacaoPagamento'] ?? null,
+                        'id_pagamento' => $resultado['idPagamento'] ?? null,
+                    ], fn ($v) => !is_null($v)),
+                ],
+
+                'Rejeitado' => [
+                    'status' => 'rejeitado',
+                    'mensagem' => $resultado['descricaoDetalheSituacao'] ?? null,
+                ],
+
+                default => throw new SicoobException(
+                    'Situação de pagamento desconhecida.',
+                    $response->status(),
+                    $response->body()
+                ),
+            },
+
+            204 => [
+                'status' => 'processado',
+            ],
+
+            default => throw new SicoobException(
+                'Resposta inesperada do Sicoob.',
+                $response->status(),
+                $response->body()
+            ),
+        };
+
+    }
 }
