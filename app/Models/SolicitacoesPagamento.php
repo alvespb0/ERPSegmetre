@@ -12,6 +12,7 @@ class SolicitacoesPagamento extends BaseModel
         'parcela_id',
         'movimentacao_id',
         'empresa_parametro_id',
+        'conta_id',
         'chave_idempotente',
         'tipo',
         'identificador',
@@ -36,6 +37,14 @@ class SolicitacoesPagamento extends BaseModel
     public function movimentacao()
     {
         return $this->belongsTo(Movimentacao::class);
+    }
+
+    /**
+     * Conta responsável por manipular a solicitacao.
+     */
+    public function conta()
+    {
+        return $this->belongsTo(Conta::class);
     }
 
     /**
