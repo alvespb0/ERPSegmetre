@@ -275,28 +275,225 @@
             >
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
-                    <div class="lg:col-span-2">
+                    <div
+                        class="lg:col-span-2"
+                        x-data="{
+                            open: false,
+                            search: '',
+                            selected: @entangle('categoriaFiltro').live,
+                            items: {{ \Illuminate\Support\Js::from($categorias->map(fn ($c) => ['id' => $c->id, 'nome' => $c->nome])->values()) }},
+                            get filteredItems() {
+                                const term = this.search.trim().toLowerCase();
+                                if (!term) return this.items;
+                                return this.items.filter(i => i.nome.toLowerCase().includes(term));
+                            },
+                            isSelected(id) {
+                                return this.selected.includes(id);
+                            },
+                            toggle(id) {
+                                if (this.isSelected(id)) {
+                                    this.selected = this.selected.filter(item => item !== id);
+                                } else {
+                                    this.selected.push(id);
+                                }
+                            },
+                            remove(id) {
+                                this.selected = this.selected.filter(item => item !== id);
+                            },
+                            itemNome(id) {
+                                return this.items.find(i => i.id === id)?.nome ?? '';
+                            }
+                        }"
+                        @click.outside="open = false"
+                    >
                         <label class="text-xs text-gray-600 mb-1 block">Categoria</label>
-                        <select wire:model.live="categoriaFiltro"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm">
-                            <option value="">Todas</option>
-                            @foreach($categorias as $categoria)
-                                <option value="{{ $categoria->id }}">{{ $categoria->nome }}</option>
-                            @endforeach
-                        </select>
+                        <div class="relative">
+                            <button
+                                type="button"
+                                @click="open = !open"
+                                class="flex min-h-[2.75rem] w-full items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-sm shadow-sm transition-colors hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#313e50]/20"
+                            >
+                                <div class="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+                                    <template x-if="selected.length === 0">
+                                        <span class="text-gray-400">Todas as categorias</span>
+                                    </template>
+                                    <template x-for="id in selected" :key="'cat-' + id">
+                                        <span class="inline-flex max-w-full items-center gap-1 rounded-md bg-[#313e50]/10 px-2 py-0.5 text-xs font-medium text-[#313e50]">
+                                            <span class="truncate" x-text="itemNome(id)"></span>
+                                            <button
+                                                type="button"
+                                                class="rounded p-0.5 text-[#313e50]/60 hover:bg-[#313e50]/20 hover:text-[#313e50]"
+                                                @click.stop="remove(id)"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    </template>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-gray-400 transition-transform" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+
+                            <div
+                                x-show="open"
+                                x-transition.origin.top.duration.150ms
+                                class="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
+                            >
+                                <div class="border-b border-gray-100 p-3">
+                                    <div class="relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" />
+                                        </svg>
+                                        <input
+                                            type="text"
+                                            x-model="search"
+                                            placeholder="Buscar categoria..."
+                                            class="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm focus:border-[#313e50] focus:outline-none focus:ring-2 focus:ring-[#313e50]/20"
+                                        >
+                                    </div>
+                                </div>
+
+                                <ul class="max-h-56 overflow-y-auto py-1">
+                                    <template x-if="filteredItems.length === 0">
+                                        <li class="px-4 py-3 text-sm text-gray-400">Nenhuma categoria encontrada.</li>
+                                    </template>
+                                    <template x-for="item in filteredItems" :key="'cat-opt-' + item.id">
+                                        <li>
+                                            <button
+                                                type="button"
+                                                @click="toggle(item.id)"
+                                                class="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors hover:bg-gray-50"
+                                                :class="isSelected(item.id) ? 'bg-[#313e50]/5 text-[#313e50]' : 'text-gray-700'"
+                                            >
+                                                <span
+                                                    class="flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors"
+                                                    :class="isSelected(item.id) ? 'border-[#313e50] bg-[#313e50] text-white' : 'border-gray-300 bg-white'"
+                                                >
+                                                    <svg x-show="isSelected(item.id)" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                    </svg>
+                                                </span>
+                                                <span class="truncate" x-text="item.nome"></span>
+                                            </button>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="lg:col-span-2">
+                    <div
+                        class="lg:col-span-2"
+                        x-data="{
+                            open: false,
+                            search: '',
+                            selected: @entangle('centroCustoFiltro').live,
+                            items: {{ \Illuminate\Support\Js::from($centrosCusto->map(fn ($c) => ['id' => $c->id, 'nome' => $c->nome])->values()) }},
+                            get filteredItems() {
+                                const term = this.search.trim().toLowerCase();
+                                if (!term) return this.items;
+                                return this.items.filter(i => i.nome.toLowerCase().includes(term));
+                            },
+                            isSelected(id) {
+                                return this.selected.includes(id);
+                            },
+                            toggle(id) {
+                                if (this.isSelected(id)) {
+                                    this.selected = this.selected.filter(item => item !== id);
+                                } else {
+                                    this.selected.push(id);
+                                }
+                            },
+                            remove(id) {
+                                this.selected = this.selected.filter(item => item !== id);
+                            },
+                            itemNome(id) {
+                                return this.items.find(i => i.id === id)?.nome ?? '';
+                            }
+                        }"
+                        @click.outside="open = false"
+                    >
                         <label class="text-xs text-gray-600 mb-1 block">Centro de Custo</label>
-                        <select wire:model.live="centroCustoFiltro"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-1.5 text-sm">
-                            <option value="">Todos</option>
-                            @foreach($centrosCusto as $centro)
-                                <option value="{{ $centro->id }}">{{ $centro->nome }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                        <div class="relative">
+                            <button
+                                type="button"
+                                @click="open = !open"
+                                class="flex min-h-[2.75rem] w-full items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-sm shadow-sm transition-colors hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#313e50]/20"
+                            >
+                                <div class="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
+                                    <template x-if="selected.length === 0">
+                                        <span class="text-gray-400">Todos os centros de custo</span>
+                                    </template>
+                                    <template x-for="id in selected" :key="'cc-' + id">
+                                        <span class="inline-flex max-w-full items-center gap-1 rounded-md bg-[#313e50]/10 px-2 py-0.5 text-xs font-medium text-[#313e50]">
+                                            <span class="truncate" x-text="itemNome(id)"></span>
+                                            <button
+                                                type="button"
+                                                class="rounded p-0.5 text-[#313e50]/60 hover:bg-[#313e50]/20 hover:text-[#313e50]"
+                                                @click.stop="remove(id)"
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                                </svg>
+                                            </button>
+                                        </span>
+                                    </template>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-gray-400 transition-transform" :class="open && 'rotate-180'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
 
+                            <div
+                                x-show="open"
+                                x-transition.origin.top.duration.150ms
+                                class="absolute z-20 mt-2 w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-lg"
+                            >
+                                <div class="border-b border-gray-100 p-3">
+                                    <div class="relative">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" />
+                                        </svg>
+                                        <input
+                                            type="text"
+                                            x-model="search"
+                                            placeholder="Buscar centro de custo..."
+                                            class="w-full rounded-lg border border-gray-200 py-2 pl-9 pr-3 text-sm focus:border-[#313e50] focus:outline-none focus:ring-2 focus:ring-[#313e50]/20"
+                                        >
+                                    </div>
+                                </div>
+
+                                <ul class="max-h-56 overflow-y-auto py-1">
+                                    <template x-if="filteredItems.length === 0">
+                                        <li class="px-4 py-3 text-sm text-gray-400">Nenhum centro de custo encontrado.</li>
+                                    </template>
+                                    <template x-for="item in filteredItems" :key="'cc-opt-' + item.id">
+                                        <li>
+                                            <button
+                                                type="button"
+                                                @click="toggle(item.id)"
+                                                class="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors hover:bg-gray-50"
+                                                :class="isSelected(item.id) ? 'bg-[#313e50]/5 text-[#313e50]' : 'text-gray-700'"
+                                            >
+                                                <span
+                                                    class="flex h-5 w-5 shrink-0 items-center justify-center rounded border transition-colors"
+                                                    :class="isSelected(item.id) ? 'border-[#313e50] bg-[#313e50] text-white' : 'border-gray-300 bg-white'"
+                                                >
+                                                    <svg x-show="isSelected(item.id)" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                                                    </svg>
+                                                </span>
+                                                <span class="truncate" x-text="item.nome"></span>
+                                            </button>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mt-4 flex justify-end">

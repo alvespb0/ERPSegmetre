@@ -17,7 +17,7 @@
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
             class="fixed inset-0 bg-gray-900/50" 
-            @click="show = false; setTimeout(() => $wire.$parent.set('openModalEditarParcela', false), 200)"
+            wire:click="fechar"
         ></div>
 
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0 pointer-events-none">
@@ -45,7 +45,7 @@
                             Ajuste os dados de vencimento e classificação financeira.
                         </p>
                     </div>
-                    <button @click="show = false; setTimeout(() => $wire.$parent.set('openModalEditarParcela', false), 200)" class="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg p-1.5 transition-colors">
+                    <button wire:click="fechar">
                         <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                         </svg>
@@ -187,7 +187,7 @@
                 <div class="shrink-0 bg-white border-t border-gray-100 px-6 py-4 flex justify-end gap-3 rounded-b-xl z-10">
                     <button 
                         type="button" 
-                        @click="show = false; setTimeout(() => $wire.$parent.set('openModalEditarParcela', false), 200)" 
+                        wire:click="fechar"
                         class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
                     >
                         Cancelar

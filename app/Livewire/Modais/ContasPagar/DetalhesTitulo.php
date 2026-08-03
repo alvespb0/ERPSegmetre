@@ -15,7 +15,7 @@ class DetalhesTitulo extends Component
     }
 
     public function fechar(){
-        $this->dispatch('fechar-modal');
+        $this->dispatch('fechar-modal-titulo');
     }
 
     public function render()

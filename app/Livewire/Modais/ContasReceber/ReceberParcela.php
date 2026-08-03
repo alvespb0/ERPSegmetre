@@ -95,6 +95,10 @@ class ReceberParcela extends Component
         $this->dispatch('toast-message', 'Recebimento lançado com sucesso!');
     }
 
+    public function fechar(){
+        $this->dispatch('fechar-modal-recebimento');
+    }
+
     public function render()
     {
         return view('livewire.modais.contas-receber.receber-parcela');
