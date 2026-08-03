@@ -360,6 +360,17 @@ class ListTitulo extends Component
     }
 
     /**
+     * Evento acionado para fechar o modal de detalhe de titulos e limpar os dados.
+     * * @return void
+     */
+    #[On('fechar-modal-detalhes-parcela')]
+    public function fecharModalDetalhes(){
+        $this->openModalDetalhesParcela = false;
+
+        $this->parcelaSelecionada = null;
+    }
+
+    /**
      * Abre o modal de recebimento de parcela.
      *
      * @param Parcela $parcela

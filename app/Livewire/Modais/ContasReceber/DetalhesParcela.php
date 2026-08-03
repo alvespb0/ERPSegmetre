@@ -16,7 +16,7 @@ class DetalhesParcela extends Component
     }
 
     public function fechar(){
-        $this->dispatch('fechar-modal');
+        $this->dispatch('fechar-modal-detalhes-parcela');
     }
 
     public function excluirMovimentacao(MovimentacaoService $movimentacaoService, $id){

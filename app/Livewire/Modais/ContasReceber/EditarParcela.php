@@ -95,6 +95,10 @@ class EditarParcela extends Component
         $this->dispatch('toast-message', 'Título/Parcela atualizada com sucesso!');
     }
 
+    public function fechar(){
+        $this->dispatch('fechar-modal-edicao');
+    }
+
     public function render()
     {
         return view('livewire.modais.contas-receber.editar-parcela');
