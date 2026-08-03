@@ -596,8 +596,18 @@ class ListTitulo extends Component
         $pagos = (clone $queryBase)->with('movimentacoes')
                                 ->get()->sum('valor_pago');
 
-        $parcelas = $query->with(['titulo' => function ($q) { $q->withCount('parcelas'); }])
-                            ->orderBy('data_vencimento', 'asc')->paginate(10);
+        $parcelas = $query
+            ->with([
+                'titulo' => function ($q) {
+                    $q->withCount('parcelas')
+                    ->with([
+                        'centroCusto',
+                        'categoriaFinanceira',
+                    ]);
+                },
+            ])
+            ->orderBy('data_vencimento', 'asc')
+            ->paginate(10);
 
         return view('livewire.titulo.contas-receber.list-titulo', [
             'parcelas' => $parcelas,

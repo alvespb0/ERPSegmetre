@@ -349,9 +349,12 @@
                                 
                                 <td class="px-4 py-3">
                                     <div class="flex flex-col">
+                                        <!-- Descrição original -->
                                         <span class="text-gray-900 font-medium truncate max-w-[250px]" title="{{ $parcela->titulo->descricao ?? '--' }}">
                                             {{ $parcela->titulo->descricao ?? '--' }}
                                         </span>
+                                        
+                                        <!-- Info original da Parcela e ID -->
                                         <div class="flex items-center gap-2 mt-0.5">
                                             <span class="text-gray-500 text-[11px]">
                                                 Parcela {{ $parcela->numero_parcela }} / {{ $parcela->titulo->parcelas_count }}
@@ -361,16 +364,43 @@
                                                 Tít. #{{ $parcela->titulo_financeiro_id }}
                                             </span>
                                         </div>
+
+                                        @if(isset($parcela->titulo->categoriaFinanceira) || isset($parcela->titulo->centroCusto))
+                                            <div class="flex items-center gap-1.5 mt-0.5">
+                                                @if(isset($parcela->titulo->categoriaFinanceira))
+                                                    <span class="text-gray-400 text-[10px] truncate max-w-[120px]" title="Categoria: {{ $parcela->titulo->categoriaFinanceira->nome }}">
+                                                        {{ $parcela->titulo->categoriaFinanceira->nome }}
+                                                    </span>
+                                                @endif
+
+                                                @if(isset($parcela->titulo->categoriaFinanceira) && isset($parcela->titulo->centroCusto))
+                                                    <span class="text-gray-300 text-[10px]">|</span>
+                                                @endif
+
+                                                @if(isset($parcela->titulo->centroCusto))
+                                                    <span class="text-gray-400 text-[10px] truncate max-w-[120px]" title="Centro de Custo: {{ $parcela->titulo->centroCusto->nome }}">
+                                                        {{ $parcela->titulo->centroCusto->nome }}
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        @endif
                                     </div>
                                 </td>
 
                                 <td class="px-4 py-3">
-                                    <span 
-                                        class="text-gray-700 font-medium truncate max-w-[180px] block" 
-                                        title="{{ $parcela->titulo->entidade->razaoSocial ?? $parcela->titulo->entidade->nomeFantasia ?? '--' }}"
-                                    >
-                                        {{ $parcela->titulo->entidade->razao_social ?? $parcela->titulo->entidade->nome_fantasia ?? 'Sem entidade' }}
-                                    </span>
+                                    <div class="relative group w-fit max-w-[180px]">
+                                        <span
+                                            class="text-gray-700 font-medium truncate max-w-[180px] block cursor-help"
+                                        >
+                                            {{ $parcela->titulo->entidade->razao_social ?? $parcela->titulo->entidade->nome_fantasia ?? 'Sem entidade' }}
+                                        </span>
+
+                                        <div class="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-md bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 transition-all duration-200 group-hover:opacity-100 pointer-events-none shadow-lg">
+                                            {{ $parcela->titulo->entidade->razao_social ?? $parcela->titulo->entidade->nome_fantasia ?? 'Sem entidade' }}
+
+                                            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                        </div>
+                                    </div>
 
                                     <span class="text-gray-400 text-sm block">
                                         {{ $parcela->titulo->entidade->cpf_cnpj ?? 'CNPJ não informado' }}
