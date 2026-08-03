@@ -324,6 +324,17 @@ class ListTitulo extends Component
     }
 
     /**
+     * Evento acionado para fechar o modal de detalhe de titulos e limpar os dados.
+     * * @return void
+     */
+    #[On('fechar-modal-titulo')]
+    public function fecharModalTitulo(){
+        $this->openModalDetalhesTitulo = false;
+
+        $this->tituloSelecionado = null;
+    }
+
+    /**
      * Abre o modal com detalhes de uma parcela.
      *
      * @param Parcela $parcela
@@ -334,6 +345,18 @@ class ListTitulo extends Component
 
         $this->openModalDetalhesParcela = true;
     }
+
+    /**
+     * Evento acionado para fechar o modal de detalhe de titulos e limpar os dados.
+     * * @return void
+     */
+    #[On('fechar-modal-detalhes-parcela')]
+    public function fecharModalDetalhes(){
+        $this->openModalDetalhesParcela = false;
+
+        $this->parcelaSelecionada = null;
+    }
+
 
     /**
      * Abre o modal de pagamento de parcela.
