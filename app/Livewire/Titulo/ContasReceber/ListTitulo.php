@@ -69,6 +69,10 @@ class ListTitulo extends Component
     public $search = '';
     public $filtroCompetencia;
     public $filtroCard;
+
+    public array $categoriaFiltro = [];
+    public array $centroCustoFiltro = [];
+
     public $contas, $categorias, $centrosCusto;
 
     /* ['ontem', 'hoje'] filtros: */
@@ -150,6 +154,8 @@ class ListTitulo extends Component
         $this->search = '';
         $this->filtroCard = '';
         $this->filtroCompetencia = '';
+        $this->categoriaFiltro = [];
+        $this->centroCustoFiltro = [];
     }
 
     /**
@@ -257,6 +263,18 @@ class ListTitulo extends Component
                         ->orWhere('observacoes', 'like', '%' . $this->search . '%');
                     })
                     ->orWhere('valor', 'like', '%' . $this->search . '%');
+            });
+        }
+
+        if (!empty($this->categoriaFiltro)) {
+            $query->whereHas('titulo', function ($q) {
+                $q->whereIn('categoria_financeira_id', $this->categoriaFiltro);
+            });
+        }
+
+        if (!empty($this->centroCustoFiltro)) {
+            $query->whereHas('titulo', function ($q) {
+                $q->whereIn('centro_custo_id', $this->centroCustoFiltro);
             });
         }
 
