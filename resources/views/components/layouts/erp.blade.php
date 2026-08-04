@@ -9,7 +9,8 @@
 
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:300,400,500,600&display=swap" rel="stylesheet" />
-
+        <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+        
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
     </head>
@@ -27,7 +28,7 @@
                         </div>
                         <div class="leading-none">
                             <h1 class="text-sm font-semibold tracking-tight text-white/90">{{ config('app.name', 'MediGest') }}</h1>
-                            <p class="text-[10px] text-white/50 mt-1 uppercase tracking-wide">MediGest</p>
+                            <p class="text-[10px] text-white/50 mt-1 uppercase tracking-wide">{{ config('app.name', 'MediGest') }}</p>
                         </div>
                     </div>
                     <button
