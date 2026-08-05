@@ -81,21 +81,44 @@
                         </div>
 
                         <div class="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
-                            <div class="px-4 py-3 bg-gray-50 border-b border-gray-100">
-                                <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Dados da Parcela</h4>
-                            </div>
                             <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="md:col-span-3">
+                                    @if($parcela->possui_boleto_ativo)
+                                        <p class="text-xs text-amber-600">
+                                            Não é possível alterar a data de vencimento e o valor da parcela enquanto houver um boleto ativo.
+                                        </p>
+                                    @endif
+                                </div>
+
                                 <div>
                                     <label for="editDataVencimento" class="block text-xs text-gray-700 font-medium mb-1">
                                         Data de Vencimento <span class="text-red-500">*</span>
                                     </label>
-                                    <input 
-                                        type="date" 
-                                        id="editDataVencimento" 
-                                        wire:model="editDataVencimento" 
-                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#313e50] focus:ring-1 focus:ring-[#313e50] outline-none transition-all @error('editDataVencimento') border-red-300 @enderror"
+                                    <input
+                                        type="date"
+                                        id="editDataVencimento"
+                                        wire:model="editDataVencimento"
+                                        @if($parcela->possui_boleto_ativo) disabled @endif
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#313e50] focus:ring-1 focus:ring-[#313e50] outline-none transition-all disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed @error('editDataVencimento') border-red-300 @enderror"
                                     >
-                                    @error('editDataVencimento') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                                    @error('editDataVencimento')
+                                        <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs text-gray-700 font-medium mb-1">
+                                        Valor da Parcela (R$)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        wire:model="editValorParcela"
+                                        @if($parcela->possui_boleto_ativo) disabled @endif
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#313e50] focus:ring-1 focus:ring-[#313e50] outline-none transition-all disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed @error('editValorParcela') border-red-300 @enderror"
+                                    >
+                                    @error('editValorParcela')
+                                        <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                                    @enderror
                                 </div>
                             </div>
                         </div>

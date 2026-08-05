@@ -17,7 +17,7 @@
             x-transition:leave-start="opacity-100"
             x-transition:leave-end="opacity-0"
             class="fixed inset-0 bg-gray-900/50" 
-            @click="show = false; setTimeout(() => $wire.$parent.set('openModalEditarParcela', false), 200)"
+            wire:click="fechar"
         ></div>
 
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0 pointer-events-none">
@@ -45,7 +45,7 @@
                             Ajuste os dados de vencimento e classificação financeira.
                         </p>
                     </div>
-                    <button @click="show = false; setTimeout(() => $wire.$parent.set('openModalEditarParcela', false), 200)" class="text-gray-400 hover:text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-lg p-1.5 transition-colors">
+                    <button wire:click="fechar">
                         <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                         </svg>
@@ -85,17 +85,43 @@
                                 <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Dados da Parcela</h4>
                             </div>
                             <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div class="md:col-span-3">
+                                    @if($parcela->possui_solicitacao_pagamento)
+                                        <p class="text-xs text-amber-600">
+                                            Não é possível alterar a data de vencimento e o valor da parcela enquanto houver uma solicitação de pagamento ativo.
+                                        </p>
+                                    @endif
+                                </div>
+
                                 <div>
                                     <label for="editDataVencimento" class="block text-xs text-gray-700 font-medium mb-1">
                                         Data de Vencimento <span class="text-red-500">*</span>
                                     </label>
-                                    <input 
-                                        type="date" 
-                                        id="editDataVencimento" 
-                                        wire:model="editDataVencimento" 
-                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#313e50] focus:ring-1 focus:ring-[#313e50] outline-none transition-all @error('editDataVencimento') border-red-300 @enderror"
+                                    <input
+                                        type="date"
+                                        id="editDataVencimento"
+                                        wire:model="editDataVencimento"
+                                        @if($parcela->possui_solicitacao_pagamento) disabled @endif
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#313e50] focus:ring-1 focus:ring-[#313e50] outline-none transition-all disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed @error('editDataVencimento') border-red-300 @enderror"
                                     >
-                                    @error('editDataVencimento') <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span> @enderror
+                                    @error('editDataVencimento')
+                                        <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs text-gray-700 font-medium mb-1">
+                                        Valor da Parcela (R$)
+                                    </label>
+                                    <input
+                                        type="text"
+                                        wire:model="editValorParcela"
+                                        @if($parcela->possui_solicitacao_pagamento) disabled @endif
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:border-[#313e50] focus:ring-1 focus:ring-[#313e50] outline-none transition-all disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed @error('editValorParcela') border-red-300 @enderror"
+                                    >
+                                    @error('editValorParcela')
+                                        <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
@@ -188,7 +214,7 @@
                 <div class="shrink-0 bg-white border-t border-gray-100 px-6 py-4 flex justify-end gap-3 rounded-b-xl z-10">
                     <button 
                         type="button" 
-                        @click="show = false; setTimeout(() => $wire.$parent.set('openModalEditarParcela', false), 200)" 
+                        wire:click="fechar"
                         class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
                     >
                         Cancelar
