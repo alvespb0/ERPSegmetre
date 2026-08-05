@@ -5,6 +5,7 @@ namespace App\Livewire\Modais\ContasReceber;
 use Livewire\Component;
 
 use App\Models\Parcela;
+use App\Models\TituloFinanceiro;
 
 use App\Services\ParcelaService;
 use App\Services\TituloFinanceiroService;
@@ -15,6 +16,7 @@ class EditarParcela extends Component
 {
     public $parcela;
     public $editDataVencimento;
+    public $editValorParcela;
     public $editDescricao;
     public $editDataEmissao;
     public $editNumeroNf;
@@ -33,6 +35,7 @@ class EditarParcela extends Component
         $titulo = $this->parcela->titulo;
 
         $this->editDataVencimento = $this->parcela->data_vencimento;
+        $this->editValorParcela = $this->parcela->valor;
         $this->editDescricao = $titulo->descricao;
         $this->editDataEmissao = $titulo->data_emissao;
         $this->editNumeroNf = $titulo->numero_nf;
@@ -44,6 +47,7 @@ class EditarParcela extends Component
     public function salvarEdicao(ParcelaService $parcelaService, TituloFinanceiroService $tituloService){
         $this->validate([
             'editDataVencimento' => 'required|date',
+            'editValorParcela' => 'required|numeric|min:1',
             'editDescricao' => 'required|string|max:255',
             'editDataEmissao' => 'required|date',
             'editNumeroNf' => 'nullable|string|max:50',
@@ -53,6 +57,10 @@ class EditarParcela extends Component
         ], [
             'editDataVencimento.required' => 'A data de vencimento é obrigatória.',
             'editDataVencimento.date' => 'Informe uma data de vencimento válida.',
+
+            'editValorParcela.required' => 'O valor da parcela é obrigatória.',
+            'editValorParcela.numeric' => 'O valor da parcela deve ser um número decimal válido.',
+            'editValorParcela.min' => 'O valor da parcela deve ser maior ou igual a 1.',
 
             'editDescricao.required' => 'A descrição é obrigatória.',
             'editDescricao.string' => 'A descrição deve ser um texto válido.',
@@ -72,8 +80,16 @@ class EditarParcela extends Component
         ]);
         
         $parcelaService->update([
-            'data_vencimento' => $this->editDataVencimento
+            'data_vencimento' => $this->editDataVencimento,
+            'valor' => $this->editValorParcela,
         ], $this->parcela->id);
+
+        $valorTotal = $this->parcela->titulo->valor_total;
+
+        if($this->editValorParcela != $this->parcela->valor){
+            $titulo = TituloFinanceiro::findOrFail($this->parcela->titulo->id);
+            $valorTotal = $titulo->parcelas->sum('valor');
+        }
 
         $tituloService->update([
             'descricao' => $this->editDescricao,
@@ -82,12 +98,13 @@ class EditarParcela extends Component
             'categoria_financeira_id' => $this->editCategoriaId ?? null,
             'centro_custo_id' => $this->editCentroCustoId ?? null,
             'observacoes' => $this->editObservacoes,
+            'valor_total' => $valorTotal,
         ], $this->parcela->titulo->id);
 
         
         $this->reset([
             'editDataVencimento', 'editDescricao', 'editDataEmissao', 
-            'editNumeroNf', 'editCategoriaId', 'editCentroCustoId', 'editObservacoes'
+            'editNumeroNf', 'editCategoriaId', 'editCentroCustoId', 'editObservacoes', 'editValorParcela'
         ]);
         
         $this->dispatch('fechar-modal-edicao');
