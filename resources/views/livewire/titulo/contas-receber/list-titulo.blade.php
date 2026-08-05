@@ -80,11 +80,9 @@
                         number_format(
                             $parcelas
                                 ->filter(fn($p) =>
-                                    $p->status !== 'cancelado' &&
-                                    $p->data_vencimento >= now()->startOfDay() &&
-                                    $p->valor_pago < $p->valor
+                                    in_array($p->status_calculado, ['aberto', 'parcial'])
                                 )
-                                ->sum(fn($p) => $p->valor - $p->valor_pago),
+                                ->sum('saldo_devedor'),
                             2, ',', '.'
                         )
                     }}
