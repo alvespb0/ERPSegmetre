@@ -4,7 +4,11 @@ namespace App\Livewire\Modais\ContasPagar;
 
 use Livewire\Component;
 
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
+
 use App\Models\Conta;
+use App\Models\Movimentacao;
 
 class Pix extends Component
 {
@@ -16,8 +20,14 @@ class Pix extends Component
     public $valor;
     public $identificador;
     
+    public $consultaPixRet = [];
+    
     public function mount(){
         $this->contas = Conta::whereHas('configuracaoCobranca')->with('banco', 'tipoConta', 'configuracaoCobranca')->get(); 
+    }
+
+    public function fechar(){
+        $this->dispatch('fechar-modal-pix');
     }
 
     /**
@@ -33,6 +43,10 @@ class Pix extends Component
                 'saldo',
                 'limite',
                 'bloqueado',
+                'consultaPixRet',
+                'tipo_pix',
+                'valor',
+                'identificador'
             ]);
 
             return;
@@ -146,8 +160,92 @@ class Pix extends Component
         ];
     }
 
-    public function executarPix(){
-        dd($this->tipo_pix);
+    public function iniciaPix(){
+        try{
+            $this->validate(
+                [
+                    'selected_conta' => ['required'],
+                    'tipo_pix'       => ['required', 'in:chave,copia_cola'],
+                    'identificador'  => ['required', 'string', 'max:500'],
+                    'valor'          => ['required', 'numeric', 'gt:0'],
+                ],
+                [
+                    'selected_conta.required' => 'Selecione a conta de origem.',
+                    'tipo_pix.required'       => 'Selecione o tipo de PIX.',
+                    'tipo_pix.in'             => 'O tipo de PIX selecionado é inválido.',
+                    'identificador.required'  => 'Informe a chave PIX ou o código Copia e Cola.',
+                    'identificador.string'    => 'O identificador deve ser um texto válido.',
+                    'identificador.max'       => 'O identificador não pode ter mais de 500 caracteres.',
+                    'valor.required'          => 'Informe o valor do PIX.',
+                    'valor.numeric'           => 'O valor precisa ser um número válido.',
+                    'valor.gt'                => 'O valor do PIX deve ser maior que zero.',
+                ]
+            );
+
+            $conta = Conta::findOrFail($this->selected_conta);
+
+            $config = $conta->configuracaoCobranca;
+
+            if(!$config->integracao){
+                $this->dispatch('toast-error', 'A conta de origem não possui integração bancária para completar a transação.');
+                return;
+            }else{
+                $integracao = $config->integracao;        
+                $factory = new \App\Factories\IntegracaoFactory;
+                $serviceProvider = $factory->make($integracao, 'pix_pagamento');
+
+                $retorno = [];
+
+                if ($config->ambiente === 'homologacao') {
+
+                    if($this->tipo_pix == 'chave'){
+                        if (!method_exists($serviceProvider, 'iniciaPixSandbox')) {
+                            $this->dispatch('toast-error', 'Integração não implementa pix sandbox.');
+                            return;
+                        }
+
+                        $retorno = $serviceProvider->iniciaPixSandbox($this->identificador);
+                    }else if($this->tipo_pix == 'copia_cola'){
+                        if (!method_exists($serviceProvider, 'iniciaPixQrCodeSandBox')) {
+                            $this->dispatch('toast-error', 'Integração não implementa pix copia e cola sandbox.');
+                            return;
+                        }
+
+                        $retorno = $serviceProvider->iniciaPixQrCodeSandBox($this->identificador);
+                    }
+
+                } elseif ($config->ambiente === 'producao') {
+
+                    if($this->tipo_pix == 'chave'){
+                        if (!method_exists($serviceProvider, 'iniciaPixProducao')) {
+                            $this->dispatch('toast-error', 'Integração não implementa pix.');
+                            return;
+                        }
+
+                        $retorno = $serviceProvider->iniciaPixProducao($this->identificador);
+
+                    }else if($this->tipo_pix == 'copia_cola'){
+                        if (!method_exists($serviceProvider, 'iniciaPixQrCodeProducao')) {
+                            $this->dispatch('toast-error', 'Integração não implementa pix copia e cola.');
+                            return;
+                        }
+
+                        $retorno = $serviceProvider->iniciaPixQrCodeProducao($this->identificador);
+                    }
+
+                }       
+
+                $this->consultaPixRet = $retorno;
+            }
+        } catch (ValidationException $e) {
+            throw $e; 
+        } catch(\Throwable $e){
+            \Log::error([
+                    'Erro ao realizar consulta de pix' => $e->getMessage(),
+                ]);
+            $this->dispatch('toast-error', 'Erro ao realizar consulta de pix.');
+        }
+
     }
     public function render()
     {
