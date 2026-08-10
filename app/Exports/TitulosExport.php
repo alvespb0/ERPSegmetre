@@ -92,7 +92,7 @@ class TitulosExport implements FromCollection,
             $parcela->status,
             $parcela->status_calculado,
 
-            optional($ultimoPagamento?->data_pagamento)->format('d/m/Y'),
+            $ultimoPagamento?->data_pagamento ? \Carbon\Carbon::parse($ultimoPagamento->data_pagamento)->format('d/m/Y') : null,
         ];
     }
 
