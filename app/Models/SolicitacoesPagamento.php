@@ -12,7 +12,7 @@ class SolicitacoesPagamento extends BaseModel
         'parcela_id',
         'movimentacao_id',
         'empresa_parametro_id',
-        'conta_id',
+        'conta_id', #nullable
         'chave_idempotente',
         'tipo',
         'identificador',
@@ -20,6 +20,9 @@ class SolicitacoesPagamento extends BaseModel
         'data_solicitacao',
         'data_pagamento',
         'comprovante_path',
+        'codigo_autenticador', # nullable
+        'end_to_end_id', # nullable
+        'id_pagamento', # nullable
         'status',
     ];
 
