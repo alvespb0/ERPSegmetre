@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::table('solicitacoes_pagamento', function (Blueprint $table) {
             $table->unsignedBigInteger('parcela_id')->nullable()->change();
+            $table->enum('status', [
+                'pendente',
+                'recusado',
+                'pago',
+                'cancelado',
+                'agendado',
+                'pendente_assinatura',
+                'em_processamento',
+            ])->default('pendente')->change();
         });
     }
 

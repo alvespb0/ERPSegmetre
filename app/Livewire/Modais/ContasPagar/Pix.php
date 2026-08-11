@@ -7,6 +7,8 @@ use Livewire\Component;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 
+use App\Helpers\Empresa;
+
 use App\Models\Conta;
 use App\Models\Movimentacao;
 
@@ -241,12 +243,113 @@ class Pix extends Component
             throw $e; 
         } catch(\Throwable $e){
             \Log::error([
-                    'Erro ao realizar consulta de pix' => $e->getMessage(),
-                ]);
-            $this->dispatch('toast-error', 'Erro ao realizar consulta de pix.');
+                'Erro ao realizar consulta de pix' => $e->getMessage(),
+                'Conta' => $this->selected_conta,
+                'Empresa Parâmetro' => Empresa::id()
+            ]);
+
+            $message = 'Erro ao processar pagamento.';
+
+            if (method_exists($e, 'friendlyMessage')) {
+                $message = $e->friendlyMessage();
+            }
+
+            $this->dispatch('toast-error', $message);
+            $this->dispatch('toast-error', 'Verifique chave pix, saldo e horário de pagamento.');
+        }
+    }
+
+    public function executarPix(){
+        try{
+            if(!$this->consultaPixRet){
+                $this->dispatch('toast-error', 'Realize uma nova consutla de pix.');
+                return;
+            }
+
+            $conta = Conta::findOrFail($this->selected_conta);
+
+            $config = $conta->configuracaoCobranca;
+
+            if(!$config->integracao){
+                $this->dispatch('toast-error', 'A conta de origem não possui integração bancária para completar a transação.');
+                return;
+            }else{
+                $integracao = $config->integracao;        
+                $factory = new \App\Factories\IntegracaoFactory;
+                $serviceProvider = $factory->make($integracao, 'pix_pagamento');
+
+                $retorno = [];
+
+                if ($config->ambiente === 'homologacao') {
+
+                    if($this->tipo_pix == 'chave'){
+                        if (!method_exists($serviceProvider, 'confirmaPixSandbox')) {
+                            $this->dispatch('toast-error', 'Integração não implementa pix sandbox.');
+                            return;
+                        }
+
+                        $retorno = $serviceProvider->confirmaPixSandbox();
+                    }else if($this->tipo_pix == 'copia_cola'){
+                        if (!method_exists($serviceProvider, 'confirmaPixQrCodeSandBox')) {
+                            $this->dispatch('toast-error', 'Integração não implementa pix copia e cola sandbox.');
+                            return;
+                        }
+
+                        $retorno = $serviceProvider->iniciaPixQrCodeSandBox();
+                    }
+
+                } elseif ($config->ambiente === 'producao') {
+
+                    if($this->tipo_pix == 'chave'){
+                        if (!method_exists($serviceProvider, 'confirmaPixProducao')) {
+                            $this->dispatch('toast-error', 'Integração não implementa pix.');
+                            return;
+                        }
+
+                        $retorno = $serviceProvider->confirmaPixProducao($this->consultaPixRet['e2eId'], $this->valor, $this->tipo_pix);
+
+                    }else if($this->tipo_pix == 'copia_cola'){
+                        if (!method_exists($serviceProvider, 'confirmaPixQrCodeProducao')) {
+                            $this->dispatch('toast-error', 'Integração não implementa pix copia e cola.');
+                            return;
+                        }
+
+                        $retorno = $serviceProvider->confirmaPixQrCodeProducao($this->identificador);
+                    }
+
+                }
+
+
+                switch($retorno['status']){
+                    case 'pago': 
+                        $this->processarPagamentoEfetivado($retorno);
+                    case 'em_processamento':
+                        $this->processarPagamentoEmAndamento($retorno);
+                    default:
+                        $this->dispatch('toast-error', 'Instituição bancária não retornou status de pagamento.');
+                        return;
+                }
+            }
+
+        } catch(\Throwable $e){
+            \Log::error([
+                'Erro ao buscar tentar realizar transação para pagamento via pix' => $e->getMessage(),
+                'Conta' => $this->selected_conta,
+                'Empresa Parâmetro' => Empresa::id()
+            ]);
+
+            $message = 'Erro ao processar pagamento.';
+
+            if (method_exists($e, 'friendlyMessage')) {
+                $message = $e->friendlyMessage();
+            }
+
+            $this->dispatch('toast-error', $message);
+            $this->dispatch('toast-error', 'Verifique chave pix, saldo e horário de pagamento.');
         }
 
     }
+
     public function render()
     {
         return view('livewire.modais.contas-pagar.pix');

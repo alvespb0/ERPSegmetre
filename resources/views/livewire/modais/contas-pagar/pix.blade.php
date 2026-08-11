@@ -135,17 +135,17 @@
                                         <button 
                                             type="button"
                                             @click="if(!@js((bool)$consultaPixRet)) $wire.set('tipo_pix', 'chave')"
-                                            :class="tipoPix === 'chave' ? 'bg-[#313e50]/5 text-[#313e50] border-[#313e50]' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'"
+                                            :class="tipoPix === 'chave' ? 'bg-[#313e50]/5 text-[#313e50]' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'"
                                             class="flex items-center justify-center p-3 rounded-lg border-2 font-medium text-sm transition-all outline-none"
                                             @if($consultaPixRet) disabled class="opacity-60 cursor-not-allowed" @else class="cursor-pointer" @endif
                                         >
-                                            <span>Chave DICT</span>
+                                            <span>Chave Pix</span>
                                         </button>
 
                                         <button 
                                             type="button"
                                             @click="if(!@js((bool)$consultaPixRet)) $wire.set('tipo_pix', 'copia_cola')"
-                                            :class="tipoPix === 'copia_cola' ? 'bg-[#313e50]/5 text-[#313e50] border-[#313e50]' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'"
+                                            :class="tipoPix === 'copia_cola' ? 'bg-[#313e50]/5 text-[#313e50]' : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50'"
                                             class="flex items-center justify-center p-3 rounded-lg border-2 font-medium text-sm transition-all outline-none"
                                             @if($consultaPixRet) disabled class="opacity-60 cursor-not-allowed" @else class="cursor-pointer" @endif
                                         >
@@ -209,7 +209,7 @@
                                     </button>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
                                     <div>
                                         <p class="text-[10px] text-gray-500 uppercase font-semibold">Nome / Razão Social</p>
                                         <p class="font-semibold text-gray-800">{{ $consultaPixRet['proprietario']['nome'] ?? '-' }}</p>
