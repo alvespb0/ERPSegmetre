@@ -12,6 +12,8 @@ use App\Helpers\Empresa;
 use App\Models\Conta;
 use App\Models\Movimentacao;
 
+use App\Services\SolicitacoesPagamentoService;
+
 class Pix extends Component
 {
     public $contas;
@@ -319,16 +321,21 @@ class Pix extends Component
 
                 }
 
-
                 switch($retorno['status']){
                     case 'pago': 
                         $this->processarPagamentoEfetivado($retorno);
+                        return;
                     case 'em_processamento':
                         $this->processarPagamentoEmAndamento($retorno);
+                        return;
+                    case 'recusado':
+                        $this->dispatch('toast-error', $retorno['mensagem']);
+                        return;
                     default:
                         $this->dispatch('toast-error', 'Instituição bancária não retornou status de pagamento.');
                         return;
                 }
+                
             }
 
         } catch(\Throwable $e){
@@ -350,6 +357,53 @@ class Pix extends Component
 
     }
 
+    /**
+     * Lança solicitação sem parcela e sem movimentação, isso será essencial para aparecer na tela de 'pagamentos em conciliacao'
+     * Após usuário conciliar com um titulo ele lança a movimentação (ja que parcela_id de mov nao pode ser null)
+     */
+    public function processarPagamentoEfetivado(array $retorno){
+        $solicitacaoService = new SolicitacoesPagamentoService;
+
+        $comp_path = $solicitacaoService->makeComprovantePagamento($retorno);
+
+        $dataPagamento = \Carbon\Carbon::parse($retorno['pagamento']['data_pagamento'])->format('Ymd');
+
+        $solicitacao = $solicitacaoService->store([
+            'tipo' => $this->tipo_pix == 'chave' ? 'pix' : 'pix_copia_cola',
+            'identificador' => $this->identificador,
+            'valor' => $retorno['pagamento']['valor'],
+            'data_pagamento' => $dataPagamento,
+            'comprovante_path' => $comp_path ?? null,
+            'end_to_end_id' => $retorno['endToEndId'],
+            'status' => 'pago'
+        ]);
+
+        $mensagem = $retorno['mensagem'] ?? 'Pagamento efetuado com sucesso!';
+
+        $this->fechar();
+        $this->dispatch('toast-message', $mensagem);
+    }
+
+    public function processarPagamentoEmAndamento(array $retorno){
+        $solicitacaoService = new SolicitacoesPagamentoService;
+
+        $dataPagamento = \Carbon\Carbon::parse($retorno['pagamento']['data_pagamento'])->format('Ymd');
+
+        $solicitacao = $solicitacaoService->store([
+            'tipo' => $this->tipo_pix == 'chave' ? 'pix' : 'pix_copia_cola',
+            'identificador' => $this->identificador,
+            'valor' => $retorno['pagamento']['valor'],
+            'data_pagamento' => $dataPagamento,
+            'end_to_end_id' => $retorno['endToEndId'],
+            'status' => 'em_processamento'
+        ]);
+
+        $mensagem = $retorno['mensagem'] ?? 'Pagamento em etapa de processo na instituição bancária!';
+
+        $this->fechar();
+        $this->dispatch('toast-message', $mensagem);
+    }
+    
     public function render()
     {
         return view('livewire.modais.contas-pagar.pix');

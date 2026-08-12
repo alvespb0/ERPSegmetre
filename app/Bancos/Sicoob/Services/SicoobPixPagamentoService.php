@@ -133,6 +133,7 @@ class SicoobPixPagamentoService
             'FINALIZADO' => [
                 'status' => 'pago',
                 'endToEndId' => $resultado['endToEndId'],
+                'mensagem' => 'Pix efetuado com sucesso!',
 
                 'destinatario' => array_filter([
                     'nome' => $resultado['destino']['nome'] ?? null,
@@ -158,6 +159,7 @@ class SicoobPixPagamentoService
             'EM_PROCESSAMENTO' => [
                 'status' => 'em_processamento',
                 'endToEndId' => $resultado['endToEndId'],
+                'mensagem' => 'Pix em processamento!',
 
                 'destinatario' => array_filter([
                     'nome' => $resultado['destino']['nome'] ?? null,
@@ -179,6 +181,11 @@ class SicoobPixPagamentoService
                     'valor' => $resultado['valor'] ?? null,
                     'data_pagamento' => $resultado['horario'] ?? null,
                 ], fn ($v) => !is_null($v)),
+            ],
+            'REJEITADO' => [
+                'status' => 'recusado',
+                'endToEndId' => $resultado['endToEndId'],
+                'mensagem' => $resultado['detalheRejeicao'] ?? 'Pagamento rejeitado pela instituição bancária.',
             ],
             default => throw new SicoobException(
                 'Pagamento não realizado.',

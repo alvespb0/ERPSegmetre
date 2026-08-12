@@ -12,7 +12,7 @@ class SolicitacoesPagamentoService
 {
     public function store(array $dados){
         return SolicitacoesPagamento::create([
-            'parcela_id' => $dados['parcela_id'],
+            'parcela_id' => $dados['parcela_id'] ?? null,
             'movimentacao_id' => $dados['movimentacao_id'] ?? null,
             'chave_idempotente' => $dados['chave_idempotente'] ?? null,
             'tipo' => $dados['tipo'],
@@ -21,6 +21,9 @@ class SolicitacoesPagamentoService
             'data_solicitacao' => $dados['data_solicitacao'] ?? \Carbon\Carbon::now(),
             'data_pagamento' => $dados['data_pagamento'] ?? null,
             'comprovante_path' => $dados['comprovante_path'] ?? null,
+            'codigo_autenticador' => $dados['codigo_autenticador'] ?? null,
+            'end_to_end_id' => $dados['end_to_end_id'] ?? null,
+            'id_pagamento' => $dados['id_pagamento'] ?? null, 
             'status' => $dados['status'] ?? 'pendente'
         ]);
     }
