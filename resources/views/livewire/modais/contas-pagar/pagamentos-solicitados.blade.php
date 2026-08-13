@@ -35,13 +35,14 @@
             >
                 @php
                     $statusColorsSolicitacao = [
-                        'aprovado' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                        'pendente' => 'bg-amber-50 text-amber-700 border-amber-200',
+                        'aprovado'  => 'bg-emerald-50 text-emerald-700 border-emerald-200',
+                        'pendente'  => 'bg-amber-50 text-amber-700 border-amber-200',
                         'rejeitado' => 'bg-red-50 text-red-700 border-red-200',
-                        'pago' => 'bg-blue-50 text-blue-700 border-blue-200',
+                        'pago'      => 'bg-blue-50 text-blue-700 border-blue-200',
                     ];
                     $statusReal = strtolower($solicitacao->status ?? 'pendente');
                     $corStatusSolicitacao = $statusColorsSolicitacao[$statusReal] ?? 'bg-gray-50 text-gray-500 border-gray-200';
+                    $isPago = $statusReal === 'pago';
                 @endphp
 
                 <!-- Header -->
@@ -69,10 +70,10 @@
                 <!-- Content -->
                 <div class="p-6 space-y-6">
                     
-                    <!-- Grid Superior: Valor, Vencimento e Método -->
+                    <!-- Grid Superior: Valor, Vencimento/Data Pagamento e Método -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                            <p class="text-xs text-gray-500 uppercase font-medium mb-1">Valor a ser Pago</p>
+                            <p class="text-xs text-gray-500 uppercase font-medium mb-1">{{ $isPago ? 'Valor Pago' : 'Valor a ser Pago' }}</p>
                             <p class="text-xl font-semibold text-gray-900">
                                 R$ {{ number_format($solicitacao->valor ?? 0, 2, ',', '.') }}
                             </p>
@@ -84,9 +85,13 @@
                             </p>
                         </div>
                         <div class="bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                            <p class="text-xs text-gray-500 uppercase font-medium mb-1">Vencimento</p>
+                            <p class="text-xs text-gray-500 uppercase font-medium mb-1">{{ $isPago ? 'Data do Pagamento' : 'Vencimento' }}</p>
                             <p class="text-xl font-semibold text-gray-900">
-                                {{ isset($solicitacao->parcela->data_vencimento) ? \Carbon\Carbon::parse($solicitacao->parcela->data_vencimento)->format('d/m/Y') : '--/--/----' }}
+                                @if($isPago)
+                                    {{ isset($solicitacao->data_pagamento) ? \Carbon\Carbon::parse($solicitacao->data_pagamento)->format('d/m/Y H:i') : '--/--/----' }}
+                                @else
+                                    {{ isset($solicitacao->parcela->data_vencimento) ? \Carbon\Carbon::parse($solicitacao->parcela->data_vencimento)->format('d/m/Y') : '--/--/----' }}
+                                @endif
                             </p>
                         </div>
                     </div>
@@ -97,7 +102,6 @@
                             <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Detalhes do Beneficiário</h4>
                         </div>
                         <div class="p-4 grid grid-cols-1 gap-4 text-sm">
-                            
                             <div class="border-b border-gray-50 pb-3">
                                 <p class="text-gray-500 text-xs mb-0.5">Entidade (Nome / Razão Social)</p>
                                 <p class="font-medium text-gray-900 text-base">
@@ -143,154 +147,198 @@
                         </div>
                     </div>
 
-                    <!-- Definição da Conta de Pagamento & Saldo -->
-                    <div class="bg-white rounded-xl border border-blue-100 overflow-hidden shadow-sm relative">                        
-                        <div class="px-5 py-3 bg-[#313e50]/5 border-b border-blue-100">
-                            <h4 class="text-xs font-semibold text-[#313e50] uppercase tracking-wide">Origem do Pagamento</h4>
-                        </div>
-                        <div class="p-5 space-y-4">
-                            
-                            <!-- Seletor de Contas -->
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Conta Bancária *</label>
-                                <select 
-                                    wire:model.live="selected_conta"
-                                    class="w-full text-sm bg-gray-50 border-gray-200 focus:border-[#313e50] focus:ring-[#313e50] outline-none text-gray-700 rounded-lg py-2.5 px-3 cursor-pointer hover:bg-gray-100 transition-colors"
-                                >
-                                    <option value="">Selecione de qual conta o dinheiro irá sair...</option>
-                                    @foreach($contas ?? [] as $conta)
-                                        <option value="{{ $conta->id }}">
-                                            {{ $conta->banco->nome ?? 'Banco' }} - Ag: {{ $conta->agencia }} / Cc: {{ $conta->conta }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                    @if($isPago)
+                        <!-- BLOCO DE DETALHES DO PAGAMENTO (Visual sobrio e neutro) -->
+                        <div class="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm relative">
+                            <div class="px-5 py-3 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                                <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wide">Comprovante do Transação</h4>
+                                <span class="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full">
+                                    Pagamento Concluído
+                                </span>
                             </div>
-
-                            <!-- Estado de Loading da Consulta de Saldo -->
-                            <div wire:loading wire:target="selected_conta" class="w-full">
-                                <div class="flex items-center gap-2 text-sm text-gray-500 px-2 py-1">
-                                    <svg class="animate-spin h-4 w-4 text-[#313e50]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Consultando saldos disponíveis...
-                                </div>
-                            </div>
-
-                            <!-- Display do Saldo (Mostra apenas após carregar) -->
-                            @if($selected_conta && isset($saldo))
-                                <div wire:loading.remove wire:target="selected_conta" class="bg-gray-50 border border-gray-100 rounded-xl p-4 transition-all">
-                                    
-                                    <!-- Grid de Valores Financeiros -->
-                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:divide-x divide-gray-200">
-                                        
-                                        <!-- Saldo Atual -->
-                                        <div class="md:px-3 first:pl-0">
-                                            <p class="text-[10px] text-gray-500 uppercase font-semibold tracking-wide mb-1">Saldo Conta</p>
-                                            <p class="text-base font-bold {{ $saldo < 0 ? 'text-red-600' : 'text-emerald-600' }}">
-                                                R$ {{ number_format($saldo, 2, ',', '.') }}
-                                            </p>
-                                        </div>
-
-                                        <!-- Limite -->
-                                        @if(isset($limite))
-                                            <div class="md:px-3">
-                                                <p class="text-[10px] text-gray-500 uppercase font-semibold tracking-wide mb-1">Limite Disp.</p>
-                                                <p class="text-base font-medium text-gray-700">
-                                                    R$ {{ number_format($limite, 2, ',', '.') }}
-                                                </p>
-                                            </div>
-                                        @endif
-
-                                        <!-- Valor Bloqueado -->
-                                        @if(isset($bloqueado))
-                                            <div class="md:px-3 col-span-2 md:col-span-1">
-                                                <p class="text-[10px] text-gray-500 uppercase font-semibold tracking-wide mb-1">Bloqueado</p>
-                                                <p class="text-base font-medium text-amber-600">
-                                                    R$ {{ number_format($bloqueado, 2, ',', '.') }}
-                                                </p>
-                                            </div>
-                                        @endif
+                            <div class="p-5 space-y-4 text-sm">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-gray-500 text-xs mb-0.5 uppercase font-medium">Conta de Origem</p>
+                                        <p class="font-medium text-gray-900">
+                                            {{ $solicitacao->conta->banco->nome ?? 'Banco' }} - Ag: {{ $solicitacao->conta->agencia ?? '-' }} / Cc: {{ $solicitacao->conta->conta ?? '-' }}
+                                        </p>
                                     </div>
+                                    <div>
+                                        <p class="text-gray-500 text-xs mb-0.5 uppercase font-medium">Data / Hora de Processamento</p>
+                                        <p class="font-medium text-gray-900">
+                                            {{ isset($solicitacao->data_pagamento) ? \Carbon\Carbon::parse($solicitacao->data_pagamento)->format('d/m/Y \à\s H:i:s') : 'Não registrada' }}
+                                        </p>
+                                    </div>
+                                </div>
 
-                                    <!-- Alerta se o saldo for insuficiente -->
-                                    @if($saldo < $solicitacao->valor)
-                                        <div class="mt-4 pt-3 border-t border-gray-200 flex items-start gap-2.5 text-amber-700 bg-amber-50/50 p-2.5 rounded-lg border border-amber-100/50">
-                                            <p class="text-[11px] font-medium leading-tight">
-                                                O saldo disponível (R$ {{ number_format($saldo, 2, ',', '.') }}) é inferior ao valor da solicitação. Esta transação pode ser rejeitada pelo banco.
+                                <div class="pt-3 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    @if($solicitacao->end_to_end_id)
+                                        <div>
+                                            <p class="text-gray-500 text-xs mb-0.5 uppercase font-medium">End-to-End ID (PIX)</p>
+                                            <p class="font-mono text-xs text-gray-800 break-all bg-gray-50 p-2 rounded border border-gray-100">
+                                                {{ $solicitacao->end_to_end_id }}
                                             </p>
                                         </div>
                                     @endif
 
+                                    @if($solicitacao->codigo_autenticador)
+                                        <div>
+                                            <p class="text-gray-500 text-xs mb-0.5 uppercase font-medium">Código Autenticador</p>
+                                            <p class="font-mono text-xs text-gray-800 break-all bg-gray-50 p-2 rounded border border-gray-100">
+                                                {{ $solicitacao->codigo_autenticador }}
+                                            </p>
+                                        </div>
+                                    @endif
+
+                                    @if($solicitacao->id_pagamento)
+                                        <div>
+                                            <p class="text-gray-500 text-xs mb-0.5 uppercase font-medium">ID Pagamento Banco</p>
+                                            <p class="font-mono text-xs text-gray-800 break-all bg-gray-50 p-2 rounded border border-gray-100">
+                                                {{ $solicitacao->id_pagamento }}
+                                            </p>
+                                        </div>
+                                    @endif
                                 </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- NOVO BLOCO: Retorno da Consulta de Despesa -->
-                    @if(!empty($consultaDespesaRet))
-                        @php
-                            $valorFinalRet = $consultaDespesaRet['valor_final'] ?? $consultaDespesaRet['valor_boleto'] ?? 0;
-                            $valorSolicitacao = $solicitacao->valor ?? 0;
-                            $valorDivergente = $valorFinalRet != $valorSolicitacao;
-
-                            $vencRet = $consultaDespesaRet['vencimento_boleto'] ?? null;
-                            $vencSol = $solicitacao->parcela->data_vencimento ?? null;
-                            $vencSolFormat = $vencSol ? \Carbon\Carbon::parse($vencSol)->format('Y-m-d') : null;
-                            $vencDivergente = $vencRet && $vencSolFormat && $vencRet !== $vencSolFormat;
-                        @endphp
-
-                        <div class="bg-white rounded-xl border border-[#313e50]/20 overflow-hidden shadow-sm relative">                            
-                            <div class="px-5 py-3 bg-[#313e50]/5 border-b border-[#313e50]/10">
-                                <h4 class="text-xs font-semibold text-[#313e50] uppercase tracking-wide">Dados Retornados do Banco</h4>
                             </div>
-                            <div class="p-5 space-y-4 text-sm">
-                                
+                        </div>
+                    @else
+                        <!-- FLUXO NORMAL DE CONSULTA E SELEÇÃO DE CONTA (SE NÃO ESTIVER PAGO) -->
+
+                        <!-- Definição da Conta de Pagamento & Saldo -->
+                        <div class="bg-white rounded-xl border border-blue-100 overflow-hidden shadow-sm relative">
+                            <div class="px-5 py-3 bg-[#313e50]/5 border-b border-blue-100">
+                                <h4 class="text-xs font-semibold text-[#313e50] uppercase tracking-wide">Origem do Pagamento</h4>
+                            </div>
+                            <div class="p-5 space-y-4">
+                                <!-- Seletor de Contas -->
                                 <div>
-                                    <p class="text-gray-500 text-xs mb-0.5">Beneficiário Encontrado</p>
-                                    <p class="font-medium text-gray-900">
-                                        {{ $consultaDespesaRet['razao_social_beneficiario'] ?? $consultaDespesaRet['nome_fantasia_beneficiario'] ?? 'N/A' }}
-                                        <span class="text-gray-500 font-normal ml-1">({{ $consultaDespesaRet['cpf_cnpj_beneficiario'] ?? 'N/A' }})</span>
-                                    </p>
-                                    <p class="text-gray-500 text-xs mt-1">Instituição: {{ $consultaDespesaRet['banco_beneficiario'] ?? 'N/A' }}</p>
+                                    <label class="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wide">Conta Bancária *</label>
+                                    <select 
+                                        wire:model.live="selected_conta"
+                                        class="w-full text-sm bg-gray-50 border-gray-200 focus:border-[#313e50] focus:ring-[#313e50] outline-none text-gray-700 rounded-lg py-2.5 px-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                                    >
+                                        <option value="">Selecione de qual conta o dinheiro irá sair...</option>
+                                        @foreach($contas ?? [] as $conta)
+                                            <option value="{{ $conta->id }}">
+                                                {{ $conta->banco->nome ?? 'Banco' }} - Ag: {{ $conta->agencia }} / Cc: {{ $conta->conta }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
 
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-3 border-t border-gray-100">
-                                    <!-- Coluna Solicitação -->
-                                    <div>
-                                        <p class="font-semibold text-gray-700 mb-2">Dados da Solicitação</p>
-                                        <p class="text-gray-600">Valor: R$ {{ number_format($valorSolicitacao, 2, ',', '.') }}</p>
-                                        <p class="text-gray-600">Vencimento: {{ $vencSol ? \Carbon\Carbon::parse($vencSol)->format('d/m/Y') : 'N/A' }}</p>
-                                    </div>
-                                    
-                                    <!-- Coluna Retorno -->
-                                    <div>
-                                        <p class="font-semibold text-gray-700 mb-2">Dados do Título</p>
-                                        <p class="font-medium {{ $valorDivergente ? 'text-red-600' : 'text-gray-900' }}">
-                                            Valor Cobrado: R$ {{ number_format($valorFinalRet, 2, ',', '.') }}
-                                        </p>
-                                        <p class="font-medium {{ $vencDivergente ? 'text-red-600' : 'text-gray-900' }}">
-                                            Vencimento: {{ $vencRet ? \Carbon\Carbon::parse($vencRet)->format('d/m/Y') : 'N/A' }}
-                                        </p>
-
-                                        @if(isset($consultaDespesaRet['valor_multa']) && $consultaDespesaRet['valor_multa'] > 0)
-                                            <p class="text-gray-500 text-xs mt-1">Multa/Juros: R$ {{ number_format($consultaDespesaRet['valor_multa'], 2, ',', '.') }}</p>
-                                        @endif
-                                        @if(isset($consultaDespesaRet['valor_abatimento']) && $consultaDespesaRet['valor_abatimento'] > 0)
-                                            <p class="text-gray-500 text-xs mt-1">Abatimento: R$ {{ number_format($consultaDespesaRet['valor_abatimento'], 2, ',', '.') }}</p>
-                                        @endif
+                                <!-- Loading Saldo -->
+                                <div wire:loading wire:target="selected_conta" class="w-full">
+                                    <div class="flex items-center gap-2 text-sm text-gray-500 px-2 py-1">
+                                        <svg class="animate-spin h-4 w-4 text-[#313e50]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        Consultando saldos disponíveis...
                                     </div>
                                 </div>
 
-                                @if($valorDivergente || $vencDivergente)
-                                    <div class="mt-2 pt-3 border-t border-gray-200 flex items-start gap-2.5 text-amber-700 bg-amber-50/50 p-2.5 rounded-lg border border-amber-100/50">
-                                        <p class="text-[11px] font-medium leading-tight">
-                                            <strong>Atenção:</strong> Há divergências entre os dados lançados no sistema e os dados retornados pela instituição financeira. Verifique antes de confirmar o pagamento.
-                                        </p>
+                                <!-- Display do Saldo -->
+                                @if($selected_conta && isset($saldo))
+                                    <div wire:loading.remove wire:target="selected_conta" class="bg-gray-50 border border-gray-100 rounded-xl p-4 transition-all">
+                                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:divide-x divide-gray-200">
+                                            <div class="md:px-3 first:pl-0">
+                                                <p class="text-[10px] text-gray-500 uppercase font-semibold tracking-wide mb-1">Saldo Conta</p>
+                                                <p class="text-base font-bold {{ $saldo < 0 ? 'text-red-600' : 'text-emerald-600' }}">
+                                                    R$ {{ number_format($saldo, 2, ',', '.') }}
+                                                </p>
+                                            </div>
+                                            @if(isset($limite))
+                                                <div class="md:px-3">
+                                                    <p class="text-[10px] text-gray-500 uppercase font-semibold tracking-wide mb-1">Limite Disp.</p>
+                                                    <p class="text-base font-medium text-gray-700">
+                                                        R$ {{ number_format($limite, 2, ',', '.') }}
+                                                    </p>
+                                                </div>
+                                            @endif
+                                            @if(isset($bloqueado))
+                                                <div class="md:px-3 col-span-2 md:col-span-1">
+                                                    <p class="text-[10px] text-gray-500 uppercase font-semibold tracking-wide mb-1">Bloqueado</p>
+                                                    <p class="text-base font-medium text-amber-600">
+                                                        R$ {{ number_format($bloqueado, 2, ',', '.') }}
+                                                    </p>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        @if($saldo < $solicitacao->valor)
+                                            <div class="mt-4 pt-3 border-t border-gray-200 flex items-start gap-2.5 text-amber-700 bg-amber-50/50 p-2.5 rounded-lg border border-amber-100/50">
+                                                <p class="text-[11px] font-medium leading-tight">
+                                                    O saldo disponível (R$ {{ number_format($saldo, 2, ',', '.') }}) é inferior ao valor da solicitação. Esta transação pode ser rejeitada pelo banco.
+                                                </p>
+                                            </div>
+                                        @endif
                                     </div>
                                 @endif
                             </div>
                         </div>
+
+                        <!-- Retorno da Consulta de Despesa -->
+                        @if(!empty($consultaDespesaRet))
+                            @php
+                                $valorFinalRet = $consultaDespesaRet['valor_final'] ?? $consultaDespesaRet['valor_boleto'] ?? 0;
+                                $valorSolicitacao = $solicitacao->valor ?? 0;
+                                $valorDivergente = $valorFinalRet != $valorSolicitacao;
+
+                                $vencRet = $consultaDespesaRet['vencimento_boleto'] ?? null;
+                                $vencSol = $solicitacao->parcela->data_vencimento ?? null;
+                                $vencSolFormat = $vencSol ? \Carbon\Carbon::parse($vencSol)->format('Y-m-d') : null;
+                                $vencDivergente = $vencRet && $vencSolFormat && $vencRet !== $vencSolFormat;
+                            @endphp
+
+                            <div class="bg-white rounded-xl border border-[#313e50]/20 overflow-hidden shadow-sm relative">
+                                <div class="px-5 py-3 bg-[#313e50]/5 border-b border-[#313e50]/10">
+                                    <h4 class="text-xs font-semibold text-[#313e50] uppercase tracking-wide">Dados Retornados do Banco</h4>
+                                </div>
+                                <div class="p-5 space-y-4 text-sm">
+                                    <div>
+                                        <p class="text-gray-500 text-xs mb-0.5">Beneficiário Encontrado</p>
+                                        <p class="font-medium text-gray-900">
+                                            {{ $consultaDespesaRet['razao_social_beneficiario'] ?? $consultaDespesaRet['nome_fantasia_beneficiario'] ?? 'N/A' }}
+                                            <span class="text-gray-500 font-normal ml-1">({{ $consultaDespesaRet['cpf_cnpj_beneficiario'] ?? 'N/A' }})</span>
+                                        </p>
+                                        <p class="text-gray-500 text-xs mt-1">Instituição: {{ $consultaDespesaRet['banco_beneficiario'] ?? 'N/A' }}</p>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-3 border-t border-gray-100">
+                                        <div>
+                                            <p class="font-semibold text-gray-700 mb-2">Dados da Solicitação</p>
+                                            <p class="text-gray-600">Valor: R$ {{ number_format($valorSolicitacao, 2, ',', '.') }}</p>
+                                            <p class="text-gray-600">Vencimento: {{ $vencSol ? \Carbon\Carbon::parse($vencSol)->format('d/m/Y') : 'N/A' }}</p>
+                                        </div>
+                                        <div>
+                                            <p class="font-semibold text-gray-700 mb-2">Dados do Título</p>
+                                            <p class="font-medium {{ $valorDivergente ? 'text-red-600' : 'text-gray-900' }}">
+                                                Valor Cobrado: R$ {{ number_format($valorFinalRet, 2, ',', '.') }}
+                                            </p>
+                                            <p class="font-medium {{ $vencDivergente ? 'text-red-600' : 'text-gray-900' }}">
+                                                Vencimento: {{ $vencRet ? \Carbon\Carbon::parse($vencRet)->format('d/m/Y') : 'N/A' }}
+                                            </p>
+
+                                            @if(isset($consultaDespesaRet['valor_multa']) && $consultaDespesaRet['valor_multa'] > 0)
+                                                <p class="text-gray-500 text-xs mt-1">Multa/Juros: R$ {{ number_format($consultaDespesaRet['valor_multa'], 2, ',', '.') }}</p>
+                                            @endif
+                                            @if(isset($consultaDespesaRet['valor_abatimento']) && $consultaDespesaRet['valor_abatimento'] > 0)
+                                                <p class="text-gray-500 text-xs mt-1">Abatimento: R$ {{ number_format($consultaDespesaRet['valor_abatimento'], 2, ',', '.') }}</p>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    @if($valorDivergente || $vencDivergente)
+                                        <div class="mt-2 pt-3 border-t border-gray-200 flex items-start gap-2.5 text-amber-700 bg-amber-50/50 p-2.5 rounded-lg border border-amber-100/50">
+                                            <p class="text-[11px] font-medium leading-tight">
+                                                <strong>Atenção:</strong> Há divergências entre os dados lançados no sistema e os dados retornados pela instituição financeira. Verifique antes de confirmar o pagamento.
+                                            </p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                     @endif
 
                 </div>
@@ -302,38 +350,52 @@
                         @click="show = false; setTimeout(() => $wire.$parent.set('openModalPagamento', false), 200)"
                         class="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
                     >
-                        Cancelar
+                        {{ $isPago ? 'Fechar' : 'Cancelar' }}
                     </button>
                     
-                    @if(empty($consultaDespesaRet))
-                        <!-- Botão Aprovar (Faz a consulta) -->
-                        <button 
-                            type="button" 
-                            wire:click="consultaDespesa"
-                            wire:loading.attr="disabled"
-                            class="inline-flex items-center justify-center px-5 py-2 rounded-lg bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors shadow-sm disabled:opacity-70"
-                        >
-                            <svg wire:loading wire:target="consultaDespesa" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <span wire:loading.remove wire:target="consultaDespesa">Consultar Título</span>
-                            <span wire:loading wire:target="consultaDespesa">Consultando...</span>
-                        </button>
+                    @if($isPago)
+                        @if($solicitacao->comprovante_path)
+                            <button 
+                                type="button" 
+                                wire:click="downloadComprovante"
+                                wire:loading.attr="disabled"
+                                class="inline-flex items-center justify-center px-5 py-2 rounded-lg bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors shadow-sm disabled:opacity-70"
+                            >
+                                <span wire:loading.remove wire:target="downloadComprovante">Download Comprovante</span>
+                                <span wire:loading wire:target="downloadComprovante">Baixando...</span>
+                            </button>
+                        @endif
                     @else
-                        <button 
-                            type="button" 
-                            wire:click="processarPagamento"
-                            wire:loading.attr="disabled"
-                            class="inline-flex items-center justify-center px-5 py-2 rounded-lg bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors shadow-sm disabled:opacity-70"
-                        >
-                            <svg wire:loading wire:target="processarPagamento" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <span wire:loading.remove wire:target="processarPagamento">Processar Pagamento</span>
-                            <span wire:loading wire:target="processarPagamento">Processando...</span>
-                        </button>
+                        @if(empty($consultaDespesaRet))
+                            <!-- Botão Aprovar (Faz a consulta) -->
+                            <button 
+                                type="button" 
+                                wire:click="consultaDespesa"
+                                wire:loading.attr="disabled"
+                                class="inline-flex items-center justify-center px-5 py-2 rounded-lg bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors shadow-sm disabled:opacity-70"
+                            >
+                                <svg wire:loading wire:target="consultaDespesa" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span wire:loading.remove wire:target="consultaDespesa">Consultar Título</span>
+                                <span wire:loading wire:target="consultaDespesa">Consultando...</span>
+                            </button>
+                        @else
+                            <button 
+                                type="button" 
+                                wire:click="processarPagamento"
+                                wire:loading.attr="disabled"
+                                class="inline-flex items-center justify-center px-5 py-2 rounded-lg bg-[#313e50] text-white text-sm font-medium hover:bg-[#313e50]/90 transition-colors shadow-sm disabled:opacity-70"
+                            >
+                                <svg wire:loading wire:target="processarPagamento" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span wire:loading.remove wire:target="processarPagamento">Processar Pagamento</span>
+                                <span wire:loading wire:target="processarPagamento">Processando...</span>
+                            </button>
+                        @endif
                     @endif
                 </div>
                 

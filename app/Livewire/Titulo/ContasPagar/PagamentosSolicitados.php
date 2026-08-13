@@ -215,9 +215,10 @@ class PagamentosSolicitados extends Component
     private function getQuery(){
         $query = $this->aplicarFiltros(SolicitacoesPagamento::query());
 
-        return $query->whereHas('parcela.titulo', function ($q) {
-            $q->where('tipo', 'pagar');
-        });
+        return $query->with(['parcela.titulo' => function ($q) {
+                $q->where('tipo', 'pagar');
+            },
+        ]);
     }
 
     public function abrirDetalhes($solicitacao_id){

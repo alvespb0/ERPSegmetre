@@ -4,6 +4,8 @@ namespace App\Livewire\Modais\ContasPagar;
 
 use Livewire\Component;
 
+use Illuminate\Support\Facades\Storage;
+
 use App\Helpers\Empresa;
 
 use App\Models\SolicitacoesPagamento;
@@ -371,6 +373,15 @@ class PagamentosSolicitados extends Component
         $this->fechar();
         $this->dispatch('toast-message', 'Pagamento processado.');
         $this->dispatch('toast-message', 'Comprovante de pagamento não gerado, aguardando retorno da instituição bancária');
+    }
+
+    public function downloadComprovante(){
+        if(!$this->solicitacao->comprovante_path){
+            $this->dispatch('toast-error', 'Nenhum comprovante de pagamento localizado.');
+            return;
+        }
+
+        return Storage::disk('public')->download($this->solicitacao->comprovante_path);
     }
 
     public function fechar(){
