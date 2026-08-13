@@ -15,7 +15,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->job(new ConsultaBoletoJob)->hourly();
-        $schedule->job(new ConsultaBoletoJob)->everyThirtyMinutes();
+        $schedule->job(new ConsultaComprovanteJob)->everyThirtyMinutes();
     }
 
     /**
