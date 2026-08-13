@@ -6,6 +6,7 @@ use Livewire\Component;
 
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\ConsultaComprovanteJob;
 
 use App\Helpers\Empresa;
 
@@ -407,6 +408,7 @@ class Pix extends Component
 
         $this->fechar();
         $this->dispatch('toast-message', $mensagem);
+        ConsultaComprovanteJob::dispatch($solicitacao->id)->delay(now()->addSeconds(10));
     }
     
     public function render()
