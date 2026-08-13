@@ -371,6 +371,7 @@ class Pix extends Component
         $solicitacao = $solicitacaoService->store([
             'tipo' => $this->tipo_pix == 'chave' ? 'pix' : 'pix_copia_cola',
             'identificador' => $this->identificador,
+            'conta_id' => $this->selected_conta,
             'valor' => $retorno['pagamento']['valor'],
             'data_pagamento' => $dataPagamento,
             'comprovante_path' => $comp_path ?? null,
@@ -384,6 +385,9 @@ class Pix extends Component
         $this->dispatch('toast-message', $mensagem);
     }
 
+    /**
+     * Não gera comprovante, job vai consultar instituição posteriormente
+     */
     public function processarPagamentoEmAndamento(array $retorno){
         $solicitacaoService = new SolicitacoesPagamentoService;
 
@@ -392,6 +396,7 @@ class Pix extends Component
         $solicitacao = $solicitacaoService->store([
             'tipo' => $this->tipo_pix == 'chave' ? 'pix' : 'pix_copia_cola',
             'identificador' => $this->identificador,
+            'conta_id' => $this->selected_conta,
             'valor' => $retorno['pagamento']['valor'],
             'data_pagamento' => $dataPagamento,
             'end_to_end_id' => $retorno['endToEndId'],
