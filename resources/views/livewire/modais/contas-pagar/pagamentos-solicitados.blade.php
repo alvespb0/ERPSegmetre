@@ -281,62 +281,279 @@
                         <!-- Retorno da Consulta de Despesa -->
                         @if(!empty($consultaDespesaRet))
                             @php
-                                $valorFinalRet = $consultaDespesaRet['valor_final'] ?? $consultaDespesaRet['valor_boleto'] ?? 0;
-                                $valorSolicitacao = $solicitacao->valor ?? 0;
-                                $valorDivergente = $valorFinalRet != $valorSolicitacao;
-
-                                $vencRet = $consultaDespesaRet['vencimento_boleto'] ?? null;
-                                $vencSol = $solicitacao->parcela->data_vencimento ?? null;
-                                $vencSolFormat = $vencSol ? \Carbon\Carbon::parse($vencSol)->format('Y-m-d') : null;
-                                $vencDivergente = $vencRet && $vencSolFormat && $vencRet !== $vencSolFormat;
+                                $isPix = ($solicitacao->tipo ?? '') === 'pix' || isset($consultaDespesaRet['chave']);
                             @endphp
 
-                            <div class="bg-white rounded-xl border border-[#313e50]/20 overflow-hidden shadow-sm relative">
-                                <div class="px-5 py-3 bg-[#313e50]/5 border-b border-[#313e50]/10">
-                                    <h4 class="text-xs font-semibold text-[#313e50] uppercase tracking-wide">Dados Retornados do Banco</h4>
+                            <div class="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+
+                                <!-- Header -->
+                                <div class="px-5 py-3 bg-gray-50 border-b border-gray-100 flex justify-between items-center">
+                                    <h4 class="text-xs font-semibold text-gray-700 uppercase tracking-wide">
+                                        Dados Retornados do Banco
+                                    </h4>
+
+                                    <span class="text-[11px] font-medium text-gray-500 uppercase">
+                                        {{ $isPix ? 'PIX' : 'Boleto' }}
+                                    </span>
                                 </div>
-                                <div class="p-5 space-y-4 text-sm">
-                                    <div>
-                                        <p class="text-gray-500 text-xs mb-0.5">Beneficiário Encontrado</p>
-                                        <p class="font-medium text-gray-900">
-                                            {{ $consultaDespesaRet['razao_social_beneficiario'] ?? $consultaDespesaRet['nome_fantasia_beneficiario'] ?? 'N/A' }}
-                                            <span class="text-gray-500 font-normal ml-1">({{ $consultaDespesaRet['cpf_cnpj_beneficiario'] ?? 'N/A' }})</span>
-                                        </p>
-                                        <p class="text-gray-500 text-xs mt-1">Instituição: {{ $consultaDespesaRet['banco_beneficiario'] ?? 'N/A' }}</p>
-                                    </div>
 
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-3 border-t border-gray-100">
-                                        <div>
-                                            <p class="font-semibold text-gray-700 mb-2">Dados da Solicitação</p>
-                                            <p class="text-gray-600">Valor: R$ {{ number_format($valorSolicitacao, 2, ',', '.') }}</p>
-                                            <p class="text-gray-600">Vencimento: {{ $vencSol ? \Carbon\Carbon::parse($vencSol)->format('d/m/Y') : 'N/A' }}</p>
+                                <div class="p-5 text-sm">
+
+                                    @if($isPix)
+
+                                        <!-- ============================== -->
+                                        <!-- PIX                            -->
+                                        <!-- ============================== -->
+
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+                                            <!-- Beneficiário -->
+                                            <div>
+                                                <p class="text-gray-500 text-xs mb-1 uppercase font-medium">
+                                                    Beneficiário
+                                                </p>
+
+                                                <p class="font-medium text-gray-900">
+                                                    {{ $consultaDespesaRet['proprietario']['nome'] ?? 'Não informado' }}
+                                                </p>
+
+                                                <p class="text-xs text-gray-400 mt-0.5">
+                                                    {{ $consultaDespesaRet['proprietario']['identificador'] ?? 'Documento não informado' }}
+                                                </p>
+                                            </div>
+
+                                            <!-- Chave -->
+                                            <div>
+                                                <p class="text-gray-500 text-xs mb-1 uppercase font-medium">
+                                                    Chave PIX
+                                                </p>
+
+                                                <p class="font-medium text-gray-900 break-all">
+                                                    {{ $consultaDespesaRet['chave'] ?? 'Não informado' }}
+                                                </p>
+
+                                                @if(!empty($consultaDespesaRet['tipo']))
+                                                    <p class="text-xs text-gray-400 mt-0.5">
+                                                        Tipo: {{ $consultaDespesaRet['tipo'] }}
+                                                    </p>
+                                                @endif
+                                            </div>
+
                                         </div>
-                                        <div>
-                                            <p class="font-semibold text-gray-700 mb-2">Dados do Título</p>
-                                            <p class="font-medium {{ $valorDivergente ? 'text-red-600' : 'text-gray-900' }}">
-                                                Valor Cobrado: R$ {{ number_format($valorFinalRet, 2, ',', '.') }}
-                                            </p>
-                                            <p class="font-medium {{ $vencDivergente ? 'text-red-600' : 'text-gray-900' }}">
-                                                Vencimento: {{ $vencRet ? \Carbon\Carbon::parse($vencRet)->format('d/m/Y') : 'N/A' }}
+
+                                        @if(!empty($consultaDespesaRet['e2eId']))
+                                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                                <p class="text-gray-500 text-xs mb-1 uppercase font-medium">
+                                                    End-to-End ID
+                                                </p>
+
+                                                <div class="bg-gray-50 rounded-lg border border-gray-100 px-3 py-2.5">
+                                                    <p class="font-mono text-xs text-gray-700 break-all">
+                                                        {{ $consultaDespesaRet['e2eId'] }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        @endif
+
+
+                                    @else
+
+                                        <!-- ============================== -->
+                                        <!-- BOLETO                         -->
+                                        <!-- ============================== -->
+
+                                        @php
+                                            $valorFinalRet = $consultaDespesaRet['valor_final']
+                                                ?? $consultaDespesaRet['valor_boleto']
+                                                ?? 0;
+
+                                            $valorSolicitacao = $solicitacao->valor ?? 0;
+
+                                            $valorDivergente = (float) $valorFinalRet !== (float) $valorSolicitacao;
+
+                                            $vencRet = $consultaDespesaRet['vencimento_boleto'] ?? null;
+                                            $vencSol = $solicitacao->parcela->data_vencimento ?? null;
+
+                                            $vencSolFormat = $vencSol
+                                                ? \Carbon\Carbon::parse($vencSol)->format('Y-m-d')
+                                                : null;
+
+                                            $vencDivergente = $vencRet
+                                                && $vencSolFormat
+                                                && $vencRet !== $vencSolFormat;
+                                        @endphp
+
+
+                                        <!-- Beneficiário -->
+                                        <div class="pb-4 border-b border-gray-100">
+
+                                            <p class="text-gray-500 text-xs mb-1 uppercase font-medium">
+                                                Beneficiário Encontrado
                                             </p>
 
-                                            @if(isset($consultaDespesaRet['valor_multa']) && $consultaDespesaRet['valor_multa'] > 0)
-                                                <p class="text-gray-500 text-xs mt-1">Multa/Juros: R$ {{ number_format($consultaDespesaRet['valor_multa'], 2, ',', '.') }}</p>
+                                            <p class="font-medium text-gray-900">
+                                                {{ $consultaDespesaRet['razao_social_beneficiario']
+                                                    ?? $consultaDespesaRet['nome_fantasia_beneficiario']
+                                                    ?? 'Não informado'
+                                                }}
+
+                                                @if(!empty($consultaDespesaRet['cpf_cnpj_beneficiario']))
+                                                    <span class="text-gray-400 font-normal ml-1">
+                                                        ({{ $consultaDespesaRet['cpf_cnpj_beneficiario'] }})
+                                                    </span>
+                                                @endif
+                                            </p>
+
+                                            @if(!empty($consultaDespesaRet['banco_beneficiario']))
+                                                <p class="text-xs text-gray-400 mt-0.5">
+                                                    {{ $consultaDespesaRet['banco_beneficiario'] }}
+                                                </p>
                                             @endif
-                                            @if(isset($consultaDespesaRet['valor_abatimento']) && $consultaDespesaRet['valor_abatimento'] > 0)
-                                                <p class="text-gray-500 text-xs mt-1">Abatimento: R$ {{ number_format($consultaDespesaRet['valor_abatimento'], 2, ',', '.') }}</p>
-                                            @endif
-                                        </div>
-                                    </div>
 
-                                    @if($valorDivergente || $vencDivergente)
-                                        <div class="mt-2 pt-3 border-t border-gray-200 flex items-start gap-2.5 text-amber-700 bg-amber-50/50 p-2.5 rounded-lg border border-amber-100/50">
-                                            <p class="text-[11px] font-medium leading-tight">
-                                                <strong>Atenção:</strong> Há divergências entre os dados lançados no sistema e os dados retornados pela instituição financeira. Verifique antes de confirmar o pagamento.
-                                            </p>
                                         </div>
+
+
+                                        <!-- Comparação -->
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+
+                                            <!-- Solicitação -->
+                                            <div>
+                                                <p class="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
+                                                    Dados da Solicitação
+                                                </p>
+
+                                                <div class="space-y-2.5">
+
+                                                    <div class="flex items-center justify-between gap-4">
+                                                        <span class="text-gray-500 text-xs">
+                                                            Valor
+                                                        </span>
+
+                                                        <span class="font-medium text-gray-900">
+                                                            R$ {{ number_format($valorSolicitacao, 2, ',', '.') }}
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="flex items-center justify-between gap-4">
+                                                        <span class="text-gray-500 text-xs">
+                                                            Vencimento
+                                                        </span>
+
+                                                        <span class="font-medium text-gray-900">
+                                                            {{ $vencSol
+                                                                ? \Carbon\Carbon::parse($vencSol)->format('d/m/Y')
+                                                                : 'Não informado'
+                                                            }}
+                                                        </span>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+
+                                            <!-- Banco -->
+                                            <div>
+                                                <p class="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
+                                                    Dados do Banco
+                                                </p>
+
+                                                <div class="space-y-2.5">
+
+                                                    <div class="flex items-center justify-between gap-4">
+                                                        <span class="text-gray-500 text-xs">
+                                                            Valor
+                                                        </span>
+
+                                                        <span class="font-medium {{ $valorDivergente ? 'text-amber-600' : 'text-gray-900' }}">
+                                                            R$ {{ number_format($valorFinalRet, 2, ',', '.') }}
+                                                        </span>
+                                                    </div>
+
+                                                    <div class="flex items-center justify-between gap-4">
+                                                        <span class="text-gray-500 text-xs">
+                                                            Vencimento
+                                                        </span>
+
+                                                        <span class="font-medium {{ $vencDivergente ? 'text-amber-600' : 'text-gray-900' }}">
+                                                            {{ $vencRet
+                                                                ? \Carbon\Carbon::parse($vencRet)->format('d/m/Y')
+                                                                : 'Não informado'
+                                                            }}
+                                                        </span>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+                                        <!-- Ajustes -->
+                                        @if(
+                                            (!empty($consultaDespesaRet['valor_multa']) && $consultaDespesaRet['valor_multa'] > 0)
+                                            ||
+                                            (!empty($consultaDespesaRet['valor_abatimento']) && $consultaDespesaRet['valor_abatimento'] > 0)
+                                        )
+                                            <div class="pt-4 border-t border-gray-100">
+
+                                                <p class="text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
+                                                    Ajustes do Pagamento
+                                                </p>
+
+                                                <div class="bg-gray-50 border border-gray-100 rounded-lg px-3 py-2.5 space-y-2">
+
+                                                    @if(!empty($consultaDespesaRet['valor_multa']) && $consultaDespesaRet['valor_multa'] > 0)
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-xs text-gray-500">
+                                                                Multa / Juros
+                                                            </span>
+
+                                                            <span class="text-sm font-medium text-gray-700">
+                                                                + R$ {{ number_format($consultaDespesaRet['valor_multa'], 2, ',', '.') }}
+                                                            </span>
+                                                        </div>
+                                                    @endif
+
+                                                    @if(!empty($consultaDespesaRet['valor_abatimento']) && $consultaDespesaRet['valor_abatimento'] > 0)
+                                                        <div class="flex items-center justify-between">
+                                                            <span class="text-xs text-gray-500">
+                                                                Abatimento
+                                                            </span>
+
+                                                            <span class="text-sm font-medium text-gray-700">
+                                                                - R$ {{ number_format($consultaDespesaRet['valor_abatimento'], 2, ',', '.') }}
+                                                            </span>
+                                                        </div>
+                                                    @endif
+
+                                                </div>
+
+                                            </div>
+                                        @endif
+
+
+                                        <!-- Divergência -->
+                                        @if($valorDivergente || $vencDivergente)
+                                            <div class="mt-4 pt-4 border-t border-gray-100">
+
+                                                <div class="bg-amber-50/50 border border-amber-100 rounded-lg px-3 py-2.5">
+                                                    <p class="text-xs font-semibold text-amber-700">
+                                                        Divergência encontrada
+                                                    </p>
+
+                                                    <p class="text-[11px] text-amber-700/80 mt-0.5 leading-relaxed">
+                                                        Os dados retornados pelo banco diferem dos dados da solicitação.
+                                                        Confira as informações antes de processar o pagamento.
+                                                    </p>
+                                                </div>
+
+                                            </div>
+                                        @endif
+
                                     @endif
+
                                 </div>
+
                             </div>
                         @endif
                     @endif

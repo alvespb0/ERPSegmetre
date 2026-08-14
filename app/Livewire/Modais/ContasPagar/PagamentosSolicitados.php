@@ -162,6 +162,7 @@ class PagamentosSolicitados extends Component
 
     public function consultaDespesa(){
         try{
+            
             if(!$this->selected_conta){
                 $this->dispatch('toast-error', 'Selecione uma conta de origem primeiro.');
             }
@@ -172,24 +173,28 @@ class PagamentosSolicitados extends Component
 
             if(!$config->integracao){
                 $this->dispatch('toast-error', 'A conta de origem não possui integração bancária para completar a transação.');
-            }else{
-                switch($this->solicitacao->tipo){
-                    case 'codigo_barras':
-                        $this->consultaDespesaRet = $this->consultaBoletoIntegracao($config, $conta);
-                    case 'pix' || 'pix_copia_cola':
-                        # ...
-                    case 'tributo':
-                        # ... 
-                }
+                return;
             }
+            
+            switch($this->solicitacao->tipo){
+                case 'codigo_barras':
+                    $this->consultaDespesaRet = $this->consultaBoletoIntegracao($config, $conta);
+                case 'pix':
+                    $this->consultaDespesaRet = $this->consultaPixIntegracao($config, $conta);
+                case 'pix_copia_cola':
+                    # ...
+                case 'tributo':
+                    # ... 
+            }
+            
         } catch(\Throwable $e){
             \Log::error([
-                'Erro ao buscar consultar boleto para pagamento' => $e->getMessage(),
+                'Erro ao buscar consultar despesa para pagamento' => $e->getMessage(),
                 'Conta' => $this->selected_conta,
                 'Empresa Parâmetro' => Empresa::id()
             ]);
 
-            $message = 'Erro ao processar pagamento.';
+            $message = 'Erro ao consultar despesa.';
 
             if (method_exists($e, 'friendlyMessage')) {
                 $message = $e->friendlyMessage();
@@ -223,6 +228,30 @@ class PagamentosSolicitados extends Component
         }       
     }
 
+    public function consultaPixIntegracao($config, Conta $conta){
+        $integracao = $config->integracao;        
+        $factory = new \App\Factories\IntegracaoFactory;
+        $serviceProvider = $factory->make($integracao, 'pix_pagamento');
+
+        if ($config->ambiente === 'homologacao') {
+
+            if (!method_exists($serviceProvider, 'iniciaPixSandbox')) {
+                $this->dispatch('toast-error', 'Integração não implementa pix sandbox.');
+                return;
+            }
+
+            return $serviceProvider->iniciaPixSandbox($this->solicitacao->identificador);
+        } else if ($config->ambiente === 'producao') {
+
+            if (!method_exists($serviceProvider, 'iniciaPixProducao')) {
+                $this->dispatch('toast-error', 'Integração não implementa pix.');
+                return;
+            }
+
+            return $serviceProvider->iniciaPixProducao($this->solicitacao->identificador);
+        }       
+    }
+
     public function processarPagamento(){
         try{
             if(!$this->consultaDespesaRet){
@@ -237,31 +266,32 @@ class PagamentosSolicitados extends Component
             if(!$config->integracao){
                 $this->dispatch('toast-error', 'A conta de origem não possui integração bancária para completar a transação.');
                 return;
-            }else{
-                $integracao = $config->integracao;        
-                $factory = new \App\Factories\IntegracaoFactory;
-                $serviceProvider = $factory->make($integracao, 'pagamento');
-                
-                $retorno = [];
-
-                if ($config->ambiente === 'homologacao') {
-
-                    if (!method_exists($serviceProvider, 'processarPagamentoSandbox')) {
-                        $this->dispatch('toast-error', 'Integração não implementa pagamento de boleto SANDBOX.');
-                        return;
-                    }
-
-                    $retorno = $serviceProvider->processarPagamentoSandbox($conta, $this->solicitacao->identificador, $this->consultaDespesaRet);
-                } elseif ($config->ambiente === 'producao') {
-
-                    if (!method_exists($serviceProvider, 'processarPagamentoProducao')) {
-                        $this->dispatch('toast-error', 'Integração não implementa pagamento de boleto.');
-                        return;
-                    }
-
-                    $retorno = $serviceProvider->processarPagamentoProducao($conta, $this->solicitacao->identificador, $this->consultaDespesaRet);
-                }       
             }
+            
+            $integracao = $config->integracao;        
+            $factory = new \App\Factories\IntegracaoFactory;
+            $serviceProvider = $factory->make($integracao, 'pagamento');
+            
+            $retorno = [];
+
+            if ($config->ambiente === 'homologacao') {
+
+                if (!method_exists($serviceProvider, 'processarPagamentoSandbox')) {
+                    $this->dispatch('toast-error', 'Integração não implementa pagamento de boleto SANDBOX.');
+                    return;
+                }
+
+                $retorno = $serviceProvider->processarPagamentoSandbox($conta, $this->solicitacao->identificador, $this->consultaDespesaRet);
+            } elseif ($config->ambiente === 'producao') {
+
+                if (!method_exists($serviceProvider, 'processarPagamentoProducao')) {
+                    $this->dispatch('toast-error', 'Integração não implementa pagamento de boleto.');
+                    return;
+                }
+
+                $retorno = $serviceProvider->processarPagamentoProducao($conta, $this->solicitacao->identificador, $this->consultaDespesaRet);
+            }       
+            
 
             \Log::debug([
                 'Retorno da transacao de pagamento' => $retorno

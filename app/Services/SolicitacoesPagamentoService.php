@@ -14,7 +14,7 @@ class SolicitacoesPagamentoService
         return SolicitacoesPagamento::create([
             'parcela_id' => $dados['parcela_id'] ?? null,
             'movimentacao_id' => $dados['movimentacao_id'] ?? null,
-            'conta_id' => $dados['conta_id'],
+            'conta_id' => $dados['conta_id'] ?? null,
             'chave_idempotente' => $dados['chave_idempotente'] ?? null,
             'tipo' => $dados['tipo'],
             'identificador' => $dados['identificador'],
