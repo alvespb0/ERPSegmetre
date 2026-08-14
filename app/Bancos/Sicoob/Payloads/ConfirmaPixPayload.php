@@ -11,6 +11,7 @@ class ConfirmaPixPayload
             'endToEndId' => $e2eId,
             'meioIniciacao' => $meioIniciacao,
             'valor' => $valor,
+            'repeticao' => true,
         ]);
     }
 }
