@@ -37,7 +37,7 @@ class SolicitacaoPagamento extends Component
                 'required',
                 Rule::when(
                     $this->tipo === 'codigo_barras',
-                    ['min:43', 'max:48']
+                    ['min:43', 'max:60']
                 ),
             ],
             'valor' => 'required|numeric|min:1'
