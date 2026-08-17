@@ -6,6 +6,8 @@ use Livewire\Component;
 
 use Illuminate\Support\Facades\Storage;
 
+use Carbon\Carbon;
+
 use App\Jobs\ConsultaComprovanteJob;
 
 use App\Helpers\Empresa;
@@ -353,7 +355,7 @@ class PagamentosSolicitados extends Component
             
         } catch(\Throwable $e){
             \Log::error([
-                'Erro ao buscar tentar realizar transação para pagamento de despesa' => $e->getMessage(),
+                'Erro ao tentar realizar transação para pagamento de despesa' => $e->getMessage(),
                 'Conta' => $this->selected_conta,
                 'Empresa Parâmetro' => Empresa::id()
             ]);

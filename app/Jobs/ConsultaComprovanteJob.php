@@ -137,12 +137,20 @@ class ConsultaComprovanteJob implements ShouldQueue
     }
 
     private function processarPagamentoEfetivado(array $retorno, $solicitacao){
+        $dataPagamentoRetorno = $retorno['pagamento']['data_pagamento'] ?? null;
+
+        $dataPagamento = $dataPagamentoRetorno
+            ? Carbon::parse($dataPagamentoRetorno)
+                ->setTimezone(config('app.timezone'))
+                ->format('Y-m-d H:i:s')
+            : Carbon::now()->format('Y-m-d H:i:s');
+
         if($solicitacao->parcela_id){
             \Log::info([
                 'Iniciado Lancamento de Movimentacao' => [
                     'solicitacao' => $solicitacao->id,
                     'valor' => $retorno['pagamento']['valor'],
-                    'data_pagamento' => $retorno['pagamento']['data_pagamento'],
+                    'data_pagamento' => $dataPagamento,
                     'empresa_parametro_id' => $solicitacao->empresa_parametro_id
                 ]
             ]);
@@ -155,17 +163,13 @@ class ConsultaComprovanteJob implements ShouldQueue
                     'empresa_parametro_id' => $solicitacao->empresa_parametro_id,
                     'parcela_id' => $solicitacao->parcela_id,
                     'valor_pago' => $retorno['pagamento']['valor'] ?? $solicitacao->valor,
-                    'data_pagamento' => $retorno['pagamento']['data_pagamento'] ?? Carbon::today()->toDateString()
+                    'data_pagamento' => $dataPagamento ?? Carbon::today()->toDateString()
                 ]);
             }
             
             $service = new \App\Services\SolicitacoesPagamentoService;
 
             $compPath = $service->makeComprovantePagamento($retorno);
-
-            $dataPagamento = Carbon::parse($retorno['pagamento']['data_pagamento'])
-                ->setTimezone(config('app.timezone'))
-                ->format('Y-m-d H:i:s');
 
             $solicitacao->update([
                 'movimentacao_id' => $movimentacao->id ?? $solicitacao->movimentacao_id,
@@ -177,10 +181,6 @@ class ConsultaComprovanteJob implements ShouldQueue
             $service = new \App\Services\SolicitacoesPagamentoService;
 
             $compPath = $service->makeComprovantePagamento($retorno);
-
-            $dataPagamento = Carbon::parse($retorno['pagamento']['data_pagamento'])
-                ->setTimezone(config('app.timezone'))
-                ->format('Y-m-d H:i:s');
 
             $solicitacao->update([
                 'data_pagamento' => $dataPagamento,
