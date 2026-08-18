@@ -39,7 +39,14 @@ class Parcela extends BaseModel
     }
     
     public function getPossuiSolicitacaoPagamentoAttribute(): bool{
-        return $this->solicitacoesPagamento->contains(fn($solicitacao) => $solicitacao->status === 'pendente');
+        return $this->solicitacoesPagamento->contains(
+            fn($solicitacao) => in_array($solicitacao->status, [
+                'pendente',
+                'agendado',
+                'em_processamento',
+                'pendente_assinatura'
+            ])
+        );
     }
 
     public function getBoletoAtivoAttribute(): ?BoletoCobranca{
