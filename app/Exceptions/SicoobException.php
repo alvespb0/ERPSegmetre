@@ -35,14 +35,26 @@ class SicoobException extends Exception
             return 'A solicitação foi rejeitada pelo Sicoob.';
         }
 
-        if (!isset($body['mensagens'])) {
-            return 'A solicitação foi rejeitada pelo Sicoob.';
+        if (!empty($body['mensagens']) && is_array($body['mensagens'])) {
+            $mensagem = collect($body['mensagens'])
+                ->pluck('mensagem')
+                ->filter()
+                ->implode("\n");
+
+            if ($mensagem) {
+                return $mensagem;
+            }
         }
 
-        return collect($body['mensagens'])
-            ->pluck('mensagem')
-            ->filter()
-            ->implode("\n");
+        if (!empty($body['detail'])) {
+            return $body['detail'];
+        }
+
+        if (!empty($body['title'])) {
+            return $body['title'];
+        }
+
+        return 'A solicitação foi rejeitada pelo Sicoob.';
     }
     
     public function context(): array{

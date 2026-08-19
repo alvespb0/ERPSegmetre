@@ -1,387 +1,367 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
+
     <title>Comprovante de Pagamento</title>
 
     <style>
-        body{
+
+        @page {
+            margin: 0;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 35px;
+            background: #ffffff;
+            color: #222222;
             font-family: Arial, Helvetica, sans-serif;
-            font-size:12px;
-            color:#222;
-            margin:0;
-            padding:25px;
-            background:#fff;
+            font-size: 11px;
         }
 
-        .document{
-            border:1px solid #cfcfcf;
+        .page {
+            width: 100%;
         }
 
-        /* =========================
+        /* =====================================================
            CABEÇALHO
-        ==========================*/
+        ====================================================== */
 
-        .header{
-            text-align:center;
-            padding:22px;
-            border-bottom:2px solid #444;
+        .header {
+            width: 100%;
+            padding-bottom: 22px;
+            border-bottom: 1px solid #dcdcdc;
         }
 
-        .header h1{
-            margin:0;
-            font-size:22px;
-            text-transform:uppercase;
-            letter-spacing:1px;
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .header .subtitle{
-            margin-top:8px;
-            color:#666;
-            font-size:11px;
+        .header-left {
+            width: 65%;
+            vertical-align: middle;
         }
 
-        /* =========================
-           DESTAQUE VALOR
-        ==========================*/
-
-        .highlight-box{
-            margin:20px;
-            border:1px solid #d9d9d9;
-            background:#f8f8f8;
-            text-align:center;
-            padding:18px;
+        .header-right {
+            width: 35%;
+            text-align: right;
+            vertical-align: middle;
         }
 
-        .highlight-label{
-            font-size:11px;
-            color:#666;
-            text-transform:uppercase;
-            margin-bottom:8px;
+        .brand {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: .3px;
+            color: #111111;
         }
 
-        .highlight-value{
-            font-size:30px;
-            font-weight:bold;
-            color:#111;
-            margin-bottom:10px;
+        .document-title {
+            margin-top: 5px;
+            font-size: 10px;
+            color: #777777;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .status-success{
-            display:inline-block;
-            padding:5px 15px;
-            border:1px solid #4caf50;
-            background:#edf8ed;
-            color:#2f6f31;
-            font-size:11px;
-            font-weight:bold;
-            text-transform:uppercase;
+        .payment-type {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            color: #555555;
+            border: 1px solid #cccccc;
+            padding: 5px 9px;
         }
 
-        /* =========================
+
+        /* =====================================================
+           RESUMO
+        ====================================================== */
+
+        .summary {
+            padding: 28px 0 25px 0;
+            border-bottom: 1px solid #e1e1e1;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .summary-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #111111;
+            line-height: 32px;
+        }
+
+        .summary-label {
+            margin-bottom: 6px;
+            font-size: 9px;
+            color: #888888;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+        }
+
+        .summary-status {
+            text-align: right;
+            vertical-align: bottom;
+        }
+
+        .status {
+            font-size: 10px;
+            font-weight: bold;
+            color: #333333;
+            letter-spacing: .6px;
+        }
+
+        .status:before {
+            content: "✓";
+            display: inline-block;
+            margin-right: 5px;
+            font-size: 11px;
+        }
+
+
+        /* =====================================================
            SEÇÕES
-        ==========================*/
+        ====================================================== */
 
-        .section-title{
-            background:#ececec;
-            padding:8px 15px;
-            font-size:11px;
-            font-weight:bold;
-            text-transform:uppercase;
-            letter-spacing:.8px;
-            border-top:1px solid #d8d8d8;
-            border-bottom:1px solid #d8d8d8;
+        .section {
+            margin-top: 25px;
         }
 
-        /* =========================
-           TABELAS
-        ==========================*/
-
-        .data-table{
-            width:100%;
-            border-collapse:collapse;
+        .section-header {
+            width: 100%;
+            border-bottom: 1px solid #d7d7d7;
+            padding-bottom: 7px;
+            margin-bottom: 0;
         }
 
-        .data-table td{
-            padding:12px 15px;
-            vertical-align:top;
-            border-bottom:1px solid #ececec;
+        .section-title {
+            font-size: 10px;
+            font-weight: bold;
+            color: #444444;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .data-table tr:last-child td{
-            border-bottom:none;
+
+        /* =====================================================
+           DADOS
+        ====================================================== */
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        .divider{
-            border-left:1px solid #ececec;
+        .data-table td {
+            width: 50%;
+            padding: 13px 0;
+            vertical-align: top;
+            border-bottom: 1px solid #eeeeee;
         }
 
-        .label{
-            display:block;
-            font-size:9px;
-            color:#777;
-            text-transform:uppercase;
-            margin-bottom:5px;
+        .data-table td + td {
+            padding-left: 25px;
         }
 
-        .value{
-            font-size:13px;
-            font-weight:bold;
-            color:#111;
+        .data-table tr:last-child td {
+            border-bottom: none;
         }
 
-        /* =========================
-           AUTENTICAÇÃO
-        ==========================*/
-
-        .auth-wrapper{
-            margin:20px;
-            border:1px solid #d8d8d8;
-            background:#fafafa;
+        .field-label {
+            display: block;
+            margin-bottom: 4px;
+            color: #888888;
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: .6px;
         }
 
-        .auth-table{
-            width:100%;
-            border-collapse:collapse;
+        .field-value {
+            display: block;
+            color: #222222;
+            font-size: 11px;
+            font-weight: bold;
+            line-height: 15px;
         }
 
-        .auth-table td{
-            padding:15px;
-            vertical-align:top;
+        .field-value.normal {
+            font-weight: normal;
         }
 
-        .auth-divider{
-            border-left:1px solid #dddddd;
+
+        /* =====================================================
+           DESTAQUE DE IDENTIFICADOR
+        ====================================================== */
+
+        .identifier {
+            margin-top: 10px;
+            padding: 14px 0;
+            border-bottom: 1px solid #eeeeee;
         }
 
-        .auth-code{
-            display:block;
-            margin-top:6px;
-            font-family:"Courier New", monospace;
-            font-size:12px;
-            font-weight:bold;
-            word-break:break-all;
+        .identifier-label {
+            font-size: 8px;
+            color: #888888;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            margin-bottom: 5px;
         }
 
-        /* =========================
+        .identifier-value {
+            font-family: "Courier New", monospace;
+            font-size: 10px;
+            color: #222222;
+            word-break: break-all;
+        }
+
+
+        /* =====================================================
+           BOX DE AUTENTICAÇÃO
+        ====================================================== */
+
+        .authentication {
+            margin-top: 25px;
+            padding: 16px;
+            background: #f7f7f7;
+            border-left: 3px solid #444444;
+        }
+
+        .authentication-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .authentication td {
+            width: 50%;
+            vertical-align: top;
+        }
+
+        .authentication td + td {
+            padding-left: 25px;
+            border-left: 1px solid #dddddd;
+        }
+
+        .auth-label {
+            font-size: 8px;
+            color: #888888;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            margin-bottom: 6px;
+        }
+
+        .auth-value {
+            font-family: "Courier New", monospace;
+            font-size: 9px;
+            color: #222222;
+            word-break: break-all;
+            line-height: 13px;
+        }
+
+
+        /* =====================================================
            RODAPÉ
-        ==========================*/
+        ====================================================== */
 
-        .footer{
-            margin-top:10px;
-            border-top:1px solid #ddd;
-            text-align:center;
-            padding:18px;
-            font-size:10px;
-            color:#777;
-            line-height:16px;
+        .footer {
+            margin-top: 35px;
+            padding-top: 15px;
+            border-top: 1px solid #dddddd;
+            color: #999999;
+            font-size: 8px;
+            line-height: 13px;
+            text-align: center;
         }
-    </style>
 
+        .footer strong {
+            color: #777777;
+        }
+
+    </style>
 </head>
+
 <body>
 
-<div class="document">
+@php
 
-    <!-- CABEÇALHO -->
+    /*
+    |--------------------------------------------------------------------------
+    | Dados
+    |--------------------------------------------------------------------------
+    */
+
+    $pagamento = $retorno['pagamento'] ?? [];
+    $pagador = $retorno['pagador'] ?? [];
+    $destinatario = $retorno['destinatario'] ?? [];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tipo
+    |--------------------------------------------------------------------------
+    |
+    | Se futuramente você adicionar "tipo" ao retorno, pode trocar
+    | essa identificação por:
+    |
+    | $isPix = ($retorno['tipo'] ?? null) === 'pix';
+    |
+    */
+
+    $isPix = !empty($retorno['endToEndId']);
+
+    $tipoPagamento = $isPix ? 'PIX' : 'BOLETO';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Identificador principal
+    |--------------------------------------------------------------------------
+    */
+
+    $identificador = $isPix
+        ? ($retorno['endToEndId'] ?? null)
+        : ($pagamento['id_pagamento'] ?? null);
+
+@endphp
+
+
+<div class="page">
+
+    {{-- =========================================================
+         CABEÇALHO
+    ========================================================== --}}
 
     <div class="header">
 
-        <h1>Comprovante de Pagamento</h1>
-
-        <div class="subtitle">
-            Transação Nº {{ $retorno['pagamento']['id_pagamento'] ?? 'N/A' }}
-            <br>
-            Emitido em {{ \Carbon\Carbon::now()->format('d/m/Y \à\s H:i:s') }}
-        </div>
-
-    </div>
-
-    <!-- VALOR -->
-
-    <div class="highlight-box">
-
-        <div class="highlight-label">
-            Valor Pago
-        </div>
-
-        <div class="highlight-value">
-            R$ {{ number_format($retorno['pagamento']['valor'] ?? 0, 2, ',', '.') }}
-        </div>
-
-        <span class="status-success">
-            {{ strtoupper($retorno['status'] ?? 'N/A') }}
-        </span>
-
-    </div>
-
-    <!-- DADOS PAGAMENTO -->
-
-    <div class="section-title">
-        Dados do Pagamento
-    </div>
-
-    <table class="data-table">
-
-        <tr>
-
-            <td width="50%">
-                <span class="label">Data de Pagamento</span>
-                <span class="value">
-                    {{ isset($retorno['pagamento']['data_pagamento']) ? \Carbon\Carbon::parse($retorno['pagamento']['data_pagamento'])->format('d/m/Y') : '-' }}
-                </span>
-            </td>
-
-            <td width="50%" class="divider">
-                <span class="label">Vencimento</span>
-                <span class="value">
-                    {{ isset($retorno['pagamento']['data_vencimento']) ? \Carbon\Carbon::parse($retorno['pagamento']['data_vencimento'])->format('d/m/Y') : '-' }}
-                </span>
-            </td>
-
-        </tr>
-
-        @if((isset($retorno['pagamento']['valor_multa']) && $retorno['pagamento']['valor_multa'] > 0) || (isset($retorno['pagamento']['valor_desconto']) && $retorno['pagamento']['valor_desconto'] > 0))
-
-        <tr>
-
-            <td>
-                <span class="label">Multa / Juros</span>
-                <span class="value">
-                    R$ {{ number_format($retorno['pagamento']['valor_multa'] ?? 0,2,',','.') }}
-                </span>
-            </td>
-
-            <td class="divider">
-                <span class="label">Desconto</span>
-                <span class="value">
-                    R$ {{ number_format($retorno['pagamento']['valor_desconto'] ?? 0,2,',','.') }}
-                </span>
-            </td>
-
-        </tr>
-
-        @endif
-
-    </table>
-
-    <!-- PAGADOR -->
-
-    <div class="section-title">
-        Pagador
-    </div>
-
-    <table class="data-table">
-
-        <tr>
-
-            <td width="70%">
-                <span class="label">Nome / Razão Social</span>
-                <span class="value">
-                    {{ $retorno['pagador']['nome'] ?? 'Não informado' }}
-                </span>
-            </td>
-
-            <td width="30%" class="divider">
-                <span class="label">CPF / CNPJ</span>
-                <span class="value">
-                    {{ $retorno['pagador']['cpf_cnpj'] ?? 'Não informado' }}
-                </span>
-            </td>
-
-        </tr>
-
-    </table>
-
-    <!-- BENEFICIÁRIO -->
-
-    <div class="section-title">
-        Beneficiário
-    </div>
-
-    <table class="data-table">
-
-        <tr>
-
-            <td colspan="2">
-                <span class="label">Nome / Razão Social</span>
-                <span class="value">
-                    {{ $retorno['destinatario']['nome'] ?? 'Não informado' }}
-                </span>
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <td width="50%">
-                <span class="label">Banco</span>
-                <span class="value">
-                    {{ $retorno['destinatario']['banco'] ?? '-' }}
-                </span>
-            </td>
-
-            <td width="50%" class="divider">
-                <span class="label">CPF / CNPJ</span>
-                <span class="value">
-                    {{ $retorno['destinatario']['cpf_cnpj'] ?? '-' }}
-                </span>
-            </td>
-
-        </tr>
-
-        <tr>
-
-            <td width="50%">
-                <span class="label">Documento</span>
-                <span class="value">
-                    {{ $retorno['destinatario']['documento'] ?? '-' }}
-                </span>
-            </td>
-
-            <td width="50%" class="divider">
-                <span class="label">Nosso Número</span>
-                <span class="value">
-                    {{ $retorno['destinatario']['nosso_numero'] ?? '-' }}
-                </span>
-            </td>
-
-        </tr>
-
-    </table>
-
-    <!-- AUTENTICAÇÃO -->
-
-    <div class="section-title">
-        Autenticação
-    </div>
-
-    <div class="auth-wrapper">
-
-        <table class="auth-table">
+        <table class="header-table">
 
             <tr>
 
-                <td width="50%">
+                <td class="header-left">
 
-                    <span class="label">
-                        Código de Autenticação Bancária
-                    </span>
+                    <div class="brand">
+                        Comprovante de Pagamento
+                    </div>
 
-                    <span class="auth-code">
-                        {{ $retorno['pagamento']['codigo_autenticacao'] ?? '-' }}
-                    </span>
+                    <div class="document-title">
+                        Documento eletrônico de transação financeira
+                    </div>
 
                 </td>
 
-                <td width="50%" class="auth-divider">
 
-                    <span class="label">
-                        Chave de Idempotência
-                    </span>
+                <td class="header-right">
 
-                    <span class="auth-code" style="font-size:11px;">
-                        {{ $retorno['idempotency_key'] ?? '-' }}
+                    <span class="payment-type">
+                        {{ $tipoPagamento }}
                     </span>
 
                 </td>
@@ -392,15 +372,546 @@
 
     </div>
 
-    <!-- RODAPÉ -->
+
+    {{-- =========================================================
+         RESUMO DO PAGAMENTO
+    ========================================================== --}}
+
+    <div class="summary">
+
+        <table class="summary-table">
+
+            <tr>
+
+                <td width="65%">
+
+                    <div class="summary-label">
+                        Valor pago
+                    </div>
+
+                    <div class="summary-value">
+                        R$
+                        {{ number_format($pagamento['valor'] ?? 0, 2, ',', '.') }}
+                    </div>
+
+                </td>
+
+
+                <td width="35%" class="summary-status">
+
+                    <div class="summary-label">
+                        Situação
+                    </div>
+
+                    <div class="status">
+                        {{ strtoupper($retorno['status'] ?? 'NÃO INFORMADO') }}
+                    </div>
+
+                </td>
+
+            </tr>
+
+        </table>
+
+    </div>
+
+
+    {{-- =========================================================
+         DADOS DO PAGAMENTO
+    ========================================================== --}}
+
+    <div class="section">
+
+        <div class="section-header">
+            <span class="section-title">
+                Dados do pagamento
+            </span>
+        </div>
+
+
+        <table class="data-table">
+
+            <tr>
+
+                <td>
+
+                    <span class="field-label">
+                        Data do pagamento
+                    </span>
+
+                    <span class="field-value">
+
+                        @if(!empty($pagamento['data_pagamento']))
+                            {{ \Carbon\Carbon::parse($pagamento['data_pagamento'])->format('d/m/Y H:i:s') }}
+                        @else
+                            -
+                        @endif
+
+                    </span>
+
+                </td>
+
+
+                @if($isPix)
+
+                    <td>
+
+                        <span class="field-label">
+                            Identificador da transação
+                        </span>
+
+                        <span class="field-value normal">
+                            {{ $retorno['endToEndId'] ?? '-' }}
+                        </span>
+
+                    </td>
+
+                @else
+
+                    <td>
+
+                        <span class="field-label">
+                            Data de vencimento
+                        </span>
+
+                        <span class="field-value">
+
+                            @if(!empty($pagamento['data_vencimento']))
+                                {{ \Carbon\Carbon::parse($pagamento['data_vencimento'])->format('d/m/Y') }}
+                            @else
+                                -
+                            @endif
+
+                        </span>
+
+                    </td>
+
+                @endif
+
+            </tr>
+
+
+            @if(!$isPix)
+
+                <tr>
+
+                    <td>
+
+                        <span class="field-label">
+                            Valor original
+                        </span>
+
+                        <span class="field-value">
+                            R$
+                            {{ number_format($pagamento['valor_boleto'] ?? $pagamento['valor'] ?? 0, 2, ',', '.') }}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="field-label">
+                            Valor pago
+                        </span>
+
+                        <span class="field-value">
+                            R$
+                            {{ number_format($pagamento['valor'] ?? 0, 2, ',', '.') }}
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                @if(
+                    ($pagamento['valor_desconto'] ?? 0) > 0 ||
+                    ($pagamento['valor_multa'] ?? 0) > 0
+                )
+
+                    <tr>
+
+                        <td>
+
+                            <span class="field-label">
+                                Desconto
+                            </span>
+
+                            <span class="field-value">
+                                R$
+                                {{ number_format($pagamento['valor_desconto'] ?? 0, 2, ',', '.') }}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="field-label">
+                                Multa / juros
+                            </span>
+
+                            <span class="field-value">
+                                R$
+                                {{ number_format($pagamento['valor_multa'] ?? 0, 2, ',', '.') }}
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                @endif
+
+            @endif
+
+        </table>
+
+    </div>
+
+
+    {{-- =========================================================
+         PAGADOR
+    ========================================================== --}}
+
+    <div class="section">
+
+        <div class="section-header">
+
+            <span class="section-title">
+                Pagador
+            </span>
+
+        </div>
+
+
+        <table class="data-table">
+
+            <tr>
+
+                <td>
+
+                    <span class="field-label">
+                        Nome / Razão social
+                    </span>
+
+                    <span class="field-value">
+                        {{ $pagador['nome'] ?? 'Não informado' }}
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span class="field-label">
+                        CPF / CNPJ
+                    </span>
+
+                    <span class="field-value">
+                        {{ $pagador['cpf_cnpj'] ?? 'Não informado' }}
+                    </span>
+
+                </td>
+
+            </tr>
+
+
+            @if($isPix)
+
+                <tr>
+
+                    <td>
+
+                        <span class="field-label">
+                            Agência
+                        </span>
+
+                        <span class="field-value">
+                            {{ $pagador['agencia'] ?? '-' }}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="field-label">
+                            Conta
+                        </span>
+
+                        <span class="field-value">
+                            {{ $pagador['conta'] ?? '-' }}
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td colspan="2">
+
+                        <span class="field-label">
+                            Tipo de conta
+                        </span>
+
+                        <span class="field-value">
+                            {{ $pagador['tipo_conta'] ?? '-' }}
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            @endif
+
+        </table>
+
+    </div>
+
+
+    {{-- =========================================================
+         DESTINATÁRIO
+    ========================================================== --}}
+
+    <div class="section">
+
+        <div class="section-header">
+
+            <span class="section-title">
+                {{ $isPix ? 'Destinatário' : 'Beneficiário' }}
+            </span>
+
+        </div>
+
+
+        <table class="data-table">
+
+            <tr>
+
+                <td>
+
+                    <span class="field-label">
+                        Nome / Razão social
+                    </span>
+
+                    <span class="field-value">
+                        {{ $destinatario['nome'] ?? 'Não informado' }}
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span class="field-label">
+                        CPF / CNPJ
+                    </span>
+
+                    <span class="field-value">
+                        {{ $destinatario['cpf_cnpj'] ?? '-' }}
+                    </span>
+
+                </td>
+
+            </tr>
+
+
+            @if($isPix)
+
+                <tr>
+
+                    <td>
+
+                        <span class="field-label">
+                            Agência
+                        </span>
+
+                        <span class="field-value">
+                            {{ $destinatario['agencia'] ?? '-' }}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="field-label">
+                            Conta
+                        </span>
+
+                        <span class="field-value">
+                            {{ $destinatario['conta'] ?? '-' }}
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td colspan="2">
+
+                        <span class="field-label">
+                            Tipo de conta
+                        </span>
+
+                        <span class="field-value">
+                            {{ $destinatario['tipo_conta'] ?? '-' }}
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            @else
+
+                <tr>
+
+                    <td>
+
+                        <span class="field-label">
+                            Instituição emissora
+                        </span>
+
+                        <span class="field-value">
+                            {{ $destinatario['banco'] ?? '-' }}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="field-label">
+                            Documento
+                        </span>
+
+                        <span class="field-value">
+                            {{ $destinatario['documento'] ?? '-' }}
+                        </span>
+
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+                    <td colspan="2">
+
+                        <span class="field-label">
+                            Nosso número
+                        </span>
+
+                        <span class="field-value">
+                            {{ $destinatario['nosso_numero'] ?? '-' }}
+                        </span>
+
+                    </td>
+
+                </tr>
+
+            @endif
+
+        </table>
+
+    </div>
+
+
+    {{-- =========================================================
+         IDENTIFICAÇÃO / AUTENTICAÇÃO
+    ========================================================== --}}
+
+    <div class="section">
+
+        <div class="section-header">
+
+            <span class="section-title">
+
+                {{ $isPix ? 'Identificação da transação' : 'Autenticação' }}
+
+            </span>
+
+        </div>
+
+
+        <div class="authentication">
+
+            <table class="authentication-table">
+
+                <tr>
+
+                    @if($isPix)
+
+                        <td width="100%">
+
+                            <div class="auth-label">
+                                End-to-End ID
+                            </div>
+
+                            <div class="auth-value">
+                                {{ $retorno['endToEndId'] ?? '-' }}
+                            </div>
+
+                        </td>
+
+                    @else
+
+                        <td width="50%">
+
+                            <div class="auth-label">
+                                Código de autenticação
+                            </div>
+
+                            <div class="auth-value">
+                                {{ $pagamento['codigo_autenticacao'] ?? '-' }}
+                            </div>
+
+                        </td>
+
+
+                        <td width="50%">
+
+                            <div class="auth-label">
+                                Chave de idempotência
+                            </div>
+
+                            <div class="auth-value">
+                                {{ $retorno['idempotency_key'] ?? '-' }}
+                            </div>
+
+                        </td>
+
+                    @endif
+
+                </tr>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    {{-- =========================================================
+         RODAPÉ
+    ========================================================== --}}
 
     <div class="footer">
 
-        Este comprovante foi emitido eletronicamente pelo sistema financeiro.
+        <strong>Comprovante eletrônico de pagamento</strong>
 
-        <br><br>
+        <br>
 
-        A autenticidade desta operação pode ser validada através do código de autenticação bancária informado neste documento.
+        Documento gerado automaticamente pelo sistema financeiro.
+
+        <br>
+
+        Emitido em {{ \Carbon\Carbon::now()->format('d/m/Y H:i:s') }}.
 
     </div>
 
