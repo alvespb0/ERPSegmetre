@@ -270,6 +270,58 @@ class SicoobPixPagamentoService
         };
     }
 
+    /**
+     * Consulta o comprovante/status de um pagamento Pix em produção.
+     *
+     * Realiza a autenticação na API do Sicoob, consulta o pagamento utilizando
+     * o identificador EndToEndId e normaliza a resposta da instituição bancária
+     * para o formato utilizado pela aplicação.
+     *
+     * Os estados tratados são:
+     * - `FINALIZADO`: pagamento concluído com sucesso.
+     * - `EM_PROCESSAMENTO`: pagamento ainda em processamento.
+     * - `REJEITADO`: pagamento recusado pela instituição bancária.
+     *
+     * Para os estados `FINALIZADO` e `EM_PROCESSAMENTO`, são retornados os dados
+     * do destinatário, pagador e informações do pagamento, quando disponíveis.
+     *
+     * Caso a API retorne um status HTTP de erro, uma {@see SicoobException} será
+     * lançada contendo o status e o corpo da resposta.
+     *
+     * Caso o estado retornado pela API não seja reconhecido, também será lançada
+     * uma {@see SicoobException}.
+     *
+     * @param SolicitacoesPagamento $solicitacao Solicitação de pagamento contendo
+     *                                           o `end_to_end_id` utilizado para
+     *                                           consultar a transação.
+     *
+     * @return array{
+     *     status: 'pago'|'em_processamento'|'recusado',
+     *     endToEndId: string,
+     *     mensagem: string,
+     *     destinatario?: array{
+     *         nome?: string,
+     *         cpf_cnpj?: string,
+     *         conta?: string,
+     *         agencia?: string,
+     *         tipo_conta?: string
+     *     },
+     *     pagador?: array{
+     *         nome?: string,
+     *         cpf_cnpj?: string,
+     *         conta?: string,
+     *         agencia?: string,
+     *         tipo_conta?: string
+     *     },
+     *     pagamento?: array{
+     *         valor?: string|float|int,
+     *         data_pagamento?: string
+     *     }
+     * }
+     *
+     * @throws SicoobException Quando a consulta à API falhar ou quando o estado
+     *                         do pagamento não for reconhecido.
+     */
     public function consultaComprovanteProducao(SolicitacoesPagamento $solicitacao){
         $authService = new AuthService;
         $access_token = $authService->auth($this->integracao, 'pixpagamentos_consulta');
