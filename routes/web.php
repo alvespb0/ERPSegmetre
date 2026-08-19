@@ -114,6 +114,7 @@ Route::middleware(['auth', 'two.factor'])->controller(TituloController::class)->
     Route::get('erp/titulo/despesa/nova', 'showCreateViewDespesa')->name('erp.despesa.create');
     Route::get('erp/titulo/despesa', 'showListViewDespesa')->middleware(['checkUserType:admin,dev,cobranca,pagador'])->name('erp.despesa.index');
     Route::get('erp/titulo/despesa/solicitacoes-pagamento', 'showListViewSolicitacoes')->middleware(['checkUserType:dev,pagador'])->name('erp.solicitacoes-pagamento.index');
+    Route::get('erp/titulo/despesa/pagamentos-nao-conciliados', 'showListViewPagamentosSemConciliacao')->name('erp.solicitacoes-pagamento.conciliacao');
 });
 
 Route::middleware(['checkUserType:admin,dev', 'two.factor'])->controller(SOCController::class)->group(function(){

@@ -281,9 +281,12 @@
                                         </li>
                                         @if(auth()->user()->isDev() || auth()->user()->isPagador())
                                         <li>
-                                            <a href="{{ route('erp.solicitacoes-pagamento.index') }}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.solicitacoes-pagamento.*') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Solicitações de Pagamento</a>
+                                            <a href="{{ route('erp.solicitacoes-pagamento.index') }}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.solicitacoes-pagamento.index') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Solicitações de Pagamento</a>
                                         </li>
                                         @endif
+                                        <li>
+                                            <a href="{{ route('erp.solicitacoes-pagamento.conciliacao') }}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.solicitacoes-pagamento.conciliacao') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">Pagamentos Sem Conciliação</a>
+                                        </li>
                                         <li>
                                             <a href="{{route('erp.dda.index')}}" class="block rounded-lg px-3 py-2 text-sm transition-all duration-200 {{ request()->routeIs('erp.dda.index') ? 'text-white font-medium bg-white/10' : 'text-white/50 hover:bg-white/5 hover:text-white' }}">DDA</a>
                                         </li>
