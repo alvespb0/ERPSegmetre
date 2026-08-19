@@ -5,6 +5,9 @@ namespace App\Livewire\Titulo\ContasPagar;
 use Illuminate\Support\Facades\Storage;
 
 use Livewire\Component;
+use Livewire\Attributes\On;
+
+use Carbon\Carbon;
 
 use App\Models\SolicitacoesPagamento;
 
@@ -29,6 +32,103 @@ class PagamentosNaoConciliados extends Component
     public $dataInicioRange;
     public $dataFimRange;
 
+    public $openModalConciliacao = false;
+    public $pagamento_selecionado_id = null;
+    
+    public function updatedFiltroCompetencia(){
+        $this->resetarFiltrosDeData();
+        switch ($this->filtroCompetencia){
+            case 'hoje':
+                $this->filtroDiaEspecifico = Carbon::today();
+                $this->labelDiaEspecifico = $this->filtroDiaEspecifico->format('d/m/Y');
+                break;
+            case 'ontem':
+                $this->filtroDiaEspecifico = Carbon::yesterday();
+                $this->labelDiaEspecifico = $this->filtroDiaEspecifico->format('d/m/Y');
+                break;
+            case 'semana':
+                $this->inicioSemana = Carbon::now()->startOfWeek();
+                $this->fimSemana = Carbon::now()->endOfWeek();
+                break;
+            case 'mes':
+                $this->filtroMesAno = Carbon::now()->format('Y-m');
+                $this->labelMesAno = Carbon::parse($this->filtroMesAno . '-01')->format('m/Y');
+                break;
+            case 'custom':
+                $this->dataInicioRange = Carbon::now()->startOfMonth()->toDateString();
+                $this->dataFimRange = Carbon::now()->endOfMonth()->toDateString();
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Limpa todos os filtros aplicados.
+     *
+     * @return void
+     */
+    public function limparFiltros(){
+        $this->resetarFiltrosDeData();
+        $this->search = '';
+        $this->filtroCompetencia = '';
+    }
+    
+    /**
+     * Reseta todos os filtros de data.
+     *
+     * @return void
+     */
+    public function resetarFiltrosDeData(){
+        $this->filtroDiaEspecifico = null;
+        $this->labelDiaEspecifico = null;
+        $this->inicioSemana = null;
+        $this->fimSemana = null;
+        $this->filtroMesAno = null;
+        $this->labelMesAno = null;
+        $this->dataInicioRange = null;
+        $this->dataFimRange = null;
+    }
+    /**
+     * Retrocede um dia no filtro de data específica.
+     *
+     * @return void
+     */
+    public function diaAnterior(){
+        $this->filtroDiaEspecifico->subDay();
+        $this->labelDiaEspecifico = $this->filtroDiaEspecifico->format('d/m/Y');
+    }
+
+    /**
+     * Avança um dia no filtro de data específica.
+     *
+     * @return void
+     */
+    public function diaPosterior(){
+        $this->filtroDiaEspecifico->addDay();
+        $this->labelDiaEspecifico = $this->filtroDiaEspecifico->format('d/m/Y');
+    }
+
+
+    /**
+     * Retrocede um mês no filtro de mês/ano.
+     *
+     * @return void
+     */
+    public function mesAnterior(){
+        $this->filtroMesAno = Carbon::parse($this->filtroMesAno . '-01')->subMonth()->format('Y-m');
+        $this->labelMesAno = Carbon::parse($this->filtroMesAno . '-01') ->format('m/Y');
+    }
+
+    /**
+     * Avança um mês no filtro de mês/ano.
+     *
+     * @return void
+     */
+    public function mesPosterior(){
+        $this->filtroMesAno = Carbon::parse($this->filtroMesAno . '-01')->addMonth()->format('Y-m');
+        $this->labelMesAno = Carbon::parse($this->filtroMesAno . '-01') ->format('m/Y');
+    }
 
     /**
      * Aplica todos os filtros na query de solicitacao.
@@ -83,7 +183,18 @@ class PagamentosNaoConciliados extends Component
 
         return Storage::disk('public')->download($pagamento->comprovante_path);
     }
-    
+
+    public function abrirModalConciliacao($solicitacao_id){
+        $this->openModalConciliacao = true;
+        $this->pagamento_selecionado_id = $solicitacao_id;
+    }
+
+    #[On('fechar-modal-conciliacao')]
+    public function fecharModalConciliacao(){
+        $this->openModalConciliacao = false;
+        $this->pagamento_selecionado_id = null;
+    }
+
     public function render()
     {
         $query = $this->getQuery();

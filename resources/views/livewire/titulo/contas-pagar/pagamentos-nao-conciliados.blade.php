@@ -294,7 +294,7 @@
                                 <!-- Botão Conciliar -->
                                 <button
                                     type="button"
-                                    wire:click="conciliar({{ $pagamento->id }})"
+                                    wire:click="abrirModalConciliacao({{ $pagamento->id }})"
                                     class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#313e50] hover:bg-[#252f3d] rounded-lg shadow-sm transition-colors focus:outline-none cursor-pointer"
                                 >
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -346,4 +346,10 @@
             @endif
         </div>
     </div>
+    @if($pagamento_selecionado_id && $openModalConciliacao)
+        <livewire:Modais.ContasPagar.ConciliacaoPagamento
+            :solicitacao-id="$pagamento_selecionado_id" 
+            wire:key="modal-conciliacao-{{ $pagamento_selecionado_id }}" 
+        />
+    @endif
 </div>
