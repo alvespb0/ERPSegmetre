@@ -38,6 +38,8 @@ class PagamentosSolicitados extends Component
     public $openModalPagamento = false;
     public ?int $solicitacao_id;
 
+    public $openModalPix = false;
+
     public function updatedFiltroCompetencia(){
         $this->resetarFiltrosDeData();
         switch ($this->filtroCompetencia){
@@ -213,9 +215,10 @@ class PagamentosSolicitados extends Component
     private function getQuery(){
         $query = $this->aplicarFiltros(SolicitacoesPagamento::query());
 
-        return $query->whereHas('parcela.titulo', function ($q) {
-            $q->where('tipo', 'pagar');
-        });
+        return $query->with(['parcela.titulo' => function ($q) {
+                $q->where('tipo', 'pagar');
+            },
+        ]);
     }
 
     public function abrirDetalhes($solicitacao_id){
@@ -229,6 +232,15 @@ class PagamentosSolicitados extends Component
         $this->solicitacao_id = null;
     }
     
+    public function abrirModalPix(){
+        $this->openModalPix = true;
+    }
+
+    #[On('fechar-modal-pix')]
+    public function fecharModalPix(){
+        $this->openModalPix = false;
+    }
+
     public function render()
     {
         $query = $this->getQuery();

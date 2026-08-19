@@ -4,6 +4,8 @@ namespace App\Bancos\Sicoob\Services;
 
 use App\Exceptions\SicoobException;
 
+use App\Helpers\LinhaDigitavelFormatter;
+
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -207,6 +209,12 @@ class SicoobPagamentoService
         $client_id = $this->integracao->credenciais->client_id;
         $cert = $this->integracao->empresaParametro->certificadoDigital;
 
+        $codigoBarrasFormatado = preg_replace('/\D/', '', $codigoBarras);
+
+        if(strlen($codigoBarrasFormatado) === 47){
+            $codigoBarrasFormatado = LinhaDigitavelFormatter::linhaDigitavelParaCodigoBarras($codigoBarrasFormatado);
+        }
+
         $response = Http::withToken($access_token)
             ->withOptions([
                 'cert' => Storage::disk('local')->path($cert->cert_path)
@@ -215,7 +223,7 @@ class SicoobPagamentoService
                 'client_id' => $client_id,
             ])
             ->get(
-                $this->integracao->endpoint . "pagamentos/v3/boletos/{$codigoBarras}", [
+                $this->integracao->endpoint . "pagamentos/v3/boletos/{$codigoBarrasFormatado}", [
                     'numeroConta' => preg_replace('/-/', '', $conta->conta)
                 ]
             );
@@ -299,6 +307,12 @@ class SicoobPagamentoService
 
         #dd([$payload, $idemKey]);
 
+        $codigoBarrasFormatado = preg_replace('/\D/', '', $codigoBarras);
+
+        if(strlen($codigoBarrasFormatado) === 47){
+            $codigoBarrasFormatado = LinhaDigitavelFormatter::linhaDigitavelParaCodigoBarras($codigoBarrasFormatado);
+        }
+
         $response = Http::withToken($access_token)
             ->withOptions([
                 'cert' => Storage::disk('local')->path($cert->cert_path),
@@ -309,7 +323,7 @@ class SicoobPagamentoService
                 'x-idempotency-key' => $idemKey,
             ])
             ->post(
-                $this->integracao->endpoint . "pagamentos/v3/boletos/pagamentos/{$codigoBarras}", $payload
+                $this->integracao->endpoint . "pagamentos/v3/boletos/pagamentos/{$codigoBarrasFormatado}", $payload
             );
 
         if(!$response->successful()) {

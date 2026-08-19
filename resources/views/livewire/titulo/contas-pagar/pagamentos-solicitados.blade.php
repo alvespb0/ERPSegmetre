@@ -21,6 +21,14 @@
                     </svg>
                     Processando...
                 </div>
+
+                <button
+                    type="button"
+                    wire:click="abrirModalPix"
+                    class="px-4 py-2 bg-[#313e50] hover:bg-[#252f3d] text-white text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-[#313e50] focus:ring-offset-2 cursor-pointer"
+                >
+                    Fazer Pix
+                </button>
             </div>
         </div>
 
@@ -68,7 +76,7 @@
                                     wire:click="diaAnterior"
                                     class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 bg-white"
                                 >
-                                    ←
+                                    &larr;
                                 </button>
                                 <span class="text-sm text-gray-600 px-2 font-medium">
                                     {{ $labelDiaEspecifico ?? 'Hoje' }}
@@ -78,7 +86,7 @@
                                     wire:click="diaPosterior"
                                     class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 bg-white"
                                 >
-                                    →
+                                    &rarr;
                                 </button>
                             </div>
                         @endif
@@ -94,13 +102,13 @@
                         @if($filtroCompetencia === 'mes')
                             <div class="flex items-center gap-1">
                                 <button wire:click="mesAnterior" class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 bg-white">
-                                    ←
+                                    &larr;
                                 </button>
                                 <span class="text-sm text-gray-600 px-2 font-medium">
                                     {{ $labelMesAno ?? 'Março / 2026' }}
                                 </span>
                                 <button wire:click="mesPosterior" class="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 bg-white">
-                                    →
+                                    &rarr;
                                 </button>
                             </div>
                         @endif
@@ -327,6 +335,12 @@
         <livewire:Modais.ContasPagar.PagamentosSolicitados
             :solicitacao-id="$solicitacao_id" 
             wire:key="modal-pagamento-{{ $solicitacao_id }}" 
+        />
+    @endif
+
+    @if($openModalPix)
+        <livewire:Modais.ContasPagar.Pix
+            wire:key="modal-pix" 
         />
     @endif
 </div>

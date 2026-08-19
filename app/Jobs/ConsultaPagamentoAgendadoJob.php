@@ -72,7 +72,6 @@ class ConsultaPagamentoAgendadoJob implements ShouldQueue
                         ),
                         default => throw new \RuntimeException('Status de pagamento desconhecido.')
                     };
-
                 }
             } catch (\Throwable $e) {
                 $contexto = method_exists($e, 'context') ? $e->context() : [];
