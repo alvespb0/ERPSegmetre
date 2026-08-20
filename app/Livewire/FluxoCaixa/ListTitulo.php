@@ -48,7 +48,7 @@ class ListTitulo extends Component
     public $chartRecebimentosPrevistos = [];
     public $chartRecebimentosEfetivados = [];
     public $chartPagamentosPrevistos = [];
-    public $chartPagamentosEfetivados;
+    public $chartPagamentosEfetivados = [];
     public $chartSaldo = [];
     public $chartSaldoPrevisto = [];
 
@@ -218,6 +218,7 @@ class ListTitulo extends Component
         $this->chartPagamentosEfetivados = [];
         $this->chartRecebimentosEfetivados = [];
         $this->chartSaldo = [];
+        $this->chartSaldoPrevisto = [];
 
         $dados = [];
         
