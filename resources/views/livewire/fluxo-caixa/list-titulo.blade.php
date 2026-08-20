@@ -67,9 +67,12 @@
             <p class="text-xs text-gray-400 mt-1">Entradas - Saídas</p>
         </div>
         <div class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all">
-            <p class="text-xs text-gray-400 uppercase">Previsto (próx. dias)</p>
+            <p class="text-xs text-gray-400 uppercase">Projeção (TOTAL DO FILTRO)</p>
             <p class="text-xl font-semibold text-gray-900 mt-1">
-                R$ 
+                R$ {{ number_format(
+                    $recebidosProjecao - $pagosProjecao,
+                    2, ',', '.'
+                ) }}
             </p>
             <p class="text-xs text-gray-400 mt-1">Projeção Líquida</p>
         </div>
@@ -79,21 +82,13 @@
         <div class="p-4 sm:p-6 border-b border-gray-100">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                    <h2 class="text-sm font-semibold text-gray-900">Fluxo no período</h2>
-                    <p class="text-xs text-gray-500 mt-1">
-                        Recebimentos x Pagamentos (dados ilustrativos).
-                    </p>
-                </div>
+                    <h2 class="text-sm font-semibold text-gray-900">
+                        Fluxo no período
+                    </h2>
 
-                <div class="flex flex-wrap items-center gap-2">
-                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500/70"></span>
-                        Recebimentos
-                    </span>
-                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 text-xs text-gray-600">
-                        <span class="w-2 h-2 rounded-full bg-rose-500/70"></span>
-                        Pagamentos
-                    </span>
+                    <p class="text-xs text-gray-500 mt-1">
+                        Comparativo entre valores previstos e efetivados.
+                    </p>
                 </div>
             </div>
         </div>
@@ -102,60 +97,225 @@
             class="p-4 sm:p-6"
             x-data="{
                 chart: null,
+
                 init() {
                     const render = () => {
                         const el = this.$refs.chart;
-                        if (!el || typeof ApexCharts === 'undefined') return;
-                        
-                        // Garante que gráficos anteriores sejam destruídos antes de recriar
-                        if (this.chart) { this.chart.destroy(); this.chart = null; }
+
+                        if (!el || typeof ApexCharts === 'undefined') {
+                            return;
+                        }
+
+                        if (this.chart) {
+                            this.chart.destroy();
+                            this.chart = null;
+                        }
+
+                        const formatCurrency = (value) => {
+                            return Number(value).toLocaleString('pt-BR', {
+                                style: 'currency',
+                                currency: 'BRL'
+                            });
+                        };
 
                         this.chart = new ApexCharts(el, {
                             chart: {
-                                type: 'area',
-                                height: 300,
-                                toolbar: { show: true },
-                                zoom: { enabled: false },
-                                fontFamily: 'inherit',
+                                type: 'line',
+                                height: 350,
+                                stacked: false,
+                                toolbar: {
+                                    show: true
+                                },
+                                zoom: {
+                                    enabled: false
+                                },
+                                fontFamily: 'inherit'
                             },
-                            colors: ['#10b981', '#f43f5e'],
-                            dataLabels: { enabled: false },
-                            stroke: { curve: 'smooth', width: 2 },
-                            fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.18, opacityTo: 0.02, stops: [0, 90, 100] } },
-                            grid: { borderColor: '#f1f5f9', strokeDashArray: 4 },
+
+                            series: [
+                                {
+                                    name: 'Recebimentos previstos',
+                                    type: 'column',
+                                    data: $wire.chartRecebimentosPrevistos
+                                },
+                                {
+                                    name: 'Recebimentos efetivados',
+                                    type: 'column',
+                                    data: $wire.chartRecebimentosEfetivados
+                                },
+                                {
+                                    name: 'Pagamentos previstos',
+                                    type: 'column',
+                                    data: $wire.chartPagamentosPrevistos
+                                },
+                                {
+                                    name: 'Pagamentos efetivados',
+                                    type: 'column',
+                                    data: $wire.chartPagamentosEfetivados
+                                },
+                                {
+                                    name: 'Saldo realizado',
+                                    type: 'line',
+                                    data: $wire.chartSaldo
+                                },
+                                {
+                                    name: 'Saldo previsto',
+                                    type: 'line',
+                                    data: $wire.chartSaldoPrevisto
+                                }
+                            ],
+
+                            colors: [
+                                '#a7f3d0',
+                                '#10b981',
+                                '#ffa9b3',
+                                '#f43f5e',
+                                '#313e50',
+                                '#2c70cf',
+                            ],
+
+                            stroke: {
+                                width: [0, 0, 0, 0, 3, 3],
+                                curve: 'smooth',
+                                dashArray: [0, 0, 0, 0, 0, 5]
+                            },
+
+                            plotOptions: {
+                                bar: {
+                                    columnWidth: '55%',
+                                    borderRadius: 3
+                                }
+                            },
+
+                            dataLabels: {
+                                enabled: false
+                            },
+
+                            fill: {
+                                opacity: [0.55, 1, 0.55, 1, 1, 1]
+                            },
+
+                            grid: {
+                                borderColor: '#f1f5f9',
+                                strokeDashArray: 4
+                            },
+
+                            markers: {
+                                size: [0, 0, 0, 0, 4, 4],
+                                strokeWidth: 0,
+                                hover: {
+                                    size: 6
+                                }
+                            },
+
                             xaxis: {
-                                categories: $wire.chartLabels, // Usando $wire para pegar o estado atual
-                                labels: { style: { colors: '#6b7280', fontSize: '11px' } },
-                                axisBorder: { show: false },
-                                axisTicks: { show: false },
+                                categories: $wire.chartLabels,
+
+                                labels: {
+                                    style: {
+                                        colors: '#6b7280',
+                                        fontSize: '11px'
+                                    }
+                                },
+
+                                axisBorder: {
+                                    show: false
+                                },
+
+                                axisTicks: {
+                                    show: false
+                                }
                             },
+
                             yaxis: {
                                 labels: {
-                                    style: { colors: '#6b7280', fontSize: '11px' },
-                                    formatter: (v) => 'R$ ' + Math.round(v).toLocaleString('pt-BR'),
-                                },
+                                    style: {
+                                        colors: '#6b7280',
+                                        fontSize: '11px'
+                                    },
+
+                                    formatter: (value) => {
+                                        return 'R$ ' + Number(value).toLocaleString('pt-BR', {
+                                            maximumFractionDigits: 0
+                                        });
+                                    }
+                                }
                             },
+
                             tooltip: {
+                                shared: true,
+                                intersect: false,
                                 theme: 'light',
-                                y: { formatter: (v) => 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) },
+
+                                y: {
+                                    formatter: (value) => formatCurrency(value)
+                                }
                             },
-                            legend: { show: true },
-                            series: [
-                                { name: 'Recebimentos', data: $wire.chartRecebimentos },
-                                { name: 'Pagamentos', data: $wire.chartPagamentos },
-                            ],
+
+                            legend: {
+                                show: true,
+                                position: 'bottom',
+                                horizontalAlign: 'center',
+                                fontSize: '12px',
+
+                                markers: {
+                                    width: 8,
+                                    height: 8,
+                                    radius: 8
+                                },
+
+                                itemMargin: {
+                                    horizontal: 10,
+                                    vertical: 5
+                                }
+                            },
                         });
 
                         this.chart.render();
 
                         $wire.$watch('chartLabels', () => {
-                            if (this.chart) {
-                                this.chart.updateOptions({ xaxis: { categories: $wire.chartLabels } });
-                                this.chart.updateSeries([
-                                    { name: 'Recebimentos', data: $wire.chartRecebimentos },
-                                    { name: 'Pagamentos', data: $wire.chartPagamentos },
-                                ]);
+                            if (!this.chart) {
+                                return;
                             }
+
+                            this.chart.updateOptions({
+                                xaxis: {
+                                    categories: $wire.chartLabels
+                                }
+                            });
+
+                            this.chart.updateSeries([
+                                {
+                                    name: 'Recebimentos previstos',
+                                    type: 'column',
+                                    data: $wire.chartRecebimentosPrevistos
+                                },
+                                {
+                                    name: 'Recebimentos efetivados',
+                                    type: 'column',
+                                    data: $wire.chartRecebimentosEfetivados
+                                },
+                                {
+                                    name: 'Pagamentos previstos',
+                                    type: 'column',
+                                    data: $wire.chartPagamentosPrevistos
+                                },
+                                {
+                                    name: 'Pagamentos efetivados',
+                                    type: 'column',
+                                    data: $wire.chartPagamentosEfetivados
+                                },
+                                {
+                                    name: 'Saldo realizado',
+                                    type: 'line',
+                                    data: $wire.chartSaldo
+                                },
+                                {
+                                    name: 'Saldo previsto',
+                                    type: 'line',
+                                    data: $wire.chartSaldoPrevisto
+                                }
+                            ]);
                         });
                     };
 
@@ -166,6 +326,7 @@
                         }
 
                         const existing = document.getElementById('apexcharts-cdn');
+
                         if (existing) {
                             const timer = setInterval(() => {
                                 if (typeof ApexCharts !== 'undefined') {
@@ -173,19 +334,27 @@
                                     render();
                                 }
                             }, 100);
+
                             setTimeout(() => clearInterval(timer), 3000);
+
                             return;
                         }
 
-                        const s = document.createElement('script');
-                        s.id = 'apexcharts-cdn';
-                        s.src = 'https://cdn.jsdelivr.net/npm/apexcharts';
-                        s.onload = () => render();
-                        document.head.appendChild(s);
+                        const script = document.createElement('script');
+
+                        script.id = 'apexcharts-cdn';
+                        script.src = 'https://cdn.jsdelivr.net/npm/apexcharts';
+                        script.onload = () => render();
+
+                        document.head.appendChild(script);
                     };
 
                     if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', ensureApexAndRender, { once: true });
+                        document.addEventListener(
+                            'DOMContentLoaded',
+                            ensureApexAndRender,
+                            { once: true }
+                        );
                     } else {
                         ensureApexAndRender();
                     }
@@ -197,7 +366,6 @@
             </div>
         </div>
     </div>
-
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div class="p-2 flex flex-col lg:flex-row items-center gap-2">
             <div class="relative flex-1 w-full">
