@@ -24,7 +24,7 @@
             </div>
         </div>
 
-        <!-- Painel de Filtros Integrado -->
+        <!-- Painel de Filtros Integrado (Inalterado) -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all">
             <!-- HEADER DO FILTRO -->
             <div class="p-2 flex flex-col xl:flex-row items-center gap-2">
@@ -175,11 +175,11 @@
             </div>
         </div>
 
-        <!-- Área de Listagem e Resumo Integrados -->
+        <!-- Área de Listagem e Resumo Integrados (Tabela) -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative">
             
             <!-- Overlay de carregamento sobre a listagem -->
-            <div wire:loading class="absolute inset-0 bg-white/60 z-10 flex items-center justify-center"></div>
+            <div wire:loading class="absolute inset-0 bg-white/60 backdrop-blur-sm z-20 flex items-center justify-center"></div>
 
             <!-- Header da Listagem (Resumo) -->
             @php $totalRegistros = method_exists($pagamentos, 'total') ? $pagamentos->total() : $pagamentos->count(); @endphp
@@ -201,121 +201,123 @@
                 </div>
             @endif
 
-            <!-- Listagem Responsiva (Cards) -->
-            <div class="p-4 bg-gray-50/30">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    @forelse($pagamentos as $pagamento)
-                        <!-- Card do Pagamento -->
-                        <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4 group relative overflow-hidden">
-
-                            <!-- Cabeçalho do Card: Tipo / Status e ID -->
-                            <div class="flex justify-between items-start border-b border-gray-50 pb-3">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-200">
-                                        {{ $pagamento->tipo ?? 'PIX' }}
-                                    </span>
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">
-                                        Não Conciliado
-                                    </span>
-                                </div>
-                                <div class="text-right">
+            <!-- Listagem no Formato de Tabela -->
+            <div class="min-w-full overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead class="bg-gray-50 text-xs text-gray-500 uppercase border-b border-gray-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left font-semibold">ID / Tipo</th>
+                            <th class="px-6 py-3 text-left font-semibold">Identificador / Chave</th>
+                            <th class="px-6 py-3 text-left font-semibold">Conta Origem</th>
+                            <th class="px-6 py-3 text-left font-semibold">Datas</th>
+                            <th class="px-6 py-3 text-right font-semibold">Valor (R$)</th>
+                            <th class="px-6 py-3 text-center font-semibold">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse($pagamentos as $pagamento)
+                            <tr class="hover:bg-gray-50/80 transition-colors">
+                                <!-- ID e Tipo -->
+                                <td class="px-6 py-3.5 whitespace-nowrap">
                                     <span class="text-sm font-bold text-gray-900 block">
                                         #{{ str_pad($pagamento->id, 5, '0', STR_PAD_LEFT) }}
                                     </span>
-                                </div>
-                            </div>
-
-                            <!-- Corpo do Card: Identificador, Conta e Detalhes -->
-                            <div class="flex-1 space-y-2">
-                                <div>
-                                    <p class="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">Identificador / Chave</p>
-                                    <h4 class="text-sm font-semibold text-gray-900 break-all line-clamp-2" title="{{ $pagamento->identificador }}">
-                                        {{ $pagamento->identificador ?? 'Não Informado' }}
-                                    </h4>
-                                </div>
-
-                                <div>
-                                    <p class="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">Conta Origem</p>
-                                    <p class="text-xs text-gray-600 line-clamp-1" title="{{ $pagamento->conta->banco->nome ?? 'Banco' }} - Ag: {{ $pagamento->conta->agencia ?? '' }} / Cc: {{ $pagamento->conta->conta ?? '' }}">
-                                        {{ $pagamento->conta->banco->nome ?? 'Banco' }} - Ag: {{ $pagamento->conta->agencia ?? '--' }} / Cc: {{ $pagamento->conta->conta ?? '--' }}
-                                    </p>
-                                </div>
-
-                                @if(!empty($pagamento->end_to_end_id))
-                                    <div>
-                                        <p class="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">End To End ID</p>
-                                        <p class="text-[11px] font-mono text-gray-500 truncate" title="{{ $pagamento->end_to_end_id }}">
-                                            {{ $pagamento->end_to_end_id }}
-                                        </p>
+                                    <div class="flex items-center gap-1 mt-1">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium border bg-green-50 text-green-700 border-green-200">
+                                            {{ $pagamento->tipo ?? 'PIX' }}
+                                        </span>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium border bg-yellow-50 text-yellow-700 border-yellow-200">
+                                            Não Conciliado
+                                        </span>
                                     </div>
-                                @endif
-                            </div>
+                                </td>
 
-                            <!-- Datas e Valor -->
-                            <div class="pt-3 border-t border-gray-100 flex justify-between items-end">
-                                <div class="space-y-1">
-                                    <div class="text-[10px] text-gray-500">
+                                <!-- Identificador e End To End ID -->
+                                <td class="px-6 py-3.5">
+                                    <span class="text-gray-900 font-semibold block break-all" title="{{ $pagamento->identificador }}">
+                                        {{ $pagamento->identificador ?? 'Não Informado' }}
+                                    </span>
+                                    @if(!empty($pagamento->end_to_end_id))
+                                        <span class="text-[11px] font-mono text-gray-500 block truncate mt-0.5 max-w-xs" title="{{ $pagamento->end_to_end_id }}">
+                                            E2E: {{ $pagamento->end_to_end_id }}
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <!-- Conta Origem -->
+                                <td class="px-6 py-3.5 whitespace-nowrap">
+                                    <span class="text-xs text-gray-900 font-medium block">
+                                        {{ $pagamento->conta->banco->nome ?? 'Banco' }}
+                                    </span>
+                                    <span class="text-[11px] text-gray-500 block mt-0.5">
+                                        Ag: {{ $pagamento->conta->agencia ?? '--' }} / Cc: {{ $pagamento->conta->conta ?? '--' }}
+                                    </span>
+                                </td>
+
+                                <!-- Datas (Solicitado e Pago) -->
+                                <td class="px-6 py-3.5 whitespace-nowrap text-xs">
+                                    <div class="text-gray-500">
                                         <span>Solicitado: </span>
                                         <span class="font-medium text-gray-700">
                                             {{ isset($pagamento->data_solicitacao) ? date('d/m/Y H:i', strtotime($pagamento->data_solicitacao)) : '--/--/----' }}
                                         </span>
                                     </div>
-                                    <div class="text-[10px] text-emerald-600 font-medium">
+                                    <div class="text-emerald-600 font-medium mt-0.5">
                                         <span>Pago: </span>
                                         <span>
                                             {{ isset($pagamento->data_pagamento) ? date('d/m/Y H:i', strtotime($pagamento->data_pagamento)) : '--/--/----' }}
                                         </span>
                                     </div>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-[10px] text-gray-400 uppercase font-semibold tracking-wide mb-0.5">Valor</p>
-                                    <p class="text-base font-bold text-gray-900">
-                                        R$ {{ number_format($pagamento->valor ?? 0, 2, ',', '.') }}
-                                    </p>
-                                </div>
-                            </div>
+                                </td>
 
-                            <!-- Rodapé de Ações: Comprovante & Conciliar -->
-                            <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-2 bg-gray-50/50 -mx-4 -mb-4 p-3">
-                                <!-- Download Comprovante -->
-                                @if(!empty($pagamento->comprovante_path))
-                                    <button
-                                        type="button"
-                                        wire:click="downloadComprovante({{ $pagamento->id }})"
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-                                        title="Baixar Comprovante"
-                                    >
-                                        Comprovante
-                                    </button>
-                                @else
-                                    <span class="text-[11px] text-gray-400 italic">Sem comprovante</span>
-                                @endif
+                                <!-- Valor -->
+                                <td class="px-6 py-3.5 text-right font-bold text-gray-900 whitespace-nowrap">
+                                    R$ {{ number_format($pagamento->valor ?? 0, 2, ',', '.') }}
+                                </td>
 
-                                <!-- Botão Conciliar -->
-                                <button
-                                    type="button"
-                                    wire:click="abrirModalConciliacao({{ $pagamento->id }})"
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#313e50] hover:bg-[#252f3d] rounded-lg shadow-sm transition-colors focus:outline-none cursor-pointer"
-                                >
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                    </svg>
-                                    Conciliar
-                                </button>
-                            </div>
+                                <!-- Ações -->
+                                <td class="px-6 py-3.5 text-center whitespace-nowrap">
+                                    <div class="inline-flex items-center justify-center gap-2">
+                                        @if(!empty($pagamento->comprovante_path))
+                                            <button
+                                                type="button"
+                                                wire:click="downloadComprovante({{ $pagamento->id }})"
+                                                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                                                title="Baixar Comprovante"
+                                            >
+                                                Comprovante
+                                            </button>
+                                        @else
+                                            <span class="text-[11px] text-gray-400 italic">Sem comprovante</span>
+                                        @endif
 
-                        </div>
-                    @empty
-                        <div class="col-span-full py-12 text-center bg-white border border-dashed border-gray-200 rounded-xl">
-                            <div class="flex flex-col items-center justify-center">
-                                <svg class="w-10 h-10 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                                <p class="text-sm text-gray-500">Nenhum pagamento sem conciliação encontrado para os filtros aplicados.</p>
-                            </div>
-                        </div>
-                    @endforelse
-                </div>
+                                        <button
+                                            type="button"
+                                            wire:click="abrirModalConciliacao({{ $pagamento->id }})"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-[#313e50] hover:bg-[#252f3d] rounded-lg shadow-sm transition-colors focus:outline-none cursor-pointer"
+                                        >
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                            </svg>
+                                            Conciliar
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-500">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <svg class="w-10 h-10 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <p class="text-sm text-gray-500">Nenhum pagamento sem conciliação encontrado para os filtros aplicados.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
             
             <!-- Footer Informativo / Paginação -->
@@ -346,6 +348,7 @@
             @endif
         </div>
     </div>
+
     @if($pagamento_selecionado_id && $openModalConciliacao)
         <livewire:Modais.ContasPagar.ConciliacaoPagamento
             :solicitacao-id="$pagamento_selecionado_id" 

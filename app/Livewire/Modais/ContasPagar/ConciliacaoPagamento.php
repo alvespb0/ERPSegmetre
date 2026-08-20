@@ -40,6 +40,13 @@ class ConciliacaoPagamento extends Component
             ->whereHas('titulo', fn ($q) => $q->where('tipo', 'pagar')->where('status', 'ativo'))
             ->whereDoesntHave('solicitacoesPagamento', fn ($q) => $q->where('status', 'pendente'));
 
+        if($this->filtrarPorValorSemelhante == true){
+            $baixo = $this->pagamento->valor - 0.02;
+            $alto = $this->pagamento->valor + 0.02;
+
+            $query->whereBetween('valor', [$baixo, $alto]);
+        }
+
         if ($this->busca) {
             $termo = '%' . $this->busca . '%';
             $query->where(function ($q) use ($termo) {
