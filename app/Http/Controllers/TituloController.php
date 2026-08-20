@@ -26,4 +26,8 @@ class TituloController extends Controller
     public function showListViewSolicitacoes(){
         return view('erp.titulo.conta-pagar.solicitacoes');
     }
+
+    public function showListViewPagamentosSemConciliacao(){
+        return view('erp.titulo.conta-pagar.pagamentos-nao-conciliados');
+    }
 }
