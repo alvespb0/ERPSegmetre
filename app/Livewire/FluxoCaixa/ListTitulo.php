@@ -45,8 +45,10 @@ class ListTitulo extends Component
        Variáveis do Gráfico de Fluxo (ApexCharts)
        ========================================= */ 
     public $chartLabels = [];
-    public $chartRecebimentos = [];
-    public $chartPagamentos = [];
+    public $chartRecebimentosPrevistos = [];
+    public $chartRecebimentosEfetivados = [];
+    public $chartPagamentosPrevistos = [];
+    public $chartPagamentosEfetivados;
     public $chartSaldo = [];
 
     /* =========================================
@@ -206,28 +208,52 @@ class ListTitulo extends Component
      */
     public function gerarGrafico($query){
         $this->chartLabels = [];
-        $this->chartRecebimentos = [];
-        $this->chartPagamentos = [];
+        $this->chartRecebimentosPrevistos = [];
+        $this->chartPagamentosPrevistos = [];
+        $this->chartPagamentosEfetivados = [];
+        $this->chartRecebimentosEfetivados = [];
         $this->chartSaldo = [];
 
         $dados = [];
         
-        $parcelas = (clone $query)->get();
+        $parcelas = (clone $query)->with(['titulo', 'movimentacoes'])->get();
+
 
         foreach($parcelas as $parcela){
-            $dataIndex = Carbon::parse($parcela->data_vencimento)->format('Y-m-d');
+            $dataVencimento = Carbon::parse($parcela->data_vencimento)->format('Y-m-d');
 
-            if(!isset($dados[$dataIndex])){
-                $dados[$dataIndex] = [
-                    'receita' => 0,
-                    'despesa' => 0
+            if(!isset($dados[$dataVencimento])){
+                $dados[$dataVencimento] = [
+                    'receitaPrevista' => 0,
+                    'despesaPrevista' => 0,
+                    'receitaEfetivada' => 0,
+                    'despesaEfetivada' => 0
                 ];
             }
 
-            if ($parcela->titulo->tipo === 'receber') {
-                $dados[$dataIndex]['receita'] += $parcela->valor;
-            } else {
-                $dados[$dataIndex]['despesa'] += $parcela->valor;
+            if($parcela->titulo->tipo === 'receber'){
+                $dados[$dataVencimento]['receitaPrevista'] += $parcela->valor;
+            }else{
+                $dados[$dataVencimento]['despesaPrevista'] += $parcela->valor;
+            }
+
+            foreach($parcela->movimentacoes as $movimentacao){
+                $dataPagamento = Carbon::parse($movimentacao->data_pagamento)->format('Y-m-d');
+
+                if(!isset($dados[$dataPagamento])){
+                    $dados[$dataPagamento] = [
+                        'receitaPrevista' => 0,
+                        'despesaPrevista' => 0,
+                        'receitaEfetivada' => 0,
+                        'despesaEfetivada' => 0,
+                    ];
+                }
+
+                if($parcela->titulo->tipo === 'receber'){
+                    $dados[$dataPagamento]['receitaEfetivada'] += $movimentacao->valor_pago;
+                }else{
+                    $dados[$dataPagamento]['despesaEfetivada'] += $movimentacao->valor_pago;
+                }
             }
         }
 
@@ -235,12 +261,13 @@ class ListTitulo extends Component
 
         $saldoAcumulado = 0;
 
-        foreach($dados as $dataIndex => $valores){
-            $this->chartLabels[] = Carbon::parse($dataIndex)->format('d/m');
-            $this->chartRecebimentos[] = $valores['receita'];
-            $this->chartPagamentos[] = $valores['despesa'];
-
-            $saldoAcumulado += ($valores['receita'] - $valores['despesa']);
+        foreach($dados as $dataVencimento => $valores){
+            $this->chartLabels[] = Carbon::parse($dataVencimento)->format('d/m');
+            $this->chartRecebimentosPrevistos[] = $valores['receitaPrevista'];
+            $this->chartPagamentosPrevistos[] = $valores['despesaPrevista'];
+            $this->chartPagamentosEfetivados[] = $valores['despesaEfetivada'];
+            $this->chartRecebimentosEfetivados[] = $valores['receitaEfetivada'];
+            $saldoAcumulado += ($valores['receitaEfetivada'] - $valores['despesaEfetivada']);
             $this->chartSaldo[] = $saldoAcumulado;
         }
     }
