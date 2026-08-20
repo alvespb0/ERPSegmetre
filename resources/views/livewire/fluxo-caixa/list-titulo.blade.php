@@ -67,9 +67,12 @@
             <p class="text-xs text-gray-400 mt-1">Entradas - Saídas</p>
         </div>
         <div class="bg-white border border-gray-200 rounded-lg p-4 text-left hover:border-gray-300 hover:shadow-sm transition-all">
-            <p class="text-xs text-gray-400 uppercase">Previsto (próx. dias)</p>
+            <p class="text-xs text-gray-400 uppercase">Projeção (TOTAL DO FILTRO)</p>
             <p class="text-xl font-semibold text-gray-900 mt-1">
-                R$ 
+                R$ {{ number_format(
+                    $recebidosProjecao - $pagosProjecao,
+                    2, ',', '.'
+                ) }}
             </p>
             <p class="text-xs text-gray-400 mt-1">Projeção Líquida</p>
         </div>
@@ -154,20 +157,27 @@
                                     name: 'Saldo realizado',
                                     type: 'line',
                                     data: $wire.chartSaldo
+                                },
+                                {
+                                    name: 'Saldo previsto',
+                                    type: 'line',
+                                    data: $wire.chartSaldoPrevisto
                                 }
                             ],
 
                             colors: [
                                 '#a7f3d0',
                                 '#10b981',
-                                '#fecdd3',
+                                '#ffa9b3',
                                 '#f43f5e',
-                                '#313e50'
+                                '#313e50',
+                                '#2c70cf',
                             ],
 
                             stroke: {
-                                width: [0, 0, 0, 0, 3],
-                                curve: 'smooth'
+                                width: [0, 0, 0, 0, 3, 3],
+                                curve: 'smooth',
+                                dashArray: [0, 0, 0, 0, 0, 5]
                             },
 
                             plotOptions: {
@@ -182,7 +192,7 @@
                             },
 
                             fill: {
-                                opacity: [0.55, 1, 0.55, 1, 1]
+                                opacity: [0.55, 1, 0.55, 1, 1, 1]
                             },
 
                             grid: {
@@ -191,7 +201,7 @@
                             },
 
                             markers: {
-                                size: [0, 0, 0, 0, 4],
+                                size: [0, 0, 0, 0, 4, 4],
                                 strokeWidth: 0,
                                 hover: {
                                     size: 6
@@ -244,8 +254,8 @@
 
                             legend: {
                                 show: true,
-                                position: 'top',
-                                horizontalAlign: 'right',
+                                position: 'bottom',
+                                horizontalAlign: 'center',
                                 fontSize: '12px',
 
                                 markers: {
@@ -258,7 +268,7 @@
                                     horizontal: 10,
                                     vertical: 5
                                 }
-                            }
+                            },
                         });
 
                         this.chart.render();
@@ -299,6 +309,11 @@
                                     name: 'Saldo realizado',
                                     type: 'line',
                                     data: $wire.chartSaldo
+                                },
+                                {
+                                    name: 'Saldo previsto',
+                                    type: 'line',
+                                    data: $wire.chartSaldoPrevisto
                                 }
                             ]);
                         });

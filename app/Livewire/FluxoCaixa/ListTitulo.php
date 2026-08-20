@@ -50,6 +50,7 @@ class ListTitulo extends Component
     public $chartPagamentosPrevistos = [];
     public $chartPagamentosEfetivados;
     public $chartSaldo = [];
+    public $chartSaldoPrevisto = [];
 
     /* =========================================
        Filtros de Busca e Período
@@ -93,6 +94,10 @@ class ListTitulo extends Component
             'receber' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
             'pagar' => 'bg-rose-50 text-rose-700 border-rose-200',
         ];
+
+        $this->filtroCompetencia = 'mes';
+        $this->filtroMesAno = Carbon::now()->format('Y-m');
+        $this->labelMesAno = Carbon::now()->format('m/Y');
     }
 
     /**
@@ -260,6 +265,7 @@ class ListTitulo extends Component
         ksort($dados);
 
         $saldoAcumulado = 0;
+        $saldoAcumuladoPrevisto = 0;
 
         foreach($dados as $dataVencimento => $valores){
             $this->chartLabels[] = Carbon::parse($dataVencimento)->format('d/m');
@@ -269,6 +275,8 @@ class ListTitulo extends Component
             $this->chartRecebimentosEfetivados[] = $valores['receitaEfetivada'];
             $saldoAcumulado += ($valores['receitaEfetivada'] - $valores['despesaEfetivada']);
             $this->chartSaldo[] = $saldoAcumulado;
+            $saldoAcumuladoPrevisto += ($valores['receitaPrevista'] - $valores['despesaPrevista']);
+            $this->chartSaldoPrevisto[] = $saldoAcumuladoPrevisto;
         }
     }
 
@@ -464,6 +472,20 @@ class ListTitulo extends Component
             ->get()
             ->sum('valor_pago');
 
+        $pagosProjecao = (clone $queryBase)
+            ->whereHas('titulo', function($q){
+                $q->where('tipo', 'pagar');
+            })
+            ->get()
+            ->sum('valor');
+        
+        $recebidosProjecao = (clone $queryBase)
+            ->whereHas('titulo', function($q){
+                $q->where('tipo', 'receber');
+            })
+            ->get()
+            ->sum('valor');
+
         $parcelas = $query
             ->orderBy('data_vencimento', 'asc')
             ->paginate(10);
@@ -474,6 +496,8 @@ class ListTitulo extends Component
             'parcelas' => $parcelas,
             'pagos' => $pagos,
             'recebidos' => $recebidos,
+            'pagosProjecao' => $pagosProjecao,
+            'recebidosProjecao' => $recebidosProjecao
         ]);
     }
 }
